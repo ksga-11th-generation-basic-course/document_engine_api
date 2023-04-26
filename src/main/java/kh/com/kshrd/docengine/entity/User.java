@@ -13,10 +13,19 @@ import java.util.Collection;
 @Data
 public class User implements UserDetails {
 
+
+    private Integer id;
+
     private String userName;
 
     private String email;
     private String password;
+
+    private String profileImage;
+
+    private String verifyCode;
+
+    private boolean isEnable = false;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -30,26 +39,27 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return null;
+
+        return email;
     }
 
     @Override
     public boolean isAccountNonExpired() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isEnabled() {
-        return false;
+        return true;
     }
 }
