@@ -1,4 +1,7 @@
 package kh.com.kshrd.docengine.services;
 
-public interface UserServices {
+import org.springframework.security.core.userdetails.UserDetailsService;
+
+public interface UserServices extends UserDetailsService {
+
 }

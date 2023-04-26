@@ -1,4 +1,4 @@
-package kh.com.kshrd.docengine.entity.response;
+package kh.com.kshrd.docengine.response;
 
 public class UserResponse {
 
