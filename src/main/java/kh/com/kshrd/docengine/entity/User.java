@@ -7,6 +7,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.UUID;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -14,7 +15,7 @@ import java.util.Collection;
 public class User implements UserDetails {
 
 
-    private Integer id;
+    private UUID id;
 
     private String userName;
 
@@ -25,7 +26,7 @@ public class User implements UserDetails {
 
     private String verifyCode;
 
-    private boolean isEnable = false;
+    private boolean isEnable;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -60,6 +61,6 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return this.isEnable;
     }
 }

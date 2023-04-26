@@ -16,9 +16,10 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+
 @Configuration
 @AllArgsConstructor
-public class Configeration {
+public class Configurations {
 
 
     private final UserServices userServices;

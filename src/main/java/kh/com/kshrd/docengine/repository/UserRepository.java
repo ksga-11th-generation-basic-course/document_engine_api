@@ -8,11 +8,11 @@ import org.apache.ibatis.annotations.Select;
 @Mapper
 public interface UserRepository {
 
-    @Select("SELECT * FROM test_enagin WHERE email = #{email}")
+    @Select("SELECT * FROM users WHERE email = #{email}")
     User getUserByEmail(String email);
 
 
-    @Select("SELECT id FROM test_enagin WHERE email = #{email}")
+    @Select("SELECT id FROM users WHERE email = #{email}")
     User getUserId(String email);
 
 }

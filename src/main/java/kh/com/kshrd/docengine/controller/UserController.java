@@ -38,7 +38,7 @@ public class UserController {
 
         final String token = jwtTokenUtil.generateToken(userDetails);
 
-        User user = services.getById(request.getEmail());
+      /*  User user = services.getById(request.getEmail());*/
 
         return ResponseEntity.ok().body(token);
     }
@@ -46,6 +46,7 @@ public class UserController {
     private void login(String email, String password) throws Exception {
 
         try {
+
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
         } catch (DisabledException e) {
             throw new Exception("USER_DISABLED", e);
