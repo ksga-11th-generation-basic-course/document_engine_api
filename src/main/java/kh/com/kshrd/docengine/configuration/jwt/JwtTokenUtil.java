@@ -1,4 +1,4 @@
-package kh.com.kshrd.docengine.config.jwt;
+package kh.com.kshrd.docengine.configuration.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

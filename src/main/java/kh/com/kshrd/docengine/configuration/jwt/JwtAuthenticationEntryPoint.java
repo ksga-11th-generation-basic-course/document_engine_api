@@ -1,4 +1,4 @@
-package kh.com.kshrd.docengine.config.jwt;
+package kh.com.kshrd.docengine.configuration.jwt;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

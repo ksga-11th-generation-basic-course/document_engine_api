@@ -1,4 +1,4 @@
-package kh.com.kshrd.docengine.config;
+package kh.com.kshrd.docengine.configuration;
 
 
 import org.springframework.context.annotation.Bean;
