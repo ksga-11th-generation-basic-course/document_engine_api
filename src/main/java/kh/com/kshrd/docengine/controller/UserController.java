@@ -1,8 +1,8 @@
 package kh.com.kshrd.docengine.controller;
 
 import kh.com.kshrd.docengine.configuration.jwt.JwtTokenUtil;
-import kh.com.kshrd.docengine.entity.User;
-import kh.com.kshrd.docengine.entity.request.UserRequest;
+import kh.com.kshrd.docengine.model.User;
+import kh.com.kshrd.docengine.model.request.UserRequest;
 import kh.com.kshrd.docengine.services.UserServices;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -24,18 +24,18 @@ public class UserController {
     private final JwtTokenUtil jwtTokenUtil;
 
     @GetMapping(path = "/get")
-    public ResponseEntity<?> get(){
-        return ResponseEntity.ok().body("Helllo");
+    public ResponseEntity<?> get(@RequestBody UserRequest request){
+        return ResponseEntity.ok().body(services.getById(request.getEmail()));
     }
 
 
     @PostMapping(path = "/login")
     public ResponseEntity<?> login(@RequestBody UserRequest request) throws Exception {
-
+        System.out.println("dasd");
+        System.out.println(services.loadUserByUsername(request.getEmail()));
         login(request.getEmail(), request.getPassword());
-        final UserDetails userDetails = services
-                .loadUserByUsername(request.getEmail());
-
+        final UserDetails userDetails = services.loadUserByUsername(request.getEmail());
+        System.out.println(userDetails);
         final String token = jwtTokenUtil.generateToken(userDetails);
 
         User user = services.getById(request.getEmail());

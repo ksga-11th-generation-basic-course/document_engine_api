@@ -1,6 +1,6 @@
 package kh.com.kshrd.docengine.services.impl;
 
-import kh.com.kshrd.docengine.entity.User;
+import kh.com.kshrd.docengine.model.User;
 import kh.com.kshrd.docengine.repository.UserRepository;
 import kh.com.kshrd.docengine.services.UserServices;
 import lombok.AllArgsConstructor;
@@ -17,12 +17,14 @@ public class UserServicesImpl implements UserServices {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        System.out.println(userRepository.getUserByEmail(email));
         return userRepository.getUserByEmail(email);
     }
 
     @Override
     public User getById(String email) {
 //        System.out.println(email);
-        return userRepository.getUserId(email);
+        return userRepository.getUserByEmail(email);
+//        return userRepository.getUserId(email);
     }
 }
