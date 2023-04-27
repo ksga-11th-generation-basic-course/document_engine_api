@@ -1,4 +1,4 @@
-package kh.com.kshrd.docengine.configuration.jwt;
+package kh.com.kshrd.docengine.security.jwt;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;

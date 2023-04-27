@@ -1,9 +1,8 @@
 package kh.com.kshrd.docengine.configuration;
 
 
-import kh.com.kshrd.docengine.configuration.jwt.JwtAuthenticationEntryPoint;
-import kh.com.kshrd.docengine.configuration.jwt.JwtRequestFilter;
-import kh.com.kshrd.docengine.configuration.jwt.Encoder;
+import kh.com.kshrd.docengine.security.jwt.JwtAuthenticationEntryPoint;
+import kh.com.kshrd.docengine.security.jwt.JwtRequestFilter;
 import kh.com.kshrd.docengine.services.UserServices;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;

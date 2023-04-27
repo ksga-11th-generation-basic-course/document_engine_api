@@ -1,4 +1,4 @@
-package kh.com.kshrd.docengine.entity.request;
+package kh.com.kshrd.docengine.security.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,10 +7,10 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserRequest {
-
+public class JwtRequest {
 
     private String email;
+
     private String password;
 
 }
