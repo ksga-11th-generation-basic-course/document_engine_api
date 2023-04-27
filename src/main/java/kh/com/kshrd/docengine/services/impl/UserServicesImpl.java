@@ -17,14 +17,12 @@ public class UserServicesImpl implements UserServices {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        System.out.println(userRepository.getUserByEmail(email));
         return userRepository.getUserByEmail(email);
     }
 
     @Override
     public UserAuth getByEmail(String email) {
-        System.out.println(userRepository.getUserEmail(email));
-        return userRepository.getUserEmail(email);
+        return userRepository.getUserByEmail(email);
 //        return userRepository.getUserId(email);
     }
 }

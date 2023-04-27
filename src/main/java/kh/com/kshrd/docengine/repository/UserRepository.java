@@ -13,7 +13,7 @@ public interface UserRepository {
     @Results(id = "userMap", value = {
 
             @Result(property = "userId", column = "user_id", typeHandler = UuidTypeHandler.class),
-            @Result(property = "userName", column = "username"),
+            @Result(property = "username", column = "username"),
             @Result(property = "email", column = "email"),
             @Result(property = "profileImage", column = "profile_image"),
             @Result(property = "verifyCode", column = "verify_code"),
@@ -22,13 +22,13 @@ public interface UserRepository {
     UserAuth getUserByEmail(String email);
 
 
-    @Select("SELECT * FROM users WHERE email = #{email}")
+   /* @Select("SELECT * FROM users WHERE email = #{email}")
     @Result(property = "userId", column = "user_id", typeHandler = UuidTypeHandler.class)
     @Result(property = "username", column = "username")
     @Result(property = "email", column = "email")
     @Result(property = "profileImage", column = "profile_image")
     @Result(property = "verifyCode", column = "verify_code")
     @Result(property = "isEnable", column = "is_enable")
-    UserAuth getUserEmail(String email);
+    UserAuth getUserEmail(String email);*/
 
 }

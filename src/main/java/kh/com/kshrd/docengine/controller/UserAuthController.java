@@ -5,6 +5,7 @@ import kh.com.kshrd.docengine.model.entity.UserAuth;
 import kh.com.kshrd.docengine.model.response.Response;
 import kh.com.kshrd.docengine.security.jwt.JwtTokenUtil;
 import kh.com.kshrd.docengine.model.request.UserRequest;
+import kh.com.kshrd.docengine.security.model.JwtRequest;
 import kh.com.kshrd.docengine.services.UserServices;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -31,7 +32,7 @@ public class UserAuthController {
 
 
     @PostMapping(path = "/login")
-    public ResponseEntity<?> login(@RequestBody UserRequest request) throws Exception {
+    public ResponseEntity<?> login(@RequestBody JwtRequest request) throws Exception {
         login(request.getEmail(), request.getPassword());
         final UserDetails userDetails = services.loadUserByUsername(request.getEmail());
         final String token = jwtTokenUtil.generateToken(userDetails);
