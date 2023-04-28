@@ -15,11 +15,9 @@ import java.time.LocalDateTime;
 @Builder
 public class Response<T> {
 
-    private HttpStatus status;
-
+    private String message;
     private T payload;
     private LocalDateTime dateTime;
-
-    private String message;
+    private HttpStatus status;
 
 }

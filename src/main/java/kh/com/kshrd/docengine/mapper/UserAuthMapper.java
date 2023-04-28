@@ -1,8 +1,8 @@
 package kh.com.kshrd.docengine.mapper;
 
 
-import kh.com.kshrd.docengine.dto.UserAuthDTO;
-import kh.com.kshrd.docengine.model.entity.UserAuth;
+import kh.com.kshrd.docengine.security.model.entity.Authentication;
+import kh.com.kshrd.docengine.security.model.response.AuthenticationLoginResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
@@ -11,8 +11,8 @@ public interface UserAuthMapper {
 
     UserAuthMapper INSTANCE = Mappers.getMapper(UserAuthMapper.class);
 
-    UserAuthDTO toDto(UserAuth entity);
+    AuthenticationLoginResponse toDto(Authentication entity);
 
-    UserAuth toEntity(UserAuthDTO dto);
+    Authentication toEntity(AuthenticationLoginResponse dto);
 
 }
