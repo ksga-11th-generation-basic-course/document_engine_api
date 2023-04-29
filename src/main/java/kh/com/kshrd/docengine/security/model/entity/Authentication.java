@@ -25,7 +25,6 @@ public class Authentication implements UserDetails {
     private String password;
     private String profileImage;
     private String verifyCode;
-
     private boolean isEnable;
 
     @Override
