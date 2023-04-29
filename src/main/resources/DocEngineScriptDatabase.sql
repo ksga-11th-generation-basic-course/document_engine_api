@@ -1,10 +1,9 @@
 CREATE DATABASE docengine;
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
 --Table users
 CREATE TABLE users
 (
-    user_id       UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    user_id       UUID    DEFAULT uuid_generate_v4() PRIMARY KEY,
     username      VARCHAR(255) NOT NULL,
     email         VARCHAR(255) NOT NULL UNIQUE,
     password      VARCHAR(255) NOT NULL,
@@ -13,7 +12,17 @@ CREATE TABLE users
     verify_code   VARCHAR(8)   NOT NULL UNIQUE
 );
 
-SELECT * FROM users WHERE email = 'eren@gmail.com';
+--Table Otp
+CREATE TABLE opt_codes
+(
+    opt_id       UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    digit_code   INT NOT NULL,
+    create_date  TIMESTAMP  NOT NULL,
+    expired_date TIMESTAMP  NOT NULL,
+    has_verify   BOOLEAN,
+    user_id      INT        NOT NULL,
+    CONSTRAINT users_fk FOREIGN KEY (user_id) REFERENCES users (user_id)
+);
 
 --Table workspaces
 CREATE TABLE workspaces
@@ -107,6 +116,3 @@ CREATE TABLE histories_blocks
     history_block_content VARCHAR(300),
     history_block_order   SERIAL       NOT NULL
 );
-
-
-SELECT username FROM users WHERE email = 'menglot@gmail'
