@@ -7,6 +7,7 @@ import kh.com.kshrd.docengine.security.model.request.UserAuthenticationRegisterR
 import kh.com.kshrd.docengine.security.model.response.UserAuthenticationLoginResponse;
 import kh.com.kshrd.docengine.model.response.Response;
 import kh.com.kshrd.docengine.security.jwt.JwtTokenUtil;
+import kh.com.kshrd.docengine.security.model.response.UserAuthenticationRegisterResponse;
 import kh.com.kshrd.docengine.security.services.UserAuthenticationServices;
 import kh.com.kshrd.docengine.security.services.JwtAuthenticationServices;
 import lombok.AllArgsConstructor;
@@ -34,17 +35,40 @@ public class UserAuthenticationController {
 
 
     @PostMapping(path = "/register")
-    public ResponseEntity<?> register(@RequestBody UserAuthenticationRegisterRequest userAuthenticationRegisterRequest){
+    public ResponseEntity<?> register(@RequestBody UserAuthenticationRegisterRequest userAuthenticationRegisterRequest) {
 
-        userAuthenticationServices.register(userAuthenticationRegisterRequest);
+        UserAuthentication user = userAuthenticationServices.register(userAuthenticationRegisterRequest);
 
-        return ResponseEntity.ok().body("Insert completed");
+        Response<UserAuthenticationRegisterResponse> response = Response.<UserAuthenticationRegisterResponse>builder()
+                .message("Authentication successful")
+                .status(HttpStatus.OK)
+                .payload(new UserAuthenticationRegisterResponse(user.getUserName(), user.getEmail(), user.getProfileImage(), user.isEnable()))
+                .dateTime(LocalDateTime.now())
+
+                .build();
+        return ResponseEntity.ok().body(response);
     }
 
+    @PostMapping(path = "/verify")
+    public ResponseEntity<?> verify(@RequestParam Integer code) {
+
+        UserAuthentication user = userAuthenticationServices.verifycation(code);
+
+        Response<UserAuthenticationRegisterResponse> response = Response.<UserAuthenticationRegisterResponse>builder()
+                .message("Verify successful")
+                .status(HttpStatus.OK)
+                .payload(new UserAuthenticationRegisterResponse(user.getUserName(), user.getEmail(), user.getProfileImage(), user.isEnable()))
+                .dateTime(LocalDateTime.now())
+
+                .build();
+        return ResponseEntity.ok().body(response);
+    }
 
     @PostMapping(path = "/login")
     public ResponseEntity<?> login(@Valid @RequestBody UserAuthenticationLoginRequest authenticationLoginRequest) throws Exception {
+
         login(authenticationLoginRequest.getEmail(), authenticationLoginRequest.getPassword());
+
         final UserDetails userDetails = jwtAuthenticationServices.loadUserByUsername(authenticationLoginRequest.getEmail());
         final String token = jwtTokenUtil.generateToken(userDetails);
 

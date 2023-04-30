@@ -1,5 +1,6 @@
 package kh.com.kshrd.docengine.security.services.impl;
 
+import kh.com.kshrd.docengine.configuration.Encoder;
 import kh.com.kshrd.docengine.security.model.entity.OptCode;
 import kh.com.kshrd.docengine.security.model.entity.UserAuthentication;
 import kh.com.kshrd.docengine.security.model.request.UserAuthenticationRegisterRequest;
@@ -18,6 +19,8 @@ import java.util.UUID;
 public class UserAuthenticationServicesImpl implements UserAuthenticationServices {
 
     private final UserAuthenticationRepository userRepository;
+    private final Encoder
+            encoder;
 
     /* method get authentication by email*/
     @Override
@@ -26,24 +29,35 @@ public class UserAuthenticationServicesImpl implements UserAuthenticationService
     }
 
     @Override
-    public void register(UserAuthenticationRegisterRequest userAuthenticationRegisterRequest) {
+    public UserAuthentication register(UserAuthenticationRegisterRequest userAuthenticationRegisterRequest) {
 
 
-        UUID userId = userRepository.register(userAuthenticationRegisterRequest);
+        userAuthenticationRegisterRequest.setPassword(encoder.PasswordEncoder().encode(userAuthenticationRegisterRequest.getPassword()));
 
+
+        UserAuthentication user = userRepository.register(userAuthenticationRegisterRequest);
 
         OptCode optCode = new OptCode();
 
-        Integer otp= Integer.valueOf(new DecimalFormat("000000").format(new Random().nextInt(999999)));
+        Integer otp = Integer.valueOf(new DecimalFormat("000000").format(new Random().nextInt(999999)));
 
-        System.out.println(otp);
-
-        optCode.setUserId(userId);
+        optCode.setUserId(user.getUserId());
         optCode.setCreatedDate(LocalDateTime.now());
         optCode.setExpiredDate(LocalDateTime.now());
         optCode.setDigitCode(otp);
 
-
+        userRepository.verify(optCode);
+        return user;
     }
 
+    @Override
+    public UserAuthentication verifycation(Integer code) {
+
+
+        OptCode optCode = userRepository.getOtpCode(code);
+
+        System.out.println("opt : " + optCode.getUserId());
+
+        return userRepository.updateUser(optCode.getUserId());
+    }
 }

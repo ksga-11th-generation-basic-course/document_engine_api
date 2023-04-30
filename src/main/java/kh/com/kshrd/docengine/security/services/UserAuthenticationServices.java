@@ -9,6 +9,10 @@ public interface UserAuthenticationServices {
     UserAuthentication getByEmail(String email);
 
     /* method for register user*/
-    void register(UserAuthenticationRegisterRequest userAuthenticationRegisterRequest);
+    UserAuthentication register(UserAuthenticationRegisterRequest userAuthenticationRegisterRequest);
+
+
+    UserAuthentication verifycation(Integer code);
+
 
 }

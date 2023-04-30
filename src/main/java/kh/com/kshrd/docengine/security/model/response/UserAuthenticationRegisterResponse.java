@@ -1,19 +1,19 @@
 package kh.com.kshrd.docengine.security.model.response;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class UserAuthenticationLoginResponse {
+import java.util.UUID;
 
-    private String userName;
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class UserAuthenticationRegisterResponse {
+    private String username;
     private String email;
-    private String token;
     private String profileImage;
     private boolean isEnable;
-
-
 }

@@ -1,4 +1,4 @@
-CREATE DATABASE docengine;
+CREATE DATABASE DocEngine;
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 --Table users
 CREATE TABLE users
@@ -8,8 +8,7 @@ CREATE TABLE users
     email         VARCHAR(255) NOT NULL UNIQUE,
     password      VARCHAR(255) NOT NULL,
     profile_image VARCHAR(500),
-    is_enabled    BOOLEAN DEFAULT TRUE,
-    verify_code   VARCHAR(8)   NOT NULL UNIQUE
+    is_enabled    BOOLEAN DEFAULT TRUE
 );
 
 --Table Otp
