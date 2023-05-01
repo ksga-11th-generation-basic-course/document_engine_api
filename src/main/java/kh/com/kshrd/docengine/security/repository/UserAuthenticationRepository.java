@@ -18,7 +18,7 @@ public interface UserAuthenticationRepository {
 
     @Results(id = "userMap", value = {
 
-            @Result(property = "userId", column = "user_id", typeHandler = UuidTypeHandler.class),
+            @Result(property = "userId", column = "user_id"),
             @Result(property = "username", column = "username"),
             @Result(property = "email", column = "email"),
             @Result(property = "password", column = "password"),
@@ -31,30 +31,30 @@ public interface UserAuthenticationRepository {
     @ResultMap("userMap")
     UserAuthentication register(@Param("u") UserAuthenticationRegisterRequest userAuthenticationRegisterRequest);
 
-
+    //insert verify code
     @Insert("INSERT INTO opt_codes(digit_code, create_date,expired_date, user_id) VALUES(#{o.digitCode},#{o.createdDate},#{o.expiredDate},#{o.userId})")
-//    @Results(id = "codeMap", value = {
-//            @Result(property = "optId", column = "opt_id", typeHandler = UuidTypeHandler.class),
-//            @Result(property = "digitCode", column = "digit_code"),
-//            @Result(property = "createdDate", column = "created_date"),
-//            @Result(property = "expiredDate", column = "expired_date"),
-//            @Result(property = "hasVerified", column = "has_verified"),
-//            @Result(property = "userId", column = "user_id")
-//    })
-    void verify(@Param("o") OptCode optCode);
+    void insertVerify(@Param("o") OptCode optCode);
 
 
+    //    get opt code using digit code
     @Select("SELECT * FROM opt_codes WHERE digit_code = #{code}")
-    @Result(property = "optId", column = "opt_id", typeHandler = UuidTypeHandler.class)
-    @Result(property = "digitCode", column = "digit_code")
-    @Result(property = "createdDate", column = "created_date")
-    @Result(property = "expiredDate", column = "expired_date")
-    @Result(property = "hasVerified", column = "has_verified")
-    @Result(property = "userId", column = "user_id", typeHandler = UuidTypeHandler.class)
+    @Results(id = "codeMap", value = {
+            @Result(property = "optId", column = "opt_id"),
+            @Result(property = "digitCode", column = "digit_code"),
+            @Result(property = "createdDate", column = "created_date"),
+            @Result(property = "expiredDate", column = "expired_date"),
+            @Result(property = "hasVerified", column = "has_verified"),
+            @Result(property = "userId", column = "user_id")
+    })
     OptCode getOtpCode(Integer code);
 
+    //    update users using user id
     @Select("UPDATE users SET is_enabled = true WHERE user_id = #{userId} RETURNING *;")
-//    @ResultMap("userMap")
+    @ResultMap("userMap")
     UserAuthentication updateUser(UUID userId);
+
+    //    delete code using digit code
+    @Delete("DELETE  FROM opt_codes WHERE digit_code = #{code}")
+    void deleteCode(Integer code);
 
 }

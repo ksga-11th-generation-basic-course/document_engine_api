@@ -13,7 +13,7 @@ public class UserAuthenticationLoginRequest {
     /*  email validate*/
     @NotBlank(message = "Your email may not be empty")
     @NotNull(message = "Your email may not be null")
-    @Size(min = 8, max = 20, message = "Your email must be have around 20 character ")
+    @Size(min = 8, max = 50, message = "Your email must be have around 50 character ")
     @Email(message = "Your email invalid")
     private String email;
 

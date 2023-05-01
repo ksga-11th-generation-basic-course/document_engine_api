@@ -33,9 +33,15 @@ public class UserAuthenticationController {
     private final JwtTokenUtil jwtTokenUtil;
     private final UserAuthenticationServices userAuthenticationServices;
 
-
+    /*    sample test in postman
+     http://localhost:8080/api/v1/user/register
+     {
+          "username":"menglotkheng",
+          "email":"menglotdeveloper@gmail.com",
+          "password":"12345"
+     }*/
     @PostMapping(path = "/register")
-    public ResponseEntity<?> register(@RequestBody UserAuthenticationRegisterRequest userAuthenticationRegisterRequest) {
+    public ResponseEntity<?> register(@RequestBody @Valid UserAuthenticationRegisterRequest userAuthenticationRegisterRequest) {
 
         UserAuthentication user = userAuthenticationServices.register(userAuthenticationRegisterRequest);
 
@@ -49,6 +55,10 @@ public class UserAuthenticationController {
         return ResponseEntity.ok().body(response);
     }
 
+    /*    sample test in postman
+        {
+            http://localhost:8080/api/v1/user/verify?code=754167
+        }*/
     @PostMapping(path = "/verify")
     public ResponseEntity<?> verify(@RequestParam Integer code) {
 
@@ -64,6 +74,12 @@ public class UserAuthenticationController {
         return ResponseEntity.ok().body(response);
     }
 
+    /*    sample test in postman
+    http://localhost:8080/api/v1/user/login
+    {
+        "email":"menglot@gmail",
+        "password":"12345"
+    }*/
     @PostMapping(path = "/login")
     public ResponseEntity<?> login(@Valid @RequestBody UserAuthenticationLoginRequest authenticationLoginRequest) throws Exception {
 

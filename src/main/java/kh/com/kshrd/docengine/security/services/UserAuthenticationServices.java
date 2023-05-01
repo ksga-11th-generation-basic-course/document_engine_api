@@ -12,7 +12,9 @@ public interface UserAuthenticationServices {
     UserAuthentication register(UserAuthenticationRegisterRequest userAuthenticationRegisterRequest);
 
 
-    UserAuthentication verifycation(Integer code);
+    UserAuthentication verify(Integer code);
+
+    void sendMail(UserAuthentication authentication, Integer code);
 
 
 }

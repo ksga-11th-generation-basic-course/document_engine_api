@@ -19,7 +19,7 @@ CREATE TABLE opt_codes
     create_date  TIMESTAMP  NOT NULL,
     expired_date TIMESTAMP  NOT NULL,
     has_verify   BOOLEAN,
-    user_id      INT        NOT NULL,
+    user_id      UUID       NOT NULL,
     CONSTRAINT users_fk FOREIGN KEY (user_id) REFERENCES users (user_id)
 );
 
