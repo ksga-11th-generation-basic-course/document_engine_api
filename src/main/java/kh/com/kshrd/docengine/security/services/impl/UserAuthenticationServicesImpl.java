@@ -119,7 +119,6 @@ public class UserAuthenticationServicesImpl implements UserAuthenticationService
                     "</html>\n";
             helper.setText(html, true);
 
-
             helper.setTo(authentication.getEmail());
 
             mailSender.send(message);

@@ -62,7 +62,7 @@ public class UserAuthenticationController {
     @PostMapping(path = "/verify")
     public ResponseEntity<?> verify(@RequestParam Integer code) {
 
-        UserAuthentication user = userAuthenticationServices.verifycation(code);
+        UserAuthentication user = userAuthenticationServices.verify(code);
 
         Response<UserAuthenticationRegisterResponse> response = Response.<UserAuthenticationRegisterResponse>builder()
                 .message("Verify successful")
