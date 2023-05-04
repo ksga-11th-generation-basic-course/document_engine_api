@@ -34,7 +34,7 @@ public class UserAuthenticationController {
     private final UserAuthenticationServices userAuthenticationServices;
 
     /*    sample test in postman
-     http://localhost:8080/api/v1/user/register
+    url :  http://localhost:8080/api/v1/user/register
      {
           "username":"menglotkheng",
           "email":"menglotdeveloper@gmail.com",
@@ -57,7 +57,7 @@ public class UserAuthenticationController {
 
     /*    sample test in postman
         {
-            http://localhost:8080/api/v1/user/verify?code=754167
+         url :  http://localhost:8080/api/v1/user/verify?code=754167
         }*/
     @PostMapping(path = "/verify")
     public ResponseEntity<?> verify(@RequestParam Integer code) {
@@ -75,7 +75,25 @@ public class UserAuthenticationController {
     }
 
     /*    sample test in postman
-    http://localhost:8080/api/v1/user/login
+      url :  http://localhost:8080/api/v1/user/resend?email=menglotdeveloper@gmail.com
+     */
+    @PutMapping(path = "/resend")
+    public ResponseEntity<?> resendCode(@RequestParam String email) {
+
+        UserAuthentication userAuthentication = userAuthenticationServices.resendCode(email);
+
+        Response<UserAuthenticationRegisterResponse> response = Response.<UserAuthenticationRegisterResponse>builder()
+                .message("Resend code successful")
+                .status(HttpStatus.OK)
+                .payload(new UserAuthenticationRegisterResponse(userAuthentication.getUserName(), userAuthentication.getEmail(), userAuthentication.getProfileImage(), userAuthentication.isEnable()))
+                .dateTime(LocalDateTime.now())
+
+                .build();
+        return ResponseEntity.ok().body(response);
+    }
+
+    /*    sample test in postman
+    url : http://localhost:8080/api/v1/user/login
     {
         "email":"menglot@gmail",
         "password":"12345"

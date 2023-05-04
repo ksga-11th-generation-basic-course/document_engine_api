@@ -2,11 +2,14 @@ package kh.com.kshrd.docengine.security.services.impl;
 
 import jakarta.mail.internet.MimeMessage;
 import kh.com.kshrd.docengine.configuration.Encoder;
+import kh.com.kshrd.docengine.exceptions.BadRequestException;
 import kh.com.kshrd.docengine.exceptions.NotFoundException;
 import kh.com.kshrd.docengine.security.model.entity.OptCode;
 import kh.com.kshrd.docengine.security.model.entity.UserAuthentication;
+import kh.com.kshrd.docengine.security.model.request.UserAuthenticationForgotRequest;
 import kh.com.kshrd.docengine.security.model.request.UserAuthenticationRegisterRequest;
 import kh.com.kshrd.docengine.security.repository.UserAuthenticationRepository;
+import kh.com.kshrd.docengine.security.services.EmailServices;
 import kh.com.kshrd.docengine.security.services.UserAuthenticationServices;
 import lombok.AllArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
@@ -30,7 +33,7 @@ public class UserAuthenticationServicesImpl implements UserAuthenticationService
 
     private final UserAuthenticationRepository userRepository;
     private final Encoder encoder;
-    private final JavaMailSender mailSender;
+    private final EmailServices emailServices;
 
 
     /* method get authentication by email*/
@@ -39,6 +42,8 @@ public class UserAuthenticationServicesImpl implements UserAuthenticationService
         return userRepository.getUserByEmail(email);
     }
 
+
+    //register
     @Override
     public UserAuthentication register(UserAuthenticationRegisterRequest userAuthenticationRegisterRequest) {
 
@@ -50,17 +55,14 @@ public class UserAuthenticationServicesImpl implements UserAuthenticationService
 
         OptCode optCode = new OptCode();
 
-        Integer otp = Integer.valueOf(new DecimalFormat("000000").format(new Random().nextInt(999999)));
-
-
         optCode.setUserId(userAuthentication.getUserId());
         optCode.setCreatedDate(LocalDateTime.now());
-        optCode.setExpiredDate(LocalDateTime.now());
-        optCode.setDigitCode(otp);
+        optCode.setExpiredDate(LocalDateTime.now().plusMinutes(1));
+        optCode.setDigitCode(generateOptCode());
 
         userRepository.insertVerify(optCode);
 
-        sendMail(userAuthentication, optCode.getDigitCode());
+        emailServices.sendMail(userAuthentication, optCode.getDigitCode());
 
         return userAuthentication;
     }
@@ -82,6 +84,12 @@ public class UserAuthenticationServicesImpl implements UserAuthenticationService
 
         }
 
+        if (LocalDateTime.now().isAfter(optCode.getExpiredDate())) {
+            throw new NotFoundException("Code : " + code + " Expired");
+        }
+
+        userRepository.verifyCode(optCode.getDigitCode());
+
         UserAuthentication userAuthentication = userRepository.updateUser(optCode.getUserId());
 
         //userRepository.deleteCode(code);
@@ -89,42 +97,57 @@ public class UserAuthenticationServicesImpl implements UserAuthenticationService
         return userAuthentication;
     }
 
-    //    send opt code using mail
+    //forgot password
     @Override
-    public void sendMail(UserAuthentication authentication, Integer code) {
+    public UserAuthentication forgotPassword(UserAuthenticationForgotRequest userAuthenticationForgotRequest) {
 
+        UserAuthentication userAuthentication = getByEmail(userAuthenticationForgotRequest.getEmail());
 
-        try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message);
-            helper.setSubject("Welcome " + authentication.getUserName());
-
-            String html = "<!doctype html>\n" +
-                    "<html lang=\"en\" xmlns=\"http://www.w3.org/1999/xhtml\"\n" +
-                    "      xmlns:th=\"http://www.thymeleaf.org\">\n" +
-                    "<head>\n" +
-                    "    <meta charset=\"UTF-8\">\n" +
-                    "    <meta name=\"viewport\"\n" +
-                    "          content=\"width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0\">\n" +
-                    "    <meta http-equiv=\"X-UA-Compatible\" content=\"ie=edge\">\n" +
-                    "    <title>Email</title>\n" +
-                    "</head>\n" +
-                    "<body>\n" +
-                    "<div> <h1>" + authentication.getEmail() + "</h1></div>\n" +
-                    "\n" +
-                    "<div> <p>" + code + "</p></div>\n" +
-                    "\n" +
-                    "<div>" + authentication.getUserName() + "</div>\n" +
-                    "</body>\n" +
-                    "</html>\n";
-            helper.setText(html, true);
-
-            helper.setTo(authentication.getEmail());
-
-            mailSender.send(message);
-
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
+        if (userAuthentication == null) {
+            throw new NotFoundException("Users Not Fund ");
         }
+
+        return null;
     }
+
+
+    //resend code
+    @Override
+    public UserAuthentication resendCode(String email) {
+
+        UserAuthentication userAuthentication = getByEmail(email);
+
+
+        if (userAuthentication == null) {
+            throw new NotFoundException("User Not Found");
+        }
+
+        OptCode optCode = userRepository.getOptCodeByMailId(userAuthentication.getUserId());
+
+        if (LocalDateTime.now().isBefore(optCode.getExpiredDate())) {
+
+            throw new BadRequestException("Code is Not expired please login again ");
+
+        }
+
+        Integer code = generateOptCode();
+
+        optCode.setDigitCode(code);
+        optCode.setCreatedDate(LocalDateTime.now());
+        optCode.setExpiredDate(LocalDateTime.now().plusMinutes(2));
+
+        userRepository.updateOptCode(optCode);
+
+        emailServices.sendMail(userAuthentication, code);
+
+        return userAuthentication;
+    }
+
+
+    //generate opt code
+    static Integer generateOptCode() {
+
+        return Integer.valueOf(new DecimalFormat("000000").format(new Random().nextInt(999999)));
+    }
+
 }

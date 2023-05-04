@@ -1,6 +1,7 @@
 package kh.com.kshrd.docengine.security.services;
 
 import kh.com.kshrd.docengine.security.model.entity.UserAuthentication;
+import kh.com.kshrd.docengine.security.model.request.UserAuthenticationForgotRequest;
 import kh.com.kshrd.docengine.security.model.request.UserAuthenticationRegisterRequest;
 
 public interface UserAuthenticationServices {
@@ -14,7 +15,8 @@ public interface UserAuthenticationServices {
 
     UserAuthentication verify(Integer code);
 
-    void sendMail(UserAuthentication authentication, Integer code);
+    UserAuthentication forgotPassword(UserAuthenticationForgotRequest userAuthenticationForgotRequest);
 
+    UserAuthentication resendCode(String email);
 
 }

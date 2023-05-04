@@ -14,6 +14,8 @@ import java.util.UUID;
 @Mapper
 public interface UserAuthenticationRepository {
 
+
+    //get user by email
     @Select("SELECT * FROM users WHERE email = #{email}")
 
     @Results(id = "userMap", value = {
@@ -27,6 +29,7 @@ public interface UserAuthenticationRepository {
     })
     UserAuthentication getUserByEmail(String email);
 
+    //register
     @Select("INSERT INTO users(username, email,password) VALUES(#{u.username},#{u.email},#{u.password}) RETURNING *")
     @ResultMap("userMap")
     UserAuthentication register(@Param("u") UserAuthenticationRegisterRequest userAuthenticationRegisterRequest);
@@ -48,6 +51,15 @@ public interface UserAuthenticationRepository {
     })
     OptCode getOtpCode(Integer code);
 
+    //update opt code
+    @Update("UPDATE opt_codes SET digit_code = #{o.digitCode}, create_date = #{o.createdDate} , expired_date = #{o.expiredDate} WHERE user_id = #{o.userId}")
+    void updateOptCode(@Param("o") OptCode optCode);
+
+    //get opt code by user id
+    @Select("SELECT * FROM opt_codes WHERE user_id = #{id}")
+    @ResultMap("codeMap")
+    OptCode getOptCodeByMailId(UUID id);
+
     //    update users using user id
     @Select("UPDATE users SET is_enabled = true WHERE user_id = #{userId} RETURNING *;")
     @ResultMap("userMap")
@@ -56,5 +68,9 @@ public interface UserAuthenticationRepository {
     //    delete code using digit code
     @Delete("DELETE  FROM opt_codes WHERE digit_code = #{code}")
     void deleteCode(Integer code);
+
+    //update status
+    @Update("UPDATE opt_codes SET has_verify = true WHERE digit_code = #{code}")
+    void verifyCode(Integer code);
 
 }

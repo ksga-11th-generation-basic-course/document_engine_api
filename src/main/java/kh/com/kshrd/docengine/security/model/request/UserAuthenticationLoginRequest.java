@@ -20,7 +20,7 @@ public class UserAuthenticationLoginRequest {
     /*    password validate*/
     @NotBlank(message = "Your password must be not empty")
     @NotNull(message = "Your password may not be null")
-    @Size(min = 4, max = 8, message = "Your email must be have around 8 character ")
+    @Size(min = 4, message = "Your email must be have around 8 character ")
     private String password;
 
 }
