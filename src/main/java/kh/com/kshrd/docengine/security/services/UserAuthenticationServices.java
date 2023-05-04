@@ -3,6 +3,9 @@ package kh.com.kshrd.docengine.security.services;
 import kh.com.kshrd.docengine.security.model.entity.UserAuthentication;
 import kh.com.kshrd.docengine.security.model.request.UserAuthenticationForgotRequest;
 import kh.com.kshrd.docengine.security.model.request.UserAuthenticationRegisterRequest;
+import kh.com.kshrd.docengine.security.model.request.UserAuthenticationResetPasswordRequest;
+
+import java.util.UUID;
 
 public interface UserAuthenticationServices {
 
@@ -15,8 +18,10 @@ public interface UserAuthenticationServices {
 
     UserAuthentication verify(Integer code);
 
-    UserAuthentication forgotPassword(UserAuthenticationForgotRequest userAuthenticationForgotRequest);
+    UserAuthentication forgotPassword(String email);
 
     UserAuthentication resendCode(String email);
+
+    UserAuthentication resetPassword(UserAuthenticationResetPasswordRequest userAuthenticationResetPasswordRequest, String email);
 
 }

@@ -5,6 +5,7 @@ import kh.com.kshrd.docengine.security.model.entity.OptCode;
 import kh.com.kshrd.docengine.security.model.entity.UserAuthentication;
 import kh.com.kshrd.docengine.configuration.UuidTypeHandler;
 import kh.com.kshrd.docengine.security.model.request.UserAuthenticationRegisterRequest;
+import kh.com.kshrd.docengine.security.model.request.UserAuthenticationResetPasswordRequest;
 import kh.com.kshrd.docengine.security.model.response.UserAuthenticationRegisterResponse;
 import org.apache.ibatis.annotations.*;
 import org.springframework.security.core.parameters.P;
@@ -46,7 +47,7 @@ public interface UserAuthenticationRepository {
             @Result(property = "digitCode", column = "digit_code"),
             @Result(property = "createdDate", column = "created_date"),
             @Result(property = "expiredDate", column = "expired_date"),
-            @Result(property = "hasVerified", column = "has_verified"),
+            @Result(property = "hasVerified", column = "has_verify"),
             @Result(property = "userId", column = "user_id")
     })
     OptCode getOtpCode(Integer code);
@@ -72,5 +73,9 @@ public interface UserAuthenticationRepository {
     //update status
     @Update("UPDATE opt_codes SET has_verify = true WHERE digit_code = #{code}")
     void verifyCode(Integer code);
+
+    //reset password
+    @Select("UPDATE users SET password = #{u.newPassword} WHERE user_id = #{id}")
+    UserAuthentication resetPassword(@Param("u") UserAuthenticationResetPasswordRequest userAuthenticationResetPasswordRequest, UUID id);
 
 }

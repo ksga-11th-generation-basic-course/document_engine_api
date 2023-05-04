@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import kh.com.kshrd.docengine.security.model.entity.UserAuthentication;
 import kh.com.kshrd.docengine.security.model.request.UserAuthenticationLoginRequest;
 import kh.com.kshrd.docengine.security.model.request.UserAuthenticationRegisterRequest;
+import kh.com.kshrd.docengine.security.model.request.UserAuthenticationResetPasswordRequest;
 import kh.com.kshrd.docengine.security.model.response.UserAuthenticationLoginResponse;
 import kh.com.kshrd.docengine.model.response.Response;
 import kh.com.kshrd.docengine.security.jwt.JwtTokenUtil;
@@ -24,7 +25,7 @@ import java.time.LocalDateTime;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping(path = "/api/v1/user")
+@RequestMapping(path = "/api/v1/users")
 public class UserAuthenticationController {
 
 
@@ -69,7 +70,6 @@ public class UserAuthenticationController {
                 .status(HttpStatus.OK)
                 .payload(new UserAuthenticationRegisterResponse(user.getUserName(), user.getEmail(), user.getProfileImage(), user.isEnable()))
                 .dateTime(LocalDateTime.now())
-
                 .build();
         return ResponseEntity.ok().body(response);
     }
@@ -77,6 +77,38 @@ public class UserAuthenticationController {
     /*    sample test in postman
       url :  http://localhost:8080/api/v1/user/resend?email=menglotdeveloper@gmail.com
      */
+
+
+    @PutMapping(path = "/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestParam String email) {
+
+        UserAuthentication user = userAuthenticationServices.forgotPassword(email);
+
+        Response<UserAuthenticationRegisterResponse> response = Response.<UserAuthenticationRegisterResponse>builder()
+                .message("Let's check your email")
+                .status(HttpStatus.OK)
+                .payload(new UserAuthenticationRegisterResponse(user.getUserName(), user.getEmail(), user.getProfileImage(), user.isEnable()))
+                .dateTime(LocalDateTime.now())
+                .build();
+        return ResponseEntity.ok().body(response);
+
+    }
+
+    @PutMapping(path = "/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody UserAuthenticationResetPasswordRequest userAuthenticationResetPasswordRequest, @RequestParam String email) {
+
+        UserAuthentication user = userAuthenticationServices.resetPassword(userAuthenticationResetPasswordRequest, email);
+
+        Response<UserAuthenticationRegisterResponse> response = Response.<UserAuthenticationRegisterResponse>builder()
+                .message("Password reset successful")
+                .status(HttpStatus.OK)
+                .payload(new UserAuthenticationRegisterResponse(user.getUserName(), user.getEmail(), user.getProfileImage(), user.isEnable()))
+                .dateTime(LocalDateTime.now())
+                .build();
+        return ResponseEntity.ok().body(response);
+
+    }
+
     @PutMapping(path = "/resend")
     public ResponseEntity<?> resendCode(@RequestParam String email) {
 

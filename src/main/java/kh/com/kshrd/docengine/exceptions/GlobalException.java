@@ -19,6 +19,24 @@ import java.util.stream.Collectors;
 public class GlobalException extends ResponseEntityExceptionHandler {
 
 
+    /* Not Verify Exception*/
+    @ExceptionHandler(NotVerifyException.class)
+    ProblemDetail notVerifyHandler(NotVerifyException notVerifyException) {
+
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
+
+                HttpStatus.NOT_FOUND,
+
+                notVerifyException.getMessage()
+
+        );
+
+        problemDetail.setTitle("Not Verify !!!");
+        problemDetail.setType(URI.create("localhost:8000/error/not/verify"));
+
+        return problemDetail;
+    }
+
     /* Not Found Exception*/
     @ExceptionHandler(NotFoundException.class)
     ProblemDetail notFoundHandler(NotFoundException notFoundException) {
@@ -40,7 +58,7 @@ public class GlobalException extends ResponseEntityExceptionHandler {
 
     /* Bad Request Exception*/
     @ExceptionHandler(BadRequestException.class)
-    ProblemDetail notFoundHandler(BadRequestException badRequestException) {
+    ProblemDetail badRequestHandler(BadRequestException badRequestException) {
 
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
 
@@ -52,6 +70,24 @@ public class GlobalException extends ResponseEntityExceptionHandler {
 
         problemDetail.setTitle("Bad Request !!!");
         problemDetail.setType(URI.create("localhost:8000/error/bad/request"));
+
+        return problemDetail;
+    }
+
+    /* Value not equal Exception*/
+    @ExceptionHandler(ValueNotEqualException.class)
+    ProblemDetail valueNotEqualHandler(ValueNotEqualException valueNotEqualException) {
+
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
+
+                HttpStatus.BAD_REQUEST,
+
+                valueNotEqualException.getMessage()
+
+        );
+
+        problemDetail.setTitle("Value not equal !!!");
+        problemDetail.setType(URI.create("localhost:8000/error/value/not/equal"));
 
         return problemDetail;
     }

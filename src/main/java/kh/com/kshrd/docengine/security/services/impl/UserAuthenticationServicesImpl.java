@@ -4,10 +4,13 @@ import jakarta.mail.internet.MimeMessage;
 import kh.com.kshrd.docengine.configuration.Encoder;
 import kh.com.kshrd.docengine.exceptions.BadRequestException;
 import kh.com.kshrd.docengine.exceptions.NotFoundException;
+import kh.com.kshrd.docengine.exceptions.NotVerifyException;
+import kh.com.kshrd.docengine.exceptions.ValueNotEqualException;
 import kh.com.kshrd.docengine.security.model.entity.OptCode;
 import kh.com.kshrd.docengine.security.model.entity.UserAuthentication;
 import kh.com.kshrd.docengine.security.model.request.UserAuthenticationForgotRequest;
 import kh.com.kshrd.docengine.security.model.request.UserAuthenticationRegisterRequest;
+import kh.com.kshrd.docengine.security.model.request.UserAuthenticationResetPasswordRequest;
 import kh.com.kshrd.docengine.security.repository.UserAuthenticationRepository;
 import kh.com.kshrd.docengine.security.services.EmailServices;
 import kh.com.kshrd.docengine.security.services.UserAuthenticationServices;
@@ -39,7 +42,14 @@ public class UserAuthenticationServicesImpl implements UserAuthenticationService
     /* method get authentication by email*/
     @Override
     public UserAuthentication getByEmail(String email) {
+
+        if (userRepository.getUserByEmail(email) == null) {
+
+            throw new NotFoundException("User Not Found");
+        }
+
         return userRepository.getUserByEmail(email);
+
     }
 
 
@@ -90,24 +100,18 @@ public class UserAuthenticationServicesImpl implements UserAuthenticationService
 
         userRepository.verifyCode(optCode.getDigitCode());
 
-        UserAuthentication userAuthentication = userRepository.updateUser(optCode.getUserId());
-
         //userRepository.deleteCode(code);
 
-        return userAuthentication;
+        return userRepository.updateUser(optCode.getUserId());
     }
 
     //forgot password
     @Override
-    public UserAuthentication forgotPassword(UserAuthenticationForgotRequest userAuthenticationForgotRequest) {
+    public UserAuthentication forgotPassword(String email) {
 
-        UserAuthentication userAuthentication = getByEmail(userAuthenticationForgotRequest.getEmail());
+        UserAuthentication userAuthentication = getByEmail(email);
 
-        if (userAuthentication == null) {
-            throw new NotFoundException("Users Not Fund ");
-        }
-
-        return null;
+        return resendCode(email);
     }
 
 
@@ -139,6 +143,32 @@ public class UserAuthenticationServicesImpl implements UserAuthenticationService
         userRepository.updateOptCode(optCode);
 
         emailServices.sendMail(userAuthentication, code);
+
+        return userAuthentication;
+    }
+
+    //reset password
+    @Override
+    public UserAuthentication resetPassword(UserAuthenticationResetPasswordRequest userAuthenticationResetPasswordRequest, String email) {
+
+        UserAuthentication userAuthentication = getByEmail(email);
+
+        if (!Objects.equals(userAuthenticationResetPasswordRequest.getNewPassword(), userAuthenticationResetPasswordRequest.getConfirmedPassword())) {
+
+            throw new ValueNotEqualException("Your password is not equal !!!");
+        }
+
+        userAuthenticationResetPasswordRequest.setNewPassword(encoder.PasswordEncoder().encode(userAuthenticationResetPasswordRequest.getNewPassword()));
+
+        OptCode optCode = userRepository.getOptCodeByMailId(userAuthentication.getUserId());
+
+        if (!optCode.getHasVerified()) {
+
+            throw new NotVerifyException("You need to verify your account !!!");
+
+        }
+
+        userRepository.resetPassword(userAuthenticationResetPasswordRequest, optCode.getUserId());
 
         return userAuthentication;
     }
