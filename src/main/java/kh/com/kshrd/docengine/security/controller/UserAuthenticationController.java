@@ -34,7 +34,7 @@ public class UserAuthenticationController {
     private final JwtTokenUtil jwtTokenUtil;
     private final UserAuthenticationServices userAuthenticationServices;
 
-    /*    sample test in postman
+    /*    sample test in postman register
     url :  http://localhost:8080/api/v1/user/register
      {
           "username":"menglotkheng",
@@ -56,7 +56,7 @@ public class UserAuthenticationController {
         return ResponseEntity.ok().body(response);
     }
 
-    /*    sample test in postman
+    /*    sample test in postman verify account
         {
          url :  http://localhost:8080/api/v1/user/verify?code=754167
         }*/
@@ -74,11 +74,9 @@ public class UserAuthenticationController {
         return ResponseEntity.ok().body(response);
     }
 
-    /*    sample test in postman
+    /*    sample test in postman forgot password
       url :  http://localhost:8080/api/v1/user/resend?email=menglotdeveloper@gmail.com
      */
-
-
     @PutMapping(path = "/forgot-password")
     public ResponseEntity<?> forgotPassword(@RequestParam String email) {
 
@@ -94,6 +92,14 @@ public class UserAuthenticationController {
 
     }
 
+    /*    sample test in postman reset password
+   url :  http://localhost:8080/api/v1/user/resend?email=menglotdeveloper@gmail.com
+
+   {
+       "newPassword":"12344",
+       "confirmedPassword":"12344"
+    }
+  */
     @PutMapping(path = "/reset-password")
     public ResponseEntity<?> resetPassword(@RequestBody UserAuthenticationResetPasswordRequest userAuthenticationResetPasswordRequest, @RequestParam String email) {
 
@@ -109,6 +115,9 @@ public class UserAuthenticationController {
 
     }
 
+    /*    sample test in postman resend code
+     url :  http://localhost:8080/api/v1/user/resend?email=menglotdeveloper@gmail.com
+    */
     @PutMapping(path = "/resend")
     public ResponseEntity<?> resendCode(@RequestParam String email) {
 
@@ -124,7 +133,7 @@ public class UserAuthenticationController {
         return ResponseEntity.ok().body(response);
     }
 
-    /*    sample test in postman
+    /*    sample test in postman login
     url : http://localhost:8080/api/v1/user/login
     {
         "email":"menglot@gmail",

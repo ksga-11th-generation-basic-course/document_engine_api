@@ -75,7 +75,7 @@ public interface UserAuthenticationRepository {
     void verifyCode(Integer code);
 
     //reset password
-    @Select("UPDATE users SET password = #{u.newPassword} WHERE user_id = #{id}")
-    UserAuthentication resetPassword(@Param("u") UserAuthenticationResetPasswordRequest userAuthenticationResetPasswordRequest, UUID id);
+    @Update("UPDATE users SET password = #{u.newPassword} WHERE user_id = #{id}")
+    void resetPassword(@Param("u") UserAuthenticationResetPasswordRequest userAuthenticationResetPasswordRequest, UUID id);
 
 }
