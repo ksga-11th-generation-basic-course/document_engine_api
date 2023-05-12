@@ -44,6 +44,7 @@ public class AuthenticationConfigurations {
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.cors().and().csrf().disable()
                 .authorizeHttpRequests()
+                .requestMatchers("/v3/api-docs/", "/swagger-ui/", "/swagger-ui.html").permitAll()
                 .requestMatchers("/api/v1/users/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
