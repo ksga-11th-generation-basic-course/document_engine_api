@@ -1,13 +1,12 @@
 package kh.com.kshrd.docengine.security.services;
 
 import kh.com.kshrd.docengine.security.model.entity.UserAuthentication;
-import kh.com.kshrd.docengine.security.model.request.UserAuthenticationForgotRequest;
 import kh.com.kshrd.docengine.security.model.request.UserAuthenticationRegisterRequest;
 import kh.com.kshrd.docengine.security.model.request.UserAuthenticationResetPasswordRequest;
 
 import java.util.UUID;
 
-public interface UserAuthenticationServices {
+public interface UserAuthenticationService {
 
     /* method get authentication by email*/
     UserAuthentication getByEmail(String email);
@@ -23,5 +22,7 @@ public interface UserAuthenticationServices {
     UserAuthentication resendCode(String email);
 
     UserAuthentication resetPassword(UserAuthenticationResetPasswordRequest userAuthenticationResetPasswordRequest, String email);
+
+    UUID getUserIdOfCurrentUser();
 
 }

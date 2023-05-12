@@ -1,0 +1,27 @@
+package kh.com.kshrd.docengine.services;
+
+import kh.com.kshrd.docengine.model.Document;
+import kh.com.kshrd.docengine.model.request.DocumentRequest;
+
+import java.util.List;
+import java.util.UUID;
+
+public interface DocumentService {
+    Document createDocument(DocumentRequest documentRequest);
+
+    Document editDocument(UUID documentId, String title);
+
+    void currentEditing(UUID documentId);
+
+    void setAccessibility(UUID documentId, UUID userId, String accessibility);
+
+    List<Document> getAllDocument();
+
+    Document viewDocument(UUID documentId);
+
+    List<Document> getDocumentInEachWorkspace(UUID workspaceId);
+
+    Document duplicateDocument(UUID documentId);
+
+    Document getDocumentById(UUID documentId);
+}

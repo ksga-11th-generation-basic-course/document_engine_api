@@ -18,7 +18,6 @@ public interface UserAuthenticationRepository {
 
     //get user by email
     @Select("SELECT * FROM users WHERE email = #{email}")
-
     @Results(id = "userMap", value = {
 
             @Result(property = "userId", column = "user_id"),
@@ -47,7 +46,7 @@ public interface UserAuthenticationRepository {
             @Result(property = "digitCode", column = "digit_code"),
             @Result(property = "createdDate", column = "created_date"),
             @Result(property = "expiredDate", column = "expired_date"),
-            @Result(property = "hasVerified", column = "has_verify"),
+            @Result(property = "hasVerified", column = "has_verified"),
             @Result(property = "userId", column = "user_id")
     })
     OptCode getOtpCode(Integer code);
@@ -71,11 +70,12 @@ public interface UserAuthenticationRepository {
     void deleteCode(Integer code);
 
     //update status
-    @Update("UPDATE opt_codes SET has_verify = true WHERE digit_code = #{code}")
+    @Update("UPDATE opt_codes SET has_verified = true WHERE digit_code = #{code}")
     void verifyCode(Integer code);
 
     //reset password
     @Update("UPDATE users SET password = #{u.newPassword} WHERE user_id = #{id}")
     void resetPassword(@Param("u") UserAuthenticationResetPasswordRequest userAuthenticationResetPasswordRequest, UUID id);
+
 
 }

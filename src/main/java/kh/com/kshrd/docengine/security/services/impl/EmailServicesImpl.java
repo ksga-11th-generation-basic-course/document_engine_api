@@ -2,7 +2,7 @@ package kh.com.kshrd.docengine.security.services.impl;
 
 import jakarta.mail.internet.MimeMessage;
 import kh.com.kshrd.docengine.security.model.entity.UserAuthentication;
-import kh.com.kshrd.docengine.security.services.EmailServices;
+import kh.com.kshrd.docengine.security.services.EmailService;
 import lombok.AllArgsConstructor;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @AllArgsConstructor
-public class EmailServicesImpl implements EmailServices {
+public class EmailServicesImpl implements EmailService {
 
     private final JavaMailSender mailSender;
 

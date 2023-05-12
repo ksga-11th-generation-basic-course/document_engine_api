@@ -1,6 +1,5 @@
 package kh.com.kshrd.docengine.security.services.impl;
 
-import jakarta.mail.internet.MimeMessage;
 import kh.com.kshrd.docengine.configuration.Encoder;
 import kh.com.kshrd.docengine.exceptions.BadRequestException;
 import kh.com.kshrd.docengine.exceptions.NotFoundException;
@@ -8,35 +7,28 @@ import kh.com.kshrd.docengine.exceptions.NotVerifyException;
 import kh.com.kshrd.docengine.exceptions.ValueNotEqualException;
 import kh.com.kshrd.docengine.security.model.entity.OptCode;
 import kh.com.kshrd.docengine.security.model.entity.UserAuthentication;
-import kh.com.kshrd.docengine.security.model.request.UserAuthenticationForgotRequest;
 import kh.com.kshrd.docengine.security.model.request.UserAuthenticationRegisterRequest;
 import kh.com.kshrd.docengine.security.model.request.UserAuthenticationResetPasswordRequest;
 import kh.com.kshrd.docengine.security.repository.UserAuthenticationRepository;
-import kh.com.kshrd.docengine.security.services.EmailServices;
-import kh.com.kshrd.docengine.security.services.UserAuthenticationServices;
+import kh.com.kshrd.docengine.security.services.EmailService;
+import kh.com.kshrd.docengine.security.services.UserAuthenticationService;
 import lombok.AllArgsConstructor;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
-import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.Date;
 import java.util.Objects;
 import java.util.Random;
 import java.util.UUID;
 
 @Service
 @AllArgsConstructor
-public class UserAuthenticationServicesImpl implements UserAuthenticationServices {
+public class UserAuthenticationServicesImpl implements UserAuthenticationService {
 
     private final UserAuthenticationRepository userRepository;
     private final Encoder encoder;
-    private final EmailServices emailServices;
+    private final EmailService emailServices;
 
 
     /* method get authentication by email*/
@@ -67,7 +59,7 @@ public class UserAuthenticationServicesImpl implements UserAuthenticationService
 
         optCode.setUserId(userAuthentication.getUserId());
         optCode.setCreatedDate(LocalDateTime.now());
-        optCode.setExpiredDate(LocalDateTime.now().plusMinutes(1));
+        optCode.setExpiredDate(LocalDateTime.now().plusMinutes(3));
         optCode.setDigitCode(generateOptCode());
 
         userRepository.insertVerify(optCode);
@@ -171,6 +163,12 @@ public class UserAuthenticationServicesImpl implements UserAuthenticationService
         userRepository.resetPassword(userAuthenticationResetPasswordRequest, optCode.getUserId());
 
         return userAuthentication;
+    }
+
+    @Override
+    public UUID getUserIdOfCurrentUser() {
+        UserAuthentication currentUser = (UserAuthentication) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return currentUser.getUserId();
     }
 
 

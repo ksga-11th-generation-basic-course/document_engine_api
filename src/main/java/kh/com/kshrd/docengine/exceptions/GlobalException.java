@@ -21,7 +21,7 @@ public class GlobalException extends ResponseEntityExceptionHandler {
 
     /* Not Verify Exception*/
     @ExceptionHandler(NotVerifyException.class)
-    ProblemDetail notVerifyHandler(NotVerifyException notVerifyException) {
+    public ProblemDetail notVerifyHandler(NotVerifyException notVerifyException) {
 
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
 
@@ -39,7 +39,7 @@ public class GlobalException extends ResponseEntityExceptionHandler {
 
     /* Not Found Exception*/
     @ExceptionHandler(NotFoundException.class)
-    ProblemDetail notFoundHandler(NotFoundException notFoundException) {
+    public ProblemDetail notFoundHandler(NotFoundException notFoundException) {
 
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
 
@@ -58,7 +58,7 @@ public class GlobalException extends ResponseEntityExceptionHandler {
 
     /* Bad Request Exception*/
     @ExceptionHandler(BadRequestException.class)
-    ProblemDetail badRequestHandler(BadRequestException badRequestException) {
+    public ProblemDetail badRequestHandler(BadRequestException badRequestException) {
 
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
 
@@ -76,7 +76,7 @@ public class GlobalException extends ResponseEntityExceptionHandler {
 
     /* Value not equal Exception*/
     @ExceptionHandler(ValueNotEqualException.class)
-    ProblemDetail valueNotEqualHandler(ValueNotEqualException valueNotEqualException) {
+    public ProblemDetail valueNotEqualHandler(ValueNotEqualException valueNotEqualException) {
 
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
 
@@ -103,4 +103,23 @@ public class GlobalException extends ResponseEntityExceptionHandler {
 
         return new ResponseEntity<>(body, status);
     }
+
+    @ExceptionHandler(NotEditorException.class)
+    public ProblemDetail notEditor(NotEditorException notEditorException) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, notEditorException.getMessage());
+        problemDetail.setTitle("Your accessibility is not editor");
+        problemDetail.setType(URI.create("localhost:8000/error/not/editor"));
+        return problemDetail;
+    }
+
+    @ExceptionHandler(NotOwnerException.class)
+    public ProblemDetail problem(NotOwnerException exception) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.FORBIDDEN, exception.getMessage()
+        );
+        problemDetail.setType(URI.create("localhost:8080/error/forbidden"));
+        problemDetail.setTitle("You are not owner");
+        return problemDetail;
+    }
+
 }

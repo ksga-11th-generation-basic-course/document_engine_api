@@ -9,8 +9,8 @@ import kh.com.kshrd.docengine.security.model.response.UserAuthenticationLoginRes
 import kh.com.kshrd.docengine.model.response.Response;
 import kh.com.kshrd.docengine.security.jwt.JwtTokenUtil;
 import kh.com.kshrd.docengine.security.model.response.UserAuthenticationRegisterResponse;
-import kh.com.kshrd.docengine.security.services.UserAuthenticationServices;
-import kh.com.kshrd.docengine.security.services.JwtAuthenticationServices;
+import kh.com.kshrd.docengine.security.services.UserAuthenticationService;
+import kh.com.kshrd.docengine.security.services.JwtAuthenticationService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,10 +29,10 @@ import java.time.LocalDateTime;
 public class UserAuthenticationController {
 
 
-    private final JwtAuthenticationServices jwtAuthenticationServices;
+    private final JwtAuthenticationService jwtAuthenticationServices;
     private final AuthenticationManager authenticationManager;
     private final JwtTokenUtil jwtTokenUtil;
-    private final UserAuthenticationServices userAuthenticationServices;
+    private final UserAuthenticationService userAuthenticationServices;
 
     /*    sample test in postman register
     url :  http://localhost:8080/api/v1/user/register

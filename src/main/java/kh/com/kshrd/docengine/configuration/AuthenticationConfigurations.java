@@ -3,7 +3,7 @@ package kh.com.kshrd.docengine.configuration;
 
 import kh.com.kshrd.docengine.security.jwt.JwtAuthenticationEntryPoint;
 import kh.com.kshrd.docengine.security.jwt.JwtRequestFilter;
-import kh.com.kshrd.docengine.security.services.JwtAuthenticationServices;
+import kh.com.kshrd.docengine.security.services.JwtAuthenticationService;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,7 +21,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class AuthenticationConfigurations {
 
 
-    private final JwtAuthenticationServices userServices;
+    private final JwtAuthenticationService userServices;
     private final Encoder encoder;
     private final JwtRequestFilter jwtRequestFilter;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
@@ -44,6 +44,7 @@ public class AuthenticationConfigurations {
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.cors().and().csrf().disable()
                 .authorizeHttpRequests()
+                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                 .requestMatchers("/api/v1/users/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
