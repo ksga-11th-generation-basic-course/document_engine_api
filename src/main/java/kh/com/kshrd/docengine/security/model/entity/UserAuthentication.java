@@ -23,7 +23,7 @@ public class UserAuthentication implements UserDetails {
     private String email;
     private String password;
     private String profileImage;
-    private boolean isEnable;
+    private Boolean isEnable;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

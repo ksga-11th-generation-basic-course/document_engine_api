@@ -24,4 +24,8 @@ public interface DocumentService {
     Document duplicateDocument(UUID documentId);
 
     Document getDocumentById(UUID documentId);
+
+    List<Document> searchDocumentByTagName(UUID workspaceId, String tagName);
+
+    void deleteDocument(UUID documentId);
 }

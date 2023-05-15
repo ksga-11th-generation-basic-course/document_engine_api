@@ -25,7 +25,7 @@ import java.time.LocalDateTime;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping(path = "/api/v1/users")
+@RequestMapping(path = "/api/v1/users/authentication")
 public class UserAuthenticationController {
 
 
@@ -49,7 +49,7 @@ public class UserAuthenticationController {
         Response<UserAuthenticationRegisterResponse> response = Response.<UserAuthenticationRegisterResponse>builder()
                 .message("Authentication successful")
                 .status(HttpStatus.OK)
-                .payload(new UserAuthenticationRegisterResponse(user.getUserName(), user.getEmail(), user.getProfileImage(), user.isEnable()))
+                .payload(new UserAuthenticationRegisterResponse(user.getUserName(), user.getEmail(), user.getProfileImage(), user.getIsEnable()))
                 .dateTime(LocalDateTime.now())
 
                 .build();
@@ -68,7 +68,7 @@ public class UserAuthenticationController {
         Response<UserAuthenticationRegisterResponse> response = Response.<UserAuthenticationRegisterResponse>builder()
                 .message("Verify successful")
                 .status(HttpStatus.OK)
-                .payload(new UserAuthenticationRegisterResponse(user.getUserName(), user.getEmail(), user.getProfileImage(), user.isEnable()))
+                .payload(new UserAuthenticationRegisterResponse(user.getUserName(), user.getEmail(), user.getProfileImage(), user.getIsEnable()))
                 .dateTime(LocalDateTime.now())
                 .build();
         return ResponseEntity.ok().body(response);
@@ -85,7 +85,7 @@ public class UserAuthenticationController {
         Response<UserAuthenticationRegisterResponse> response = Response.<UserAuthenticationRegisterResponse>builder()
                 .message("Let's check your email")
                 .status(HttpStatus.OK)
-                .payload(new UserAuthenticationRegisterResponse(user.getUserName(), user.getEmail(), user.getProfileImage(), user.isEnable()))
+                .payload(new UserAuthenticationRegisterResponse(user.getUserName(), user.getEmail(), user.getProfileImage(), user.getIsEnable()))
                 .dateTime(LocalDateTime.now())
                 .build();
         return ResponseEntity.ok().body(response);
@@ -108,7 +108,7 @@ public class UserAuthenticationController {
         Response<UserAuthenticationRegisterResponse> response = Response.<UserAuthenticationRegisterResponse>builder()
                 .message("Password reset successful")
                 .status(HttpStatus.OK)
-                .payload(new UserAuthenticationRegisterResponse(user.getUserName(), user.getEmail(), user.getProfileImage(), user.isEnable()))
+                .payload(new UserAuthenticationRegisterResponse(user.getUserName(), user.getEmail(), user.getProfileImage(), user.getIsEnable()))
                 .dateTime(LocalDateTime.now())
                 .build();
         return ResponseEntity.ok().body(response);
@@ -126,7 +126,7 @@ public class UserAuthenticationController {
         Response<UserAuthenticationRegisterResponse> response = Response.<UserAuthenticationRegisterResponse>builder()
                 .message("Resend code successful")
                 .status(HttpStatus.OK)
-                .payload(new UserAuthenticationRegisterResponse(userAuthentication.getUserName(), userAuthentication.getEmail(), userAuthentication.getProfileImage(), userAuthentication.isEnable()))
+                .payload(new UserAuthenticationRegisterResponse(userAuthentication.getUserName(), userAuthentication.getEmail(), userAuthentication.getProfileImage(), userAuthentication.getIsEnable()))
                 .dateTime(LocalDateTime.now())
 
                 .build();
@@ -152,7 +152,7 @@ public class UserAuthenticationController {
         Response<UserAuthenticationLoginResponse> response = Response.<UserAuthenticationLoginResponse>builder()
                 .message("Authentication successful")
                 .status(HttpStatus.OK)
-                .payload(new UserAuthenticationLoginResponse(authentication.getUserName(), authentication.getEmail(), token, authentication.getProfileImage(), authentication.isEnable()))
+                .payload(new UserAuthenticationLoginResponse(authentication.getUserName(), authentication.getEmail(), token, authentication.getProfileImage(), authentication.getIsEnable()))
                 .dateTime(LocalDateTime.now())
 
                 .build();

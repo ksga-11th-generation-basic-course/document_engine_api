@@ -9,8 +9,11 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class Tag {
-    private UUID tagId;
-    private String tagName;
-    private UUID workspaceId;
+public class User {
+    private UUID userId;
+    private String userName;
+    private String email;
+    private String password;
+    private String profileImage;
+    private Boolean isEnable;
 }

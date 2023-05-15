@@ -24,5 +24,4 @@ public interface UserAuthenticationService {
     UserAuthentication resetPassword(UserAuthenticationResetPasswordRequest userAuthenticationResetPasswordRequest, String email);
 
     UUID getUserIdOfCurrentUser();
-
 }

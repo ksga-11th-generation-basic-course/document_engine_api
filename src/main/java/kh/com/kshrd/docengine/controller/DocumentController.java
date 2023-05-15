@@ -62,9 +62,9 @@ public class DocumentController {
         return ResponseEntity.ok().body(response);
     }
 
-    @PutMapping("documents/{documentId}/set-accessibility")
+    @PutMapping("documents/{documentId}/{userId}/set-accessibility")
     @Operation(summary = "Set Accessibility")
-    public ResponseEntity<Response<Document>> setAccessibility(@RequestParam UUID documentId, @RequestParam UUID userId, @RequestParam String accessibility){
+    public ResponseEntity<Response<Document>> setAccessibility(@PathVariable UUID documentId, @PathVariable UUID userId, @RequestParam String accessibility){
         documentService.setAccessibility(documentId, userId, accessibility);
         Response<Document> response = Response.<Document>builder()
                 .message("Set Accessibility Successful")
@@ -76,7 +76,7 @@ public class DocumentController {
     }
 
     @GetMapping("documents")
-    @Operation(summary = "Getting All Document")
+    @Operation(summary = "Get All Document")
     public ResponseEntity<Response<List<Document>>> getAllDocument(){
         Response<List<Document>> response = Response.<List<Document>>builder()
                 .message("Get All Document Successful")
@@ -100,7 +100,7 @@ public class DocumentController {
     }
 
     @GetMapping("documents/{workspaceId}/workspace-document")
-    @Operation(summary = "Get Document In Each Workspcae")
+    @Operation(summary = "Get Document In Each Workspace")
     public ResponseEntity<Response<List<Document>>> getDocumentInEachWorkspace(@PathVariable UUID workspaceId){
         Response<List<Document>> response = Response.<List<Document>>builder()
                 .message("Get Document In Each Workspace Successful")
@@ -123,5 +123,28 @@ public class DocumentController {
         return ResponseEntity.ok().body(response);
     }
 
-    @GetMapping("documents/{}")
+    @GetMapping("documents/{workspaceId}/search-document-by-tag-name")
+    @Operation(summary = "Search Document By TagName")
+    public ResponseEntity<Response<List<Document>>> searchDocumentByTagName(@PathVariable UUID workspaceId, @RequestParam String tagName){
+        Response<List<Document>> response = Response.<List<Document>>builder()
+                .message("Search Document Successful")
+                .payload(documentService.searchDocumentByTagName(workspaceId, tagName))
+                .dateTime(LocalDateTime.now())
+                .status(HttpStatus.OK)
+                .build();
+        return ResponseEntity.ok().body(response);
+    }
+
+    @DeleteMapping("documents/{documentId}")
+    @Operation(summary = "Delete Document")
+    public ResponseEntity<Response<Document>> deleteDocument(@PathVariable UUID documentId){
+        documentService.deleteDocument(documentId);
+        Response<Document> response = Response.<Document>builder()
+                .message("Delete Document Successful")
+                .payload(null)
+                .dateTime(LocalDateTime.now())
+                .status(HttpStatus.OK)
+                .build();
+        return ResponseEntity.ok().body(response);
+    }
 }

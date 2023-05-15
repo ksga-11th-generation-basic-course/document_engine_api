@@ -64,4 +64,12 @@ public interface DocumentRepository {
 
     @Insert("INSERT INTO tag_document(tag_id, document_id) VALUES (#{tagId}, #{documentId});")
     void InsertTagIdAndDocumentIdIntoTagDocument(UUID tagId, UUID documentId);
+
+    @ResultMap("documentMap")
+    @Select("SELECT d.document_id, title, status, created_date, page_id, d.workspace_id FROM tags INNER JOIN tag_document td ON tags.tag_id = td.tag_id INNER JOIN documents d ON d.document_id = td.document_id WHERE d.workspace_id = #{workspaceId} AND tag_name = #{tagName};")
+    List<Document> searchDocumentByTagName(UUID workspaceId, String tagName);
+
+    @ResultMap("documentMap")
+    @Delete("DELETE FROM documents WHERE document_id = #{documentId};")
+    void deleteDocument(UUID documentId);
 }

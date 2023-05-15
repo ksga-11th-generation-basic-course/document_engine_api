@@ -18,7 +18,7 @@ public interface UserAuthenticationRepository {
 
     //get user by email
     @Select("SELECT * FROM users WHERE email = #{email}")
-    @Results(id = "userMap", value = {
+    @Results(id = "userAuthMap", value = {
 
             @Result(property = "userId", column = "user_id"),
             @Result(property = "username", column = "username"),
@@ -31,7 +31,7 @@ public interface UserAuthenticationRepository {
 
     //register
     @Select("INSERT INTO users(username, email,password) VALUES(#{u.username},#{u.email},#{u.password}) RETURNING *")
-    @ResultMap("userMap")
+    @ResultMap("userAuthMap")
     UserAuthentication register(@Param("u") UserAuthenticationRegisterRequest userAuthenticationRegisterRequest);
 
     //insert verify code
@@ -62,7 +62,7 @@ public interface UserAuthenticationRepository {
 
     //    update users using user id
     @Select("UPDATE users SET is_enabled = true WHERE user_id = #{userId} RETURNING *;")
-    @ResultMap("userMap")
+    @ResultMap("userAuthMap")
     UserAuthentication updateUser(UUID userId);
 
     //    delete code using digit code
@@ -76,6 +76,4 @@ public interface UserAuthenticationRepository {
     //reset password
     @Update("UPDATE users SET password = #{u.newPassword} WHERE user_id = #{id}")
     void resetPassword(@Param("u") UserAuthenticationResetPasswordRequest userAuthenticationResetPasswordRequest, UUID id);
-
-
 }

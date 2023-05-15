@@ -52,7 +52,7 @@ public class DocumentServiceImp implements DocumentService {
     public void setAccessibility(UUID documentId, UUID userId, String accessibility) {
         Boolean isOwner = documentRepository.checkIsOwner(userAuthenticationService.getUserIdOfCurrentUser(), documentId);
         if(isOwner) {
-            Boolean isTrue = false;
+            boolean isTrue = false;
             for (Accessibility access : Accessibility.values()) {
                 if (accessibility.equalsIgnoreCase(access.name())) {
                     isTrue = true;
@@ -99,6 +99,21 @@ public class DocumentServiceImp implements DocumentService {
     @Override
     public Document getDocumentById(UUID documentId) {
         return documentRepository.getDocumentById(documentId);
+    }
+
+    @Override
+    public List<Document> searchDocumentByTagName(UUID workspaceId, String tagName) {
+        return documentRepository.searchDocumentByTagName(workspaceId, tagName);
+    }
+
+    @Override
+    public void deleteDocument(UUID documentId) {
+        Boolean isOwner = documentRepository.checkIsOwner(userAuthenticationService.getUserIdOfCurrentUser(), documentId);
+        if(isOwner){
+            documentRepository.deleteDocument(documentId);
+        }else{
+            throw new NotOwnerException("You are not owner");
+        }
     }
 
 }
