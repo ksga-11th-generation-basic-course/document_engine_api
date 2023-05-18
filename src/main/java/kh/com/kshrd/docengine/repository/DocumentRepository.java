@@ -39,8 +39,8 @@ public interface DocumentRepository {
     @Select("SELECT is_owner FROM user_document WHERE user_id = #{userIdOfCurrentUser} AND document_id = #{documentId};")
     Boolean checkIsOwner(UUID userIdOfCurrentUser, UUID documentId);
     @ResultMap("documentMap")
-    @Select("SELECT * FROM documents;")
-    List<Document> getAllDocument();
+    @Select("SELECT * FROM documents LIMIT #{pageSize} OFFSET #{pageNo};")
+    List<Document> getAllDocument(Integer pageNo, Integer pageSize);
 
     @ResultMap("documentMap")
     @Select("SELECT * FROM documents WHERE document_id = #{documentId};")
@@ -51,8 +51,8 @@ public interface DocumentRepository {
     Document viewDocument(UUID documentId);
 
     @ResultMap("documentMap")
-    @Select("SELECT * FROM documents WHERE workspace_id = #{workspaceId};")
-    List<Document> getDocumentInEachWorkspace(UUID workspaceId);
+    @Select("SELECT * FROM documents WHERE workspace_id = #{workspaceId} LIMIT #{pageSize} OFFSET #{pageNo};")
+    List<Document> getDocumentInEachWorkspace(UUID workspaceId, Integer pageNo, Integer pageSize);
 
     @ResultMap("documentMap")
     @Select("INSERT INTO documents(title, created_date, page_id, workspace_id) SELECT title, created_date, page_id, workspace_id FROM documents WHERE document_id = #{documentId} RETURNING *;")
@@ -72,4 +72,7 @@ public interface DocumentRepository {
     @ResultMap("documentMap")
     @Delete("DELETE FROM documents WHERE document_id = #{documentId};")
     void deleteDocument(UUID documentId);
+
+    @Delete("DELETE FROM tag_document WHERE document_id = #{documentId};")
+    void deleteTagIdAndDocumentIdInTagDocument(UUID documentId);
 }

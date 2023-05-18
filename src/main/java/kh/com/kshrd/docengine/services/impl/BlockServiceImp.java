@@ -36,4 +36,9 @@ public class BlockServiceImp implements BlockService {
     public void deleteBlock(UUID blockId) {
         blockRepository.deleteBlock(blockId);
     }
+
+    @Override
+    public Block getBlockForEachDocument(UUID documentId) {
+        return blockRepository.getBlockForEachDocument(documentId);
+    }
 }

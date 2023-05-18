@@ -3,12 +3,9 @@ package kh.com.kshrd.docengine.security.repository;
 
 import kh.com.kshrd.docengine.security.model.entity.OptCode;
 import kh.com.kshrd.docengine.security.model.entity.UserAuthentication;
-import kh.com.kshrd.docengine.configuration.UuidTypeHandler;
 import kh.com.kshrd.docengine.security.model.request.UserAuthenticationRegisterRequest;
 import kh.com.kshrd.docengine.security.model.request.UserAuthenticationResetPasswordRequest;
-import kh.com.kshrd.docengine.security.model.response.UserAuthenticationRegisterResponse;
 import org.apache.ibatis.annotations.*;
-import org.springframework.security.core.parameters.P;
 
 import java.util.UUID;
 
@@ -19,7 +16,6 @@ public interface UserAuthenticationRepository {
     //get user by email
     @Select("SELECT * FROM users WHERE email = #{email}")
     @Results(id = "userAuthMap", value = {
-
             @Result(property = "userId", column = "user_id"),
             @Result(property = "username", column = "username"),
             @Result(property = "email", column = "email"),
@@ -49,10 +45,10 @@ public interface UserAuthenticationRepository {
             @Result(property = "hasVerified", column = "has_verified"),
             @Result(property = "userId", column = "user_id")
     })
-    OptCode getOtpCode(Integer code);
+    OptCode getOtpCode(String code);
 
     //update opt code
-    @Update("UPDATE opt_codes SET digit_code = #{o.digitCode}, create_date = #{o.createdDate} , expired_date = #{o.expiredDate} WHERE user_id = #{o.userId}")
+    @Update("UPDATE opt_codes SET digit_code = #{o.digitCode}, create_date = #{o.createdDate} , expired_date = #{o.expiredDate}, has_verified = false WHERE user_id = #{o.userId}")
     void updateOptCode(@Param("o") OptCode optCode);
 
     //get opt code by user id
@@ -65,15 +61,22 @@ public interface UserAuthenticationRepository {
     @ResultMap("userAuthMap")
     UserAuthentication updateUser(UUID userId);
 
-    //    delete code using digit code
-    @Delete("DELETE  FROM opt_codes WHERE digit_code = #{code}")
-    void deleteCode(Integer code);
-
     //update status
     @Update("UPDATE opt_codes SET has_verified = true WHERE digit_code = #{code}")
-    void verifyCode(Integer code);
+    void verifyCode(String code);
 
     //reset password
     @Update("UPDATE users SET password = #{u.newPassword} WHERE user_id = #{id}")
     void resetPassword(@Param("u") UserAuthenticationResetPasswordRequest userAuthenticationResetPasswordRequest, UUID id);
+
+    @Select("SELECT has_verified FROM opt_codes INNER JOIN users u ON u.user_id = opt_codes.user_id WHERE email = #{email};")
+    Boolean checkIsVerify(String email);
+
+    @Select("UPDATE users SET is_enabled = true WHERE user_id = #{userId} RETURNING *;")
+    @ResultMap("userAuthMap")
+    UserAuthentication enableAccount(UUID userId);
+
+    @Select("UPDATE opt_codes SET has_verified = true WHERE digit_code = #{optCode} RETURNING *;")
+    @ResultMap("codeMap")
+    OptCode verifyForEnableAccount(String optCode);
 }

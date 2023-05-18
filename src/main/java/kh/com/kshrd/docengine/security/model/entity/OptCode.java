@@ -13,7 +13,7 @@ import java.util.UUID;
 public class OptCode {
 
     private UUID optId;
-    private Integer digitCode;
+    private String digitCode;
     private LocalDateTime createdDate;
     private LocalDateTime expiredDate;
     private Boolean hasVerified;

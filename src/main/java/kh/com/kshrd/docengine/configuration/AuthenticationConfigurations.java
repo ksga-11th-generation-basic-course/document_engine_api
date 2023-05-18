@@ -46,7 +46,7 @@ public class AuthenticationConfigurations {
                 .authorizeHttpRequests()
                 .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                 .requestMatchers("/api/v1/users/authentication/**").permitAll()
-                .requestMatchers("/api/v1/users/enable/account/{userId}").permitAll()
+                .requestMatchers("/api/v1/contacts").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint).and().sessionManagement()

@@ -14,4 +14,6 @@ public interface BlockService {
     Block editBlock(UUID blockId, String content);
 
     void deleteBlock(UUID blockId);
+
+    Block getBlockForEachDocument(UUID documentId);
 }

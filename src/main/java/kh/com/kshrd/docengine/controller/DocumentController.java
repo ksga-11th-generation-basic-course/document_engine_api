@@ -3,6 +3,7 @@ package kh.com.kshrd.docengine.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import kh.com.kshrd.docengine.model.Document;
+import kh.com.kshrd.docengine.model.Tag;
 import kh.com.kshrd.docengine.model.request.DocumentRequest;
 import kh.com.kshrd.docengine.model.response.Response;
 import kh.com.kshrd.docengine.services.DocumentService;
@@ -39,10 +40,11 @@ public class DocumentController {
 
     @PutMapping("documents/{documentId}")
     @Operation(summary = "Edit Document")
-    public ResponseEntity<Response<Document>> editDocument(@PathVariable UUID documentId, @RequestParam String title){
+    public ResponseEntity<Response<Document>> editDocument(@PathVariable UUID documentId, @RequestParam String title, @RequestBody List<UUID> tags){
+        Document document = documentService.editDocument(documentId, title, tags);
         Response<Document> response = Response.<Document>builder()
                 .message("Edit Document Successful")
-                .payload(documentService.editDocument(documentId, title))
+                .payload(documentService.getDocumentByDocumentId(document.getDocumentId()))
                 .dateTime(LocalDateTime.now())
                 .status(HttpStatus.OK)
                 .build();
@@ -77,10 +79,10 @@ public class DocumentController {
 
     @GetMapping("documents")
     @Operation(summary = "Get All Document")
-    public ResponseEntity<Response<List<Document>>> getAllDocument(){
+    public ResponseEntity<Response<List<Document>>> getAllDocument(@RequestParam(defaultValue = "1") Integer pageNo, @RequestParam(defaultValue = "5") Integer pageSize){
         Response<List<Document>> response = Response.<List<Document>>builder()
                 .message("Get All Document Successful")
-                .payload(documentService.getAllDocument())
+                .payload(documentService.getAllDocument(pageNo, pageSize))
                 .dateTime(LocalDateTime.now())
                 .status(HttpStatus.OK)
                 .build();
@@ -101,10 +103,10 @@ public class DocumentController {
 
     @GetMapping("documents/{workspaceId}/workspace-document")
     @Operation(summary = "Get Document In Each Workspace")
-    public ResponseEntity<Response<List<Document>>> getDocumentInEachWorkspace(@PathVariable UUID workspaceId){
+    public ResponseEntity<Response<List<Document>>> getDocumentInEachWorkspace(@PathVariable UUID workspaceId, @RequestParam(defaultValue = "1") Integer pageNo, @RequestParam(defaultValue = "5") Integer pageSize){
         Response<List<Document>> response = Response.<List<Document>>builder()
                 .message("Get Document In Each Workspace Successful")
-                .payload(documentService.getDocumentInEachWorkspace(workspaceId))
+                .payload(documentService.getDocumentInEachWorkspace(workspaceId, pageNo, pageSize))
                 .dateTime(LocalDateTime.now())
                 .status(HttpStatus.OK)
                 .build();

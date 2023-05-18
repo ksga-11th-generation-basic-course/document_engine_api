@@ -9,17 +9,17 @@ import java.util.UUID;
 public interface DocumentService {
     Document createDocument(DocumentRequest documentRequest);
 
-    Document editDocument(UUID documentId, String title);
+    Document editDocument(UUID documentId, String title, List<UUID> tags);
 
     void currentEditing(UUID documentId);
 
     void setAccessibility(UUID documentId, UUID userId, String accessibility);
 
-    List<Document> getAllDocument();
+    List<Document> getAllDocument(Integer pageNo, Integer pageSize);
 
     Document viewDocument(UUID documentId);
 
-    List<Document> getDocumentInEachWorkspace(UUID workspaceId);
+    List<Document> getDocumentInEachWorkspace(UUID workspaceId, Integer pageNo, Integer pageSize);
 
     Document duplicateDocument(UUID documentId);
 
@@ -28,4 +28,6 @@ public interface DocumentService {
     List<Document> searchDocumentByTagName(UUID workspaceId, String tagName);
 
     void deleteDocument(UUID documentId);
+
+    Document getDocumentByDocumentId(UUID documentId);
 }

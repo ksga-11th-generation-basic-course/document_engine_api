@@ -2,6 +2,7 @@ package kh.com.kshrd.docengine.services.impl;
 
 import kh.com.kshrd.docengine.exceptions.BadRequestException;
 import kh.com.kshrd.docengine.exceptions.NotEditorException;
+import kh.com.kshrd.docengine.exceptions.NotFoundException;
 import kh.com.kshrd.docengine.exceptions.NotOwnerException;
 import kh.com.kshrd.docengine.model.Block;
 import kh.com.kshrd.docengine.model.Document;
@@ -35,12 +36,15 @@ public class DocumentServiceImp implements DocumentService {
     }
 
     @Override
-    public Document editDocument(UUID documentId, String title) {
+    public Document editDocument(UUID documentId, String title, List<UUID> tags) {
         String checkAccessibility = documentRepository.checkAccessibility(userAuthenticationService.getUserIdOfCurrentUser(), documentId);
         if(!Objects.equals(checkAccessibility, "Editor")){
             throw new NotEditorException("Your accessibility is not editor");
         }
-        return documentRepository.editDocument(documentId, title);
+        Document document = documentRepository.editDocument(documentId, title);
+        documentRepository.deleteTagIdAndDocumentIdInTagDocument(documentId);
+        tags.forEach(tagId -> documentRepository.InsertTagIdAndDocumentIdIntoTagDocument(tagId, document.getDocumentId()));
+        return document;
     }
 
     @Override
@@ -72,8 +76,13 @@ public class DocumentServiceImp implements DocumentService {
     }
 
     @Override
-    public List<Document> getAllDocument() {
-        return documentRepository.getAllDocument();
+    public List<Document> getAllDocument(Integer pageNo, Integer pageSize) {
+        pageNo = (pageNo - 1) * pageSize;
+        List<Document> documents = documentRepository.getAllDocument(pageNo, pageSize);
+        if(documents.isEmpty()){
+            throw new NotFoundException("Empty document");
+        }
+        return documents;
     }
 
     @Override
@@ -82,8 +91,13 @@ public class DocumentServiceImp implements DocumentService {
     }
 
     @Override
-    public List<Document> getDocumentInEachWorkspace(UUID workspaceId) {
-        return documentRepository.getDocumentInEachWorkspace(workspaceId);
+    public List<Document> getDocumentInEachWorkspace(UUID workspaceId, Integer pageNo, Integer pageSize) {
+        pageNo = (pageNo - 1) * pageSize;
+        List<Document> documents = documentRepository.getDocumentInEachWorkspace(workspaceId, pageNo, pageSize);
+        if(documents.isEmpty()){
+            throw new NotFoundException("Empty document");
+        }
+        return documents;
     }
 
     @Override
@@ -114,6 +128,11 @@ public class DocumentServiceImp implements DocumentService {
         }else{
             throw new NotOwnerException("You are not owner");
         }
+    }
+
+    @Override
+    public Document getDocumentByDocumentId(UUID documentId) {
+        return documentRepository.getDocumentByDocumentId(documentId);
     }
 
 }
