@@ -36,18 +36,6 @@ public class BlockController {
         return ResponseEntity.ok().body(response);
     }
 
-    @GetMapping("blocks")
-    @Operation(summary = "Get All Block")
-    public ResponseEntity<Response<List<Block>>> getAllBlock(){
-        Response<List<Block>> response = Response.<List<Block>>builder()
-                .message("Get Block Data Successful")
-                .payload(blockService.getBlockData())
-                .dateTime(LocalDateTime.now())
-                .status(HttpStatus.OK)
-                .build();
-        return ResponseEntity.ok().body(response);
-    }
-
     @PutMapping("blocks/{blockId}")
     @Operation(summary = "Edit Block")
     public ResponseEntity<Response<Block>> editBlock(@PathVariable UUID blockId, @RequestBody String content){

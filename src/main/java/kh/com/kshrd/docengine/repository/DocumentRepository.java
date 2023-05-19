@@ -2,9 +2,12 @@ package kh.com.kshrd.docengine.repository;
 
 import kh.com.kshrd.docengine.model.Document;
 import kh.com.kshrd.docengine.model.request.DocumentRequest;
+
+import kh.com.kshrd.docengine.repository.provider.DocumentSqlProvider;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Mapper
@@ -39,10 +42,6 @@ public interface DocumentRepository {
     @Select("SELECT is_owner FROM user_document WHERE user_id = #{userIdOfCurrentUser} AND document_id = #{documentId};")
     Boolean checkIsOwner(UUID userIdOfCurrentUser, UUID documentId);
     @ResultMap("documentMap")
-    @Select("SELECT * FROM documents LIMIT #{pageSize} OFFSET #{pageNo};")
-    List<Document> getAllDocument(Integer pageNo, Integer pageSize);
-
-    @ResultMap("documentMap")
     @Select("SELECT * FROM documents WHERE document_id = #{documentId};")
     Document getDocumentByDocumentId(UUID documentId);
 
@@ -58,10 +57,6 @@ public interface DocumentRepository {
     @Select("INSERT INTO documents(title, created_date, page_id, workspace_id) SELECT title, created_date, page_id, workspace_id FROM documents WHERE document_id = #{documentId} RETURNING *;")
     Document duplicateDocument(UUID documentId);
 
-    @ResultMap("documentMap")
-    @Select("SELECT * FROM documents WHERE document_id = #{documentId}")
-    Document getDocumentById(UUID documentId);
-
     @Insert("INSERT INTO tag_document(tag_id, document_id) VALUES (#{tagId}, #{documentId});")
     void InsertTagIdAndDocumentIdIntoTagDocument(UUID tagId, UUID documentId);
 
@@ -75,4 +70,8 @@ public interface DocumentRepository {
 
     @Delete("DELETE FROM tag_document WHERE document_id = #{documentId};")
     void deleteTagIdAndDocumentIdInTagDocument(UUID documentId);
+
+    @ResultMap("documentMap")
+    @SelectProvider(type = DocumentSqlProvider.class, method = "getDocumentsByWorkspaceAndTags")
+    Set<Document> searchDocumentByManyTagName(UUID workspaceId, List<String> tags);
 }

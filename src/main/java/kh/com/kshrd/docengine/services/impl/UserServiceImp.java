@@ -1,6 +1,7 @@
 package kh.com.kshrd.docengine.services.impl;
 
 import kh.com.kshrd.docengine.configuration.Encoder;
+import kh.com.kshrd.docengine.exceptions.BadRequestException;
 import kh.com.kshrd.docengine.exceptions.NotFoundException;
 import kh.com.kshrd.docengine.model.User;
 import kh.com.kshrd.docengine.repository.UserRepository;
@@ -32,6 +33,11 @@ public class UserServiceImp implements UserService {
 
     @Override
     public User changeUsername(String username) {
+        if(username == null){
+            throw new BadRequestException("Username cannot be null");
+        }else if(username.isBlank()){
+            throw new BadRequestException("Username cannot be blank or empty");
+        }
         return userRepository.changeUsername(userAuthenticationService.getUserIdOfCurrentUser(), username);
     }
 
@@ -62,7 +68,11 @@ public class UserServiceImp implements UserService {
 
     @Override
     public List<User> getAllUser() {
-        return userRepository.getAllUser();
+        List<User> users = userRepository.getAllUser();
+        if(users.isEmpty()){
+            throw new NotFoundException("Empty user");
+        }
+        return users;
     }
 
     @Override

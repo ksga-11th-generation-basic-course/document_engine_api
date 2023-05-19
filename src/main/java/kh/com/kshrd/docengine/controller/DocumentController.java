@@ -3,7 +3,6 @@ package kh.com.kshrd.docengine.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import kh.com.kshrd.docengine.model.Document;
-import kh.com.kshrd.docengine.model.Tag;
 import kh.com.kshrd.docengine.model.request.DocumentRequest;
 import kh.com.kshrd.docengine.model.response.Response;
 import kh.com.kshrd.docengine.services.DocumentService;
@@ -14,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @RestController
@@ -31,7 +31,7 @@ public class DocumentController {
         Document document = documentService.createDocument(documentRequest);
         Response<Document> response = Response.<Document>builder()
                 .message("Create Document Successful")
-                .payload(documentService.getDocumentById(document.getDocumentId()))
+                .payload(documentService.getDocumentByDocumentId(document.getDocumentId()))
                 .dateTime(LocalDateTime.now())
                 .status(HttpStatus.OK)
                 .build();
@@ -51,7 +51,7 @@ public class DocumentController {
         return ResponseEntity.ok().body(response);
     }
 
-    @PutMapping("documents/{documentId}/current-editing")
+    @PutMapping("documents/{documentId}/current/editing")
     @Operation(summary = "Current Editing Document")
     public ResponseEntity<Response<Document>> editDocument(@PathVariable UUID documentId){
         documentService.currentEditing(documentId);
@@ -64,25 +64,13 @@ public class DocumentController {
         return ResponseEntity.ok().body(response);
     }
 
-    @PutMapping("documents/{documentId}/{userId}/set-accessibility")
+    @PutMapping("documents/{documentId}/{userId}/set/accessibility")
     @Operation(summary = "Set Accessibility")
     public ResponseEntity<Response<Document>> setAccessibility(@PathVariable UUID documentId, @PathVariable UUID userId, @RequestParam String accessibility){
         documentService.setAccessibility(documentId, userId, accessibility);
         Response<Document> response = Response.<Document>builder()
                 .message("Set Accessibility Successful")
                 .payload(null)
-                .dateTime(LocalDateTime.now())
-                .status(HttpStatus.OK)
-                .build();
-        return ResponseEntity.ok().body(response);
-    }
-
-    @GetMapping("documents")
-    @Operation(summary = "Get All Document")
-    public ResponseEntity<Response<List<Document>>> getAllDocument(@RequestParam(defaultValue = "1") Integer pageNo, @RequestParam(defaultValue = "5") Integer pageSize){
-        Response<List<Document>> response = Response.<List<Document>>builder()
-                .message("Get All Document Successful")
-                .payload(documentService.getAllDocument(pageNo, pageSize))
                 .dateTime(LocalDateTime.now())
                 .status(HttpStatus.OK)
                 .build();
@@ -101,7 +89,7 @@ public class DocumentController {
         return ResponseEntity.ok().body(response);
     }
 
-    @GetMapping("documents/{workspaceId}/workspace-document")
+    @GetMapping("documents/{workspaceId}/workspace/document")
     @Operation(summary = "Get Document In Each Workspace")
     public ResponseEntity<Response<List<Document>>> getDocumentInEachWorkspace(@PathVariable UUID workspaceId, @RequestParam(defaultValue = "1") Integer pageNo, @RequestParam(defaultValue = "5") Integer pageSize){
         Response<List<Document>> response = Response.<List<Document>>builder()
@@ -113,7 +101,7 @@ public class DocumentController {
         return ResponseEntity.ok().body(response);
     }
 
-    @PostMapping("documents/{documentId}/duplicate-document")
+    @PostMapping("documents/{documentId}/duplicate/document")
     @Operation(summary = "Duplicate Document")
     public ResponseEntity<Response<Document>> duplicateDocument(@PathVariable UUID documentId){
         Response<Document> response = Response.<Document>builder()
@@ -125,7 +113,7 @@ public class DocumentController {
         return ResponseEntity.ok().body(response);
     }
 
-    @GetMapping("documents/{workspaceId}/search-document-by-tag-name")
+    @GetMapping("documents/{workspaceId}/filter/document/by/tag/name")
     @Operation(summary = "Search Document By TagName")
     public ResponseEntity<Response<List<Document>>> searchDocumentByTagName(@PathVariable UUID workspaceId, @RequestParam String tagName){
         Response<List<Document>> response = Response.<List<Document>>builder()
@@ -144,6 +132,18 @@ public class DocumentController {
         Response<Document> response = Response.<Document>builder()
                 .message("Delete Document Successful")
                 .payload(null)
+                .dateTime(LocalDateTime.now())
+                .status(HttpStatus.OK)
+                .build();
+        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("documents/{workspaceId}/filter/document/by/many/tag/name")
+    @Operation(summary = "Search Document By Many TagName")
+    public ResponseEntity<Response<Set<Document>>> searchDocumentByTagName(@PathVariable UUID workspaceId, @RequestParam List<String> tags){
+        Response<Set<Document>> response = Response.<Set<Document>>builder()
+                .message("Search Document Successful")
+                .payload(documentService.searchDocumentByManyTagName(workspaceId, tags))
                 .dateTime(LocalDateTime.now())
                 .status(HttpStatus.OK)
                 .build();

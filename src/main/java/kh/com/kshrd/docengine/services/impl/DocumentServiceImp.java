@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -37,6 +38,11 @@ public class DocumentServiceImp implements DocumentService {
 
     @Override
     public Document editDocument(UUID documentId, String title, List<UUID> tags) {
+        if(documentId == null){
+            throw new BadRequestException("Document id cannot be null");
+        } else if (documentId.toString().isBlank()) {
+            throw new BadRequestException("Document id cannot be blank or empty");
+        }
         String checkAccessibility = documentRepository.checkAccessibility(userAuthenticationService.getUserIdOfCurrentUser(), documentId);
         if(!Objects.equals(checkAccessibility, "Editor")){
             throw new NotEditorException("Your accessibility is not editor");
@@ -49,6 +55,11 @@ public class DocumentServiceImp implements DocumentService {
 
     @Override
     public void currentEditing(UUID documentId) {
+        if(documentId == null){
+            throw new BadRequestException("Document id cannot be null");
+        } else if (documentId.toString().isBlank()) {
+            throw new BadRequestException("Document id cannot be blank or empty");
+        }
         documentRepository.currentEditing(documentId);
     }
 
@@ -76,16 +87,6 @@ public class DocumentServiceImp implements DocumentService {
     }
 
     @Override
-    public List<Document> getAllDocument(Integer pageNo, Integer pageSize) {
-        pageNo = (pageNo - 1) * pageSize;
-        List<Document> documents = documentRepository.getAllDocument(pageNo, pageSize);
-        if(documents.isEmpty()){
-            throw new NotFoundException("Empty document");
-        }
-        return documents;
-    }
-
-    @Override
     public Document viewDocument(UUID documentId) {
         return documentRepository.viewDocument(documentId);
     }
@@ -102,6 +103,11 @@ public class DocumentServiceImp implements DocumentService {
 
     @Override
     public Document duplicateDocument(UUID documentId) {
+        if(documentId == null){
+            throw new BadRequestException("Document id cannot be null");
+        } else if (documentId.toString().isBlank()) {
+            throw new BadRequestException("Document id cannot be blank or empty");
+        }
         Document document = documentRepository.duplicateDocument(documentId);
         List<Block> blocks = blockRepository.duplicateBlock(documentId);
         for (Block block : blocks){
@@ -111,13 +117,12 @@ public class DocumentServiceImp implements DocumentService {
     }
 
     @Override
-    public Document getDocumentById(UUID documentId) {
-        return documentRepository.getDocumentById(documentId);
-    }
-
-    @Override
     public List<Document> searchDocumentByTagName(UUID workspaceId, String tagName) {
-        return documentRepository.searchDocumentByTagName(workspaceId, tagName);
+        List<Document> documents = documentRepository.searchDocumentByTagName(workspaceId, tagName);
+        if(documents.isEmpty()){
+            throw new NotFoundException("Empty document");
+        }
+        return documents;
     }
 
     @Override
@@ -132,7 +137,25 @@ public class DocumentServiceImp implements DocumentService {
 
     @Override
     public Document getDocumentByDocumentId(UUID documentId) {
-        return documentRepository.getDocumentByDocumentId(documentId);
+        if(documentId == null){
+            throw new BadRequestException("Document id cannot be null");
+        } else if (documentId.toString().isBlank()) {
+            throw new BadRequestException("Document id cannot be blank or empty");
+        }
+        Document document = documentRepository.getDocumentByDocumentId(documentId);
+        if(document == null){
+            throw new NotFoundException("Not found document");
+        }
+        return document;
+    }
+
+    @Override
+    public Set<Document> searchDocumentByManyTagName(UUID workspaceId, List<String> tags) {
+       Set<Document> documents = documentRepository.searchDocumentByManyTagName(workspaceId, tags);
+        if(documents.isEmpty()){
+            throw new NotFoundException("Empty document");
+        }
+        return documents;
     }
 
 }

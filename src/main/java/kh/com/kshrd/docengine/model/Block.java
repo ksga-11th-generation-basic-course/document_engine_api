@@ -15,5 +15,5 @@ public class Block {
     private String blockType;
     private Map<String, Object> content;
     private Integer order;
-    private Document documentId;
+    private UUID documentId;
 }

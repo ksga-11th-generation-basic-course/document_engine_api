@@ -21,10 +21,6 @@ public interface BlockRepository {
     Block createBlock(@Param("d") BlockRequest blockRequest);
 
     @ResultMap("blockMap")
-    @Select("SELECT * FROM blocks;")
-    List<Block> getBlockData();
-
-    @ResultMap("blockMap")
     @Select("UPDATE blocks SET block_content = #{content} WHERE block_id = #{blockId} RETURNING *;")
     Block editBlock(UUID blockId, String content);
 
@@ -41,7 +37,7 @@ public interface BlockRepository {
     void updateDocumentIdForDuplicateBlock(UUID documentId, UUID blockId);
 
     @ResultMap("blockMap")
-    @Select("SELECT * FROM blocks WHERE documentId = #{documentId};")
+    @Select("SELECT * FROM blocks WHERE document_id = #{documentId};")
     Block getBlockForEachDocument(UUID documentId);
 }
 

@@ -13,4 +13,5 @@ import java.util.UUID;
 public class BlockRequest {
     private String blockType;
     private Map<String, Object> content;
+    private UUID documentId;
 }
