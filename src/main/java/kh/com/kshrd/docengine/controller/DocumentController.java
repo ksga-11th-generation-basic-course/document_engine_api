@@ -51,7 +51,12 @@ public class DocumentController {
         return ResponseEntity.ok().body(response);
     }
 
+
+    @PutMapping("documents/{documentId}/current-" +
+            "editing")
+
     @PutMapping("documents/{documentId}/current/editing")
+
     @Operation(summary = "Current Editing Document")
     public ResponseEntity<Response<Document>> editDocument(@PathVariable UUID documentId){
         documentService.currentEditing(documentId);
