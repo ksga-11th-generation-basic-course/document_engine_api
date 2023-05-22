@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -38,7 +39,7 @@ public class BlockController {
 
     @PutMapping("blocks/{blockId}")
     @Operation(summary = "Edit Block")
-    public ResponseEntity<Response<Block>> editBlock(@PathVariable UUID blockId, @RequestBody String content){
+    public ResponseEntity<Response<Block>> editBlock(@PathVariable UUID blockId, @RequestBody Map<String, Object> content){
         Response<Block> response = Response.<Block>builder()
                 .message("Edit Block Successful")
                 .payload(blockService.editBlock(blockId, content))
@@ -63,8 +64,8 @@ public class BlockController {
 
     @GetMapping("blocks/get/block/For/each/document/{documentId}")
     @Operation(summary = "Get Block For Each Document")
-    public ResponseEntity<Response<Block>> getBlockForEachDocument(@PathVariable UUID documentId){
-        Response<Block> response = Response.<Block>builder()
+    public ResponseEntity<Response<List<Block>>> getBlockForEachDocument(@PathVariable UUID documentId){
+        Response<List<Block>> response = Response.<List<Block>>builder()
                 .message("Get Block For Each Document Successful")
                 .payload(blockService.getBlockForEachDocument(documentId))
                 .dateTime(LocalDateTime.now())

@@ -74,4 +74,8 @@ public interface DocumentRepository {
     @ResultMap("documentMap")
     @SelectProvider(type = DocumentSqlProvider.class, method = "getDocumentsByWorkspaceAndTags")
     Set<Document> searchDocumentByManyTagName(UUID workspaceId, List<String> tags);
+
+    @ResultMap("documentMap")
+    @Select("UPDATE documents SET title = history.title FROM (SELECT title FROM histories WHERE history_id = #{historyId}) AS history WHERE document_id = #{documentId} RETURNING *;")
+    Document restoreDocument(UUID historyId, UUID documentId);
 }

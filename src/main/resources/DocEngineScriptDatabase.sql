@@ -62,7 +62,7 @@ CREATE TABLE IF NOT EXISTS blocks
 (
     block_id      UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     block_type    VARCHAR(255) NOT NULL,
-    block_content VARCHAR(300),
+    block_content JSON,
     block_order   INT       NOT NULL,
     document_id UUID NOT NULL,
     CONSTRAINT documents_fk FOREIGN KEY (document_id) REFERENCES documents(document_id) ON DELETE CASCADE ON UPDATE CASCADE
@@ -120,7 +120,7 @@ CREATE TABLE IF NOT EXISTS history_block
 (
     history_block_id      UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     history_block_type    VARCHAR(255) NOT NULL,
-    history_block_content VARCHAR(300),
+    history_block_content JSON,
     history_block_order   INT       NOT NULL,
     history_id UUID NOT NULL,
     CONSTRAINT histories_fk FOREIGN KEY (history_id) REFERENCES histories(history_id) ON DELETE CASCADE ON UPDATE CASCADE
