@@ -1,6 +1,6 @@
 package kh.com.kshrd.docengine.security.services.impl;
 
-import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.MessagingException;
 import kh.com.kshrd.docengine.configuration.Encoder;
 import kh.com.kshrd.docengine.exceptions.BadRequestException;
 import kh.com.kshrd.docengine.exceptions.NotFoundException;
@@ -8,35 +8,27 @@ import kh.com.kshrd.docengine.exceptions.NotVerifyException;
 import kh.com.kshrd.docengine.exceptions.ValueNotEqualException;
 import kh.com.kshrd.docengine.security.model.entity.OptCode;
 import kh.com.kshrd.docengine.security.model.entity.UserAuthentication;
-import kh.com.kshrd.docengine.security.model.request.UserAuthenticationForgotRequest;
 import kh.com.kshrd.docengine.security.model.request.UserAuthenticationRegisterRequest;
 import kh.com.kshrd.docengine.security.model.request.UserAuthenticationResetPasswordRequest;
 import kh.com.kshrd.docengine.security.repository.UserAuthenticationRepository;
-import kh.com.kshrd.docengine.security.services.EmailServices;
-import kh.com.kshrd.docengine.security.services.UserAuthenticationServices;
+import kh.com.kshrd.docengine.security.services.EmailService;
+import kh.com.kshrd.docengine.security.services.UserAuthenticationService;
 import lombok.AllArgsConstructor;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
-import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.Date;
 import java.util.Objects;
 import java.util.Random;
 import java.util.UUID;
 
 @Service
 @AllArgsConstructor
-public class UserAuthenticationServicesImpl implements UserAuthenticationServices {
+public class UserAuthenticationServicesImpl implements UserAuthenticationService {
 
     private final UserAuthenticationRepository userRepository;
     private final Encoder encoder;
-    private final EmailServices emailServices;
+    private final EmailService emailServices;
 
 
     /* method get authentication by email*/
@@ -55,7 +47,7 @@ public class UserAuthenticationServicesImpl implements UserAuthenticationService
 
     //register
     @Override
-    public UserAuthentication register(UserAuthenticationRegisterRequest userAuthenticationRegisterRequest) {
+    public UserAuthentication register(UserAuthenticationRegisterRequest userAuthenticationRegisterRequest) throws MessagingException {
 
 
         userAuthenticationRegisterRequest.setPassword(encoder.PasswordEncoder().encode(userAuthenticationRegisterRequest.getPassword()));
@@ -67,7 +59,7 @@ public class UserAuthenticationServicesImpl implements UserAuthenticationService
 
         optCode.setUserId(userAuthentication.getUserId());
         optCode.setCreatedDate(LocalDateTime.now());
-        optCode.setExpiredDate(LocalDateTime.now().plusMinutes(1));
+        optCode.setExpiredDate(LocalDateTime.now().plusMinutes(3));
         optCode.setDigitCode(generateOptCode());
 
         userRepository.insertVerify(optCode);
@@ -80,7 +72,7 @@ public class UserAuthenticationServicesImpl implements UserAuthenticationService
 
     //    verify code of user
     @Override
-    public UserAuthentication verify(Integer code) {
+    public UserAuthentication verify(String code) {
 
         OptCode optCode = userRepository.getOtpCode(code);
 
@@ -107,9 +99,9 @@ public class UserAuthenticationServicesImpl implements UserAuthenticationService
 
     //forgot password
     @Override
-    public UserAuthentication forgotPassword(String email) {
+    public UserAuthentication forgotPassword(String email) throws MessagingException {
 
-        UserAuthentication userAuthentication = getByEmail(email);
+        getByEmail(email);
 
         return resendCode(email);
     }
@@ -117,7 +109,7 @@ public class UserAuthenticationServicesImpl implements UserAuthenticationService
 
     //resend code
     @Override
-    public UserAuthentication resendCode(String email) {
+    public UserAuthentication resendCode(String email) throws MessagingException {
 
         UserAuthentication userAuthentication = getByEmail(email);
 
@@ -134,11 +126,11 @@ public class UserAuthenticationServicesImpl implements UserAuthenticationService
 
         }
 
-        Integer code = generateOptCode();
+        String code = generateOptCode();
 
         optCode.setDigitCode(code);
         optCode.setCreatedDate(LocalDateTime.now());
-        optCode.setExpiredDate(LocalDateTime.now().plusMinutes(2));
+        optCode.setExpiredDate(LocalDateTime.now().plusMinutes(3));
 
         userRepository.updateOptCode(optCode);
 
@@ -173,11 +165,37 @@ public class UserAuthenticationServicesImpl implements UserAuthenticationService
         return userAuthentication;
     }
 
+    @Override
+    public UUID getUserIdOfCurrentUser() {
+        UserAuthentication currentUser = (UserAuthentication) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return currentUser.getUserId();
+    }
+
+    @Override
+    public Boolean checkIsVerify(String email) {
+        return userRepository.checkIsVerify(email);
+    }
+
+    @Override
+    public UserAuthentication inputEmailToEnableAccount(String email) throws MessagingException {
+        getByEmail(email);
+        return resendCode(email);
+    }
+
+    @Override
+    public UserAuthentication verifyForEnableAccount(String optCode) {
+
+        OptCode oc = userRepository.verifyForEnableAccount(optCode);
+
+        return userRepository.enableAccount(oc.getUserId());
+    }
+
 
     //generate opt code
-    static Integer generateOptCode() {
-
-        return Integer.valueOf(new DecimalFormat("000000").format(new Random().nextInt(999999)));
+    static String generateOptCode() {
+        Random random = new Random();
+        int digitCode = random.nextInt(999999);
+        return String.format("%06d", digitCode);
     }
 
 }

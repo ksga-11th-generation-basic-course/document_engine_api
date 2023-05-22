@@ -1,5 +1,7 @@
 package kh.com.kshrd.docengine.security.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import kh.com.kshrd.docengine.security.model.entity.UserAuthentication;
 import kh.com.kshrd.docengine.security.model.request.UserAuthenticationLoginRequest;
@@ -9,8 +11,8 @@ import kh.com.kshrd.docengine.security.model.response.UserAuthenticationLoginRes
 import kh.com.kshrd.docengine.model.response.Response;
 import kh.com.kshrd.docengine.security.jwt.JwtTokenUtil;
 import kh.com.kshrd.docengine.security.model.response.UserAuthenticationRegisterResponse;
-import kh.com.kshrd.docengine.security.services.UserAuthenticationServices;
-import kh.com.kshrd.docengine.security.services.JwtAuthenticationServices;
+import kh.com.kshrd.docengine.security.services.UserAuthenticationService;
+import kh.com.kshrd.docengine.security.services.JwtAuthenticationService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,14 +27,14 @@ import java.time.LocalDateTime;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping(path = "/api/v1/users")
+@RequestMapping(path = "/api/v1/users/authentication")
 public class UserAuthenticationController {
 
 
-    private final JwtAuthenticationServices jwtAuthenticationServices;
+    private final JwtAuthenticationService jwtAuthenticationServices;
     private final AuthenticationManager authenticationManager;
     private final JwtTokenUtil jwtTokenUtil;
-    private final UserAuthenticationServices userAuthenticationServices;
+    private final UserAuthenticationService userAuthenticationServices;
 
     /*    sample test in postman register
     url :  http://localhost:8080/api/v1/user/register
@@ -42,14 +44,15 @@ public class UserAuthenticationController {
           "password":"12345"
      }*/
     @PostMapping(path = "/register")
-    public ResponseEntity<?> register(@RequestBody @Valid UserAuthenticationRegisterRequest userAuthenticationRegisterRequest) {
+    @Operation(summary = "Register")
+    public ResponseEntity<?> register(@RequestBody @Valid UserAuthenticationRegisterRequest userAuthenticationRegisterRequest) throws MessagingException {
 
         UserAuthentication user = userAuthenticationServices.register(userAuthenticationRegisterRequest);
 
         Response<UserAuthenticationRegisterResponse> response = Response.<UserAuthenticationRegisterResponse>builder()
                 .message("Authentication successful")
                 .status(HttpStatus.OK)
-                .payload(new UserAuthenticationRegisterResponse(user.getUserName(), user.getEmail(), user.getProfileImage(), user.isEnable()))
+                .payload(new UserAuthenticationRegisterResponse(user.getUserName(), user.getEmail(), user.getProfileImage(), user.getIsEnable()))
                 .dateTime(LocalDateTime.now())
 
                 .build();
@@ -60,15 +63,16 @@ public class UserAuthenticationController {
         {
          url :  http://localhost:8080/api/v1/user/verify?code=754167
         }*/
-    @PostMapping(path = "/verify")
-    public ResponseEntity<?> verify(@RequestParam Integer code) {
+    @PutMapping(path = "/verify")
+    @Operation(summary = "Verify")
+    public ResponseEntity<?> verify(@RequestParam String code) {
 
         UserAuthentication user = userAuthenticationServices.verify(code);
 
         Response<UserAuthenticationRegisterResponse> response = Response.<UserAuthenticationRegisterResponse>builder()
                 .message("Verify successful")
                 .status(HttpStatus.OK)
-                .payload(new UserAuthenticationRegisterResponse(user.getUserName(), user.getEmail(), user.getProfileImage(), user.isEnable()))
+                .payload(new UserAuthenticationRegisterResponse(user.getUserName(), user.getEmail(), user.getProfileImage(), user.getIsEnable()))
                 .dateTime(LocalDateTime.now())
                 .build();
         return ResponseEntity.ok().body(response);
@@ -78,14 +82,15 @@ public class UserAuthenticationController {
       url :  http://localhost:8080/api/v1/user/resend?email=menglotdeveloper@gmail.com
      */
     @PutMapping(path = "/forgot-password")
-    public ResponseEntity<?> forgotPassword(@RequestParam String email) {
+    @Operation(summary = "Forgot Password")
+    public ResponseEntity<?> forgotPassword(@RequestParam String email) throws MessagingException {
 
         UserAuthentication user = userAuthenticationServices.forgotPassword(email);
 
         Response<UserAuthenticationRegisterResponse> response = Response.<UserAuthenticationRegisterResponse>builder()
                 .message("Let's check your email")
                 .status(HttpStatus.OK)
-                .payload(new UserAuthenticationRegisterResponse(user.getUserName(), user.getEmail(), user.getProfileImage(), user.isEnable()))
+                .payload(new UserAuthenticationRegisterResponse(user.getUserName(), user.getEmail(), user.getProfileImage(), user.getIsEnable()))
                 .dateTime(LocalDateTime.now())
                 .build();
         return ResponseEntity.ok().body(response);
@@ -101,6 +106,7 @@ public class UserAuthenticationController {
     }
   */
     @PutMapping(path = "/reset-password")
+    @Operation(summary = "Reset Password")
     public ResponseEntity<?> resetPassword(@RequestBody UserAuthenticationResetPasswordRequest userAuthenticationResetPasswordRequest, @RequestParam String email) {
 
         UserAuthentication user = userAuthenticationServices.resetPassword(userAuthenticationResetPasswordRequest, email);
@@ -108,7 +114,7 @@ public class UserAuthenticationController {
         Response<UserAuthenticationRegisterResponse> response = Response.<UserAuthenticationRegisterResponse>builder()
                 .message("Password reset successful")
                 .status(HttpStatus.OK)
-                .payload(new UserAuthenticationRegisterResponse(user.getUserName(), user.getEmail(), user.getProfileImage(), user.isEnable()))
+                .payload(new UserAuthenticationRegisterResponse(user.getUserName(), user.getEmail(), user.getProfileImage(), user.getIsEnable()))
                 .dateTime(LocalDateTime.now())
                 .build();
         return ResponseEntity.ok().body(response);
@@ -119,14 +125,15 @@ public class UserAuthenticationController {
      url :  http://localhost:8080/api/v1/user/resend?email=menglotdeveloper@gmail.com
     */
     @PutMapping(path = "/resend")
-    public ResponseEntity<?> resendCode(@RequestParam String email) {
+    @Operation(summary = "Resend Verify Code")
+    public ResponseEntity<?> resendCode(@RequestParam String email) throws MessagingException {
 
         UserAuthentication userAuthentication = userAuthenticationServices.resendCode(email);
 
         Response<UserAuthenticationRegisterResponse> response = Response.<UserAuthenticationRegisterResponse>builder()
                 .message("Resend code successful")
                 .status(HttpStatus.OK)
-                .payload(new UserAuthenticationRegisterResponse(userAuthentication.getUserName(), userAuthentication.getEmail(), userAuthentication.getProfileImage(), userAuthentication.isEnable()))
+                .payload(new UserAuthenticationRegisterResponse(userAuthentication.getUserName(), userAuthentication.getEmail(), userAuthentication.getProfileImage(), userAuthentication.getIsEnable()))
                 .dateTime(LocalDateTime.now())
 
                 .build();
@@ -140,24 +147,28 @@ public class UserAuthenticationController {
         "password":"12345"
     }*/
     @PostMapping(path = "/login")
+    @Operation(summary = "Login")
     public ResponseEntity<?> login(@Valid @RequestBody UserAuthenticationLoginRequest authenticationLoginRequest) throws Exception {
 
-        login(authenticationLoginRequest.getEmail(), authenticationLoginRequest.getPassword());
+        Boolean isVerify = userAuthenticationServices.checkIsVerify(authenticationLoginRequest.getEmail());
+        if(isVerify){
+            login(authenticationLoginRequest.getEmail(), authenticationLoginRequest.getPassword());
 
-        final UserDetails userDetails = jwtAuthenticationServices.loadUserByUsername(authenticationLoginRequest.getEmail());
-        final String token = jwtTokenUtil.generateToken(userDetails);
+            final UserDetails userDetails = jwtAuthenticationServices.loadUserByUsername(authenticationLoginRequest.getEmail());
+            final String token = jwtTokenUtil.generateToken(userDetails);
 
-        UserAuthentication authentication = userAuthenticationServices.getByEmail(authenticationLoginRequest.getEmail());
+            UserAuthentication authentication = userAuthenticationServices.getByEmail(authenticationLoginRequest.getEmail());
 
-        Response<UserAuthenticationLoginResponse> response = Response.<UserAuthenticationLoginResponse>builder()
-                .message("Authentication successful")
-                .status(HttpStatus.OK)
-                .payload(new UserAuthenticationLoginResponse(authentication.getUserName(), authentication.getEmail(), token, authentication.getProfileImage(), authentication.isEnable()))
-                .dateTime(LocalDateTime.now())
+            Response<UserAuthenticationLoginResponse> response = Response.<UserAuthenticationLoginResponse>builder()
+                    .message("Authentication successful")
+                    .status(HttpStatus.OK)
+                    .payload(new UserAuthenticationLoginResponse(authentication.getUserName(), authentication.getEmail(), token, authentication.getProfileImage(), authentication.getIsEnable()))
+                    .dateTime(LocalDateTime.now())
+                    .build();
 
-                .build();
-
-        return ResponseEntity.ok().body(response);
+            return ResponseEntity.ok().body(response);
+        }
+        return ResponseEntity.notFound().build();
     }
 
     private void login(String email, String password) throws Exception {
@@ -170,5 +181,35 @@ public class UserAuthenticationController {
         } catch (BadCredentialsException e) {
             throw new Exception("INVALID_CREDENTIALS", e);
         }
+    }
+
+    @PutMapping("/input/email/to/enable/account")
+    @Operation(summary = "Input Email To Enable Account")
+    public ResponseEntity<?> inputEmailForEnableAccount(@RequestParam String email) throws MessagingException {
+        UserAuthentication userAuthentication = userAuthenticationServices.inputEmailToEnableAccount(email);
+
+        Response<UserAuthenticationRegisterResponse> response = Response.<UserAuthenticationRegisterResponse>builder()
+                .message("Resend code successful")
+                .status(HttpStatus.OK)
+                .payload(new UserAuthenticationRegisterResponse(userAuthentication.getUserName(), userAuthentication.getEmail(), userAuthentication.getProfileImage(), userAuthentication.getIsEnable()))
+                .dateTime(LocalDateTime.now())
+
+                .build();
+        return ResponseEntity.ok().body(response);
+    }
+
+    @PutMapping("/verify/enable/account")
+    @Operation(summary = "Verify For Enable Account")
+    public ResponseEntity<?> verifyForEnableAccount(@RequestParam String optCode){
+        UserAuthentication userAuthentication = userAuthenticationServices.verifyForEnableAccount(optCode);
+
+        Response<UserAuthenticationRegisterResponse> response = Response.<UserAuthenticationRegisterResponse>builder()
+                .message("Resend code successful")
+                .status(HttpStatus.OK)
+                .payload(new UserAuthenticationRegisterResponse(userAuthentication.getUserName(), userAuthentication.getEmail(), userAuthentication.getProfileImage(), userAuthentication.getIsEnable()))
+                .dateTime(LocalDateTime.now())
+
+                .build();
+        return ResponseEntity.ok().body(response);
     }
 }
