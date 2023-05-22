@@ -8,6 +8,8 @@ import kh.com.kshrd.docengine.services.BlockService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -21,7 +23,7 @@ public class BlockServiceImp implements BlockService {
     }
 
     @Override
-    public Block editBlock(UUID blockId, String content) {
+    public Block editBlock(UUID blockId, Map<String, Object> content) {
         if(blockId == null){
             throw new BadRequestException("Block id cannot be null");
         } else if (blockId.toString().isBlank()) {
@@ -41,7 +43,7 @@ public class BlockServiceImp implements BlockService {
     }
 
     @Override
-    public Block getBlockForEachDocument(UUID documentId) {
+    public List<Block> getBlockForEachDocument(UUID documentId) {
         if(documentId == null){
             throw new BadRequestException("Document id cannot be null");
         } else if (documentId.toString().isBlank()) {

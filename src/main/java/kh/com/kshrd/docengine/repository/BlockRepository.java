@@ -6,6 +6,7 @@ import kh.com.kshrd.docengine.model.request.BlockRequest;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Mapper
@@ -17,12 +18,12 @@ public interface BlockRepository {
             @Result(property = "order", column = "block_order"),
             @Result(property = "documentId", column = "document_id")
     })
-    @Select("INSERT INTO blocks(block_type, block_content, block_order, document_id) VALUES (#{d.blockType}, #{d.content, typeHandler = kh.com.kshrd.docengine.configuration.JsonTypeHandler}::JSON , default, #{d.documentId}) RETURNING *;")
+    @Select("INSERT INTO blocks(block_type, block_content, block_order, document_id) VALUES (#{d.blockType}, #{d.content, typeHandler = kh.com.kshrd.docengine.configuration.JsonTypeHandler}::JSON , #{d.order}, #{d.documentId}) RETURNING *;")
     Block createBlock(@Param("d") BlockRequest blockRequest);
 
     @ResultMap("blockMap")
-    @Select("UPDATE blocks SET block_content = #{content} WHERE block_id = #{blockId} RETURNING *;")
-    Block editBlock(UUID blockId, String content);
+    @Select("UPDATE blocks SET block_content = #{content, typeHandler = kh.com.kshrd.docengine.configuration.JsonTypeHandler}::JSON WHERE block_id = #{blockId} RETURNING *;")
+    Block editBlock(UUID blockId, Map<String, Object> content);
 
     @ResultMap("blockMap")
     @Delete("DELETE FROM blocks WHERE block_id = #{blockId};")
@@ -38,6 +39,16 @@ public interface BlockRepository {
 
     @ResultMap("blockMap")
     @Select("SELECT * FROM blocks WHERE document_id = #{documentId};")
-    Block getBlockForEachDocument(UUID documentId);
+    List<Block> getBlockForEachDocument(UUID documentId);
+
+    @ResultMap("blockMap")
+    @Select("SELECT * FROM blocks WHERE document_id = #{documentId};")
+    List<Block> getBlockByDocumentId(UUID documentId);
+
+    @Delete("DELETE FROM blocks WHERE document_id = #{documentId};")
+    void deleteBlockByDocumentId(UUID documentId);
+
+    @Insert("INSERT INTO blocks(block_type, block_content, block_order, document_id) SELECT history_block_type, history_block_content, history_block_order, document_id FROM history_block INNER JOIN histories h on history_block.history_id = h.history_id WHERE h.history_id = #{historyId};")
+    void restoreBlockDocument(UUID historyId);
 }
 

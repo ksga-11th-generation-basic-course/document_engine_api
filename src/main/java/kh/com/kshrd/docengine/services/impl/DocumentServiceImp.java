@@ -6,15 +6,19 @@ import kh.com.kshrd.docengine.exceptions.NotFoundException;
 import kh.com.kshrd.docengine.exceptions.NotOwnerException;
 import kh.com.kshrd.docengine.model.Block;
 import kh.com.kshrd.docengine.model.Document;
+import kh.com.kshrd.docengine.model.History;
 import kh.com.kshrd.docengine.model.constant.Accessibility;
 import kh.com.kshrd.docengine.model.request.DocumentRequest;
+import kh.com.kshrd.docengine.repository.BlockHistoryRepository;
 import kh.com.kshrd.docengine.repository.BlockRepository;
 import kh.com.kshrd.docengine.repository.DocumentRepository;
+import kh.com.kshrd.docengine.repository.HistoryRepository;
 import kh.com.kshrd.docengine.security.services.UserAuthenticationService;
 import kh.com.kshrd.docengine.services.DocumentService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -27,6 +31,8 @@ public class DocumentServiceImp implements DocumentService {
     private final DocumentRepository documentRepository;
     private final UserAuthenticationService userAuthenticationService;
     private final BlockRepository blockRepository;
+    private final HistoryRepository historyRepository;
+    private final BlockHistoryRepository blockHistoryRepository;
 
     @Override
     public Document createDocument(DocumentRequest documentRequest) {
@@ -38,13 +44,19 @@ public class DocumentServiceImp implements DocumentService {
 
     @Override
     public Document editDocument(UUID documentId, String title, List<UUID> tags) {
-        if(documentId == null){
+        if (documentId == null) {
             throw new BadRequestException("Document id cannot be null");
         } else if (documentId.toString().isBlank()) {
             throw new BadRequestException("Document id cannot be blank or empty");
         }
+        Document documentData = documentRepository.getDocumentByDocumentId(documentId);
+        History history = historyRepository.backUpDocument(documentData.getTitle(), LocalDateTime.now(), documentData.getStatus(), userAuthenticationService.getUserIdOfCurrentUser(), documentData.getDocumentId(), documentData.getPageId(), documentData.getWorkspaceId());
+        List<Block> blocks = blockRepository.getBlockByDocumentId(documentData.getDocumentId());
+        for (Block block : blocks) {
+            blockHistoryRepository.backUpBlock(block.getBlockType(), block.getContent(), block.getOrder(), history.getHistoryId());
+        }
         String checkAccessibility = documentRepository.checkAccessibility(userAuthenticationService.getUserIdOfCurrentUser(), documentId);
-        if(!Objects.equals(checkAccessibility, "Editor")){
+        if (!Objects.equals(checkAccessibility, "Editor")) {
             throw new NotEditorException("Your accessibility is not editor");
         }
         Document document = documentRepository.editDocument(documentId, title);
@@ -55,7 +67,7 @@ public class DocumentServiceImp implements DocumentService {
 
     @Override
     public void currentEditing(UUID documentId) {
-        if(documentId == null){
+        if (documentId == null) {
             throw new BadRequestException("Document id cannot be null");
         } else if (documentId.toString().isBlank()) {
             throw new BadRequestException("Document id cannot be blank or empty");
@@ -66,7 +78,7 @@ public class DocumentServiceImp implements DocumentService {
     @Override
     public void setAccessibility(UUID documentId, UUID userId, String accessibility) {
         Boolean isOwner = documentRepository.checkIsOwner(userAuthenticationService.getUserIdOfCurrentUser(), documentId);
-        if(isOwner) {
+        if (isOwner) {
             boolean isTrue = false;
             for (Accessibility access : Accessibility.values()) {
                 if (accessibility.equalsIgnoreCase(access.name())) {
@@ -81,7 +93,7 @@ public class DocumentServiceImp implements DocumentService {
                 throw new BadRequestException("This field could not empty");
             }
             documentRepository.setAccessibility(documentId, userId, accessibility);
-        }else{
+        } else {
             throw new NotOwnerException("You are not owner");
         }
     }
@@ -95,7 +107,7 @@ public class DocumentServiceImp implements DocumentService {
     public List<Document> getDocumentInEachWorkspace(UUID workspaceId, Integer pageNo, Integer pageSize) {
         pageNo = (pageNo - 1) * pageSize;
         List<Document> documents = documentRepository.getDocumentInEachWorkspace(workspaceId, pageNo, pageSize);
-        if(documents.isEmpty()){
+        if (documents.isEmpty()) {
             throw new NotFoundException("Empty document");
         }
         return documents;
@@ -103,14 +115,14 @@ public class DocumentServiceImp implements DocumentService {
 
     @Override
     public Document duplicateDocument(UUID documentId) {
-        if(documentId == null){
+        if (documentId == null) {
             throw new BadRequestException("Document id cannot be null");
         } else if (documentId.toString().isBlank()) {
             throw new BadRequestException("Document id cannot be blank or empty");
         }
         Document document = documentRepository.duplicateDocument(documentId);
         List<Block> blocks = blockRepository.duplicateBlock(documentId);
-        for (Block block : blocks){
+        for (Block block : blocks) {
             blockRepository.updateDocumentIdForDuplicateBlock(document.getDocumentId(), block.getBlockId());
         }
         return document;
@@ -119,7 +131,7 @@ public class DocumentServiceImp implements DocumentService {
     @Override
     public List<Document> searchDocumentByTagName(UUID workspaceId, String tagName) {
         List<Document> documents = documentRepository.searchDocumentByTagName(workspaceId, tagName);
-        if(documents.isEmpty()){
+        if (documents.isEmpty()) {
             throw new NotFoundException("Empty document");
         }
         return documents;
@@ -128,22 +140,22 @@ public class DocumentServiceImp implements DocumentService {
     @Override
     public void deleteDocument(UUID documentId) {
         Boolean isOwner = documentRepository.checkIsOwner(userAuthenticationService.getUserIdOfCurrentUser(), documentId);
-        if(isOwner){
+        if (isOwner) {
             documentRepository.deleteDocument(documentId);
-        }else{
+        } else {
             throw new NotOwnerException("You are not owner");
         }
     }
 
     @Override
     public Document getDocumentByDocumentId(UUID documentId) {
-        if(documentId == null){
+        if (documentId == null) {
             throw new BadRequestException("Document id cannot be null");
         } else if (documentId.toString().isBlank()) {
             throw new BadRequestException("Document id cannot be blank or empty");
         }
         Document document = documentRepository.getDocumentByDocumentId(documentId);
-        if(document == null){
+        if (document == null) {
             throw new NotFoundException("Not found document");
         }
         return document;
@@ -151,11 +163,18 @@ public class DocumentServiceImp implements DocumentService {
 
     @Override
     public Set<Document> searchDocumentByManyTagName(UUID workspaceId, List<String> tags) {
-       Set<Document> documents = documentRepository.searchDocumentByManyTagName(workspaceId, tags);
-        if(documents.isEmpty()){
+        Set<Document> documents = documentRepository.searchDocumentByManyTagName(workspaceId, tags);
+        if (documents.isEmpty()) {
             throw new NotFoundException("Empty document");
         }
         return documents;
+    }
+
+    @Override
+    public Document restoreDocument(UUID historyId, UUID documentId) {
+        blockRepository.deleteBlockByDocumentId(documentId);
+        blockRepository.restoreBlockDocument(historyId);
+        return documentRepository.restoreDocument(historyId, documentId);
     }
 
 }

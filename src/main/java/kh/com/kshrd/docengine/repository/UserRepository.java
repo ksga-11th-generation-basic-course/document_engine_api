@@ -47,4 +47,7 @@ public interface UserRepository {
     @ResultMap("userMap")
     @Select("SELECT * FROM users WHERE user_id = #{userIdOfCurrentUser};")
     User getCurrentUser(UUID userIdOfCurrentUser);
+
+    @Select("SELECT username FROM users WHERE user_id = #{userID}")
+    String getUserNameByUserId(UUID userID);
 }

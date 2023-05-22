@@ -85,7 +85,11 @@ CREATE TABLE IF NOT EXISTS blocks
 (
     block_id      UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     block_type    VARCHAR(255) NOT NULL,
+
+    block_content JSON,
+
     block_content VARCHAR(300),
+
 
     block_order   INT       NOT NULL,
     document_id UUID NOT NULL,
@@ -170,7 +174,11 @@ CREATE TABLE history_block
 (
     history_block_id      UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     history_block_type    VARCHAR(255) NOT NULL,
+
+    history_block_content JSON,
+
     history_block_content VARCHAR(300),
+
 
     history_block_order   INT       NOT NULL,
     history_id UUID NOT NULL,
