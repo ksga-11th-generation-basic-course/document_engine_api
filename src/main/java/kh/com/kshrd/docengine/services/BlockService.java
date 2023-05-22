@@ -9,9 +9,9 @@ import java.util.UUID;
 public interface BlockService {
     Block createBlock(BlockRequest blockRequest);
 
-    List<Block> getBlockData();
-
     Block editBlock(UUID blockId, String content);
 
     void deleteBlock(UUID blockId);
+
+    Block getBlockForEachDocument(UUID documentId);
 }

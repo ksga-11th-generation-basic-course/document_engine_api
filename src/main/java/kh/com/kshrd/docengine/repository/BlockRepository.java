@@ -15,14 +15,10 @@ public interface BlockRepository {
             @Result(property = "blockType", column = "block_type"),
             @Result(property = "content", column = "block_content", typeHandler = JsonTypeHandler.class),
             @Result(property = "order", column = "block_order"),
-            @Result(property = "documentId", column = "document_id", one = @One(select = "kh.com.kshrd.docengine.repository.DocumentRepository.getDocumentByDocumentId"))
+            @Result(property = "documentId", column = "document_id")
     })
     @Select("INSERT INTO blocks(block_type, block_content, block_order, document_id) VALUES (#{d.blockType}, #{d.content, typeHandler = kh.com.kshrd.docengine.configuration.JsonTypeHandler}::JSON , default, #{d.documentId}) RETURNING *;")
     Block createBlock(@Param("d") BlockRequest blockRequest);
-
-    @ResultMap("blockMap")
-    @Select("SELECT * FROM blocks;")
-    List<Block> getBlockData();
 
     @ResultMap("blockMap")
     @Select("UPDATE blocks SET block_content = #{content} WHERE block_id = #{blockId} RETURNING *;")
@@ -39,5 +35,9 @@ public interface BlockRepository {
     @ResultMap("blockMap")
     @Update("UPDATE blocks SET document_id = #{documentId} WHERE block_id  = #{blockId};")
     void updateDocumentIdForDuplicateBlock(UUID documentId, UUID blockId);
+
+    @ResultMap("blockMap")
+    @Select("SELECT * FROM blocks WHERE document_id = #{documentId};")
+    Block getBlockForEachDocument(UUID documentId);
 }
 

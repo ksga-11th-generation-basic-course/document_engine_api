@@ -1,6 +1,7 @@
 package kh.com.kshrd.docengine.services.impl;
 
 import kh.com.kshrd.docengine.configuration.Encoder;
+import kh.com.kshrd.docengine.exceptions.BadRequestException;
 import kh.com.kshrd.docengine.exceptions.NotFoundException;
 import kh.com.kshrd.docengine.model.User;
 import kh.com.kshrd.docengine.repository.UserRepository;
@@ -14,6 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -30,12 +32,12 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
-    public User enableAccount(UUID userId) {
-        return userRepository.enableAccount(userId);
-    }
-
-    @Override
     public User changeUsername(String username) {
+        if(username == null){
+            throw new BadRequestException("Username cannot be null");
+        }else if(username.isBlank()){
+            throw new BadRequestException("Username cannot be blank or empty");
+        }
         return userRepository.changeUsername(userAuthenticationService.getUserIdOfCurrentUser(), username);
     }
 
@@ -55,30 +57,31 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
-    public User changeProfileImage(MultipartFile fileImage) {
-        Path path = Paths.get("src/main/resources/images");
-
-        String image = fileImage.getOriginalFilename();
-        UUID uuid = UUID.randomUUID();
-
-        image = uuid + image;
-
-        Path resolvePath = path;
-
-        if (!image.isEmpty()) {
-            resolvePath = path.resolve(image);
-        }
-
-        try {
-            Files.copy(fileImage.getInputStream(), resolvePath, StandardCopyOption.REPLACE_EXISTING);
-        } catch (Exception e) {
-            System.out.println("Error message {} " + e.getMessage());
-        }
+    public User changeProfileImage(String image) {
         return userRepository.changeProfileImage(userAuthenticationService.getUserIdOfCurrentUser(), image);
     }
 
     @Override
     public String getProfileImage() {
         return userRepository.getProfileImage(userAuthenticationService.getUserIdOfCurrentUser());
+    }
+
+    @Override
+    public List<User> getAllUser() {
+        List<User> users = userRepository.getAllUser();
+        if(users.isEmpty()){
+            throw new NotFoundException("Empty user");
+        }
+        return users;
+    }
+
+    @Override
+    public void deleteProfileImage() {
+        userRepository.deleteProfileImage(userAuthenticationService.getUserIdOfCurrentUser());
+    }
+
+    @Override
+    public User getCurrentUser() {
+        return userRepository.getCurrentUser(userAuthenticationService.getUserIdOfCurrentUser());
     }
 }

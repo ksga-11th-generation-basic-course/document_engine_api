@@ -25,7 +25,7 @@ public class BlockController {
     private final BlockService blockService;
 
     @PostMapping("blocks")
-    @Operation(summary = "Creating Block")
+    @Operation(summary = "Creat Block")
     public ResponseEntity<Response<Block>> createBlock(@RequestBody BlockRequest blockRequest){
         Response<Block> response = Response.<Block>builder()
                 .message("Create Block Successful")
@@ -36,20 +36,8 @@ public class BlockController {
         return ResponseEntity.ok().body(response);
     }
 
-    @GetMapping("blocks")
-    @Operation(summary = "Getting All Block")
-    public ResponseEntity<Response<List<Block>>> getAllBlock(){
-        Response<List<Block>> response = Response.<List<Block>>builder()
-                .message("Get Block Data Successful")
-                .payload(blockService.getBlockData())
-                .dateTime(LocalDateTime.now())
-                .status(HttpStatus.OK)
-                .build();
-        return ResponseEntity.ok().body(response);
-    }
-
     @PutMapping("blocks/{blockId}")
-    @Operation(summary = "Editing Block")
+    @Operation(summary = "Edit Block")
     public ResponseEntity<Response<Block>> editBlock(@PathVariable UUID blockId, @RequestBody String content){
         Response<Block> response = Response.<Block>builder()
                 .message("Edit Block Successful")
@@ -60,13 +48,25 @@ public class BlockController {
         return ResponseEntity.ok().body(response);
     }
 
-    @DeleteMapping("block/{blockId}")
-    @Operation(summary = "Deleting Block")
+    @DeleteMapping("blocks/{blockId}")
+    @Operation(summary = "Delete Block")
     public ResponseEntity<Response<Block>> deleteBlock(@PathVariable UUID blockId){
         blockService.deleteBlock(blockId);
         Response<Block> response = Response.<Block>builder()
                 .message("Delete Block Successful")
                 .payload(null)
+                .dateTime(LocalDateTime.now())
+                .status(HttpStatus.OK)
+                .build();
+        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("blocks/get/block/For/each/document/{documentId}")
+    @Operation(summary = "Get Block For Each Document")
+    public ResponseEntity<Response<Block>> getBlockForEachDocument(@PathVariable UUID documentId){
+        Response<Block> response = Response.<Block>builder()
+                .message("Get Block For Each Document Successful")
+                .payload(blockService.getBlockForEachDocument(documentId))
                 .dateTime(LocalDateTime.now())
                 .status(HttpStatus.OK)
                 .build();

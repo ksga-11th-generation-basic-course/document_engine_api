@@ -2,6 +2,7 @@ package kh.com.kshrd.docengine.services.impl;
 
 import kh.com.kshrd.docengine.exceptions.BadRequestException;
 import kh.com.kshrd.docengine.exceptions.NotEditorException;
+import kh.com.kshrd.docengine.exceptions.NotFoundException;
 import kh.com.kshrd.docengine.exceptions.NotOwnerException;
 import kh.com.kshrd.docengine.model.Block;
 import kh.com.kshrd.docengine.model.Document;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -35,16 +37,29 @@ public class DocumentServiceImp implements DocumentService {
     }
 
     @Override
-    public Document editDocument(UUID documentId, String title) {
+    public Document editDocument(UUID documentId, String title, List<UUID> tags) {
+        if(documentId == null){
+            throw new BadRequestException("Document id cannot be null");
+        } else if (documentId.toString().isBlank()) {
+            throw new BadRequestException("Document id cannot be blank or empty");
+        }
         String checkAccessibility = documentRepository.checkAccessibility(userAuthenticationService.getUserIdOfCurrentUser(), documentId);
         if(!Objects.equals(checkAccessibility, "Editor")){
             throw new NotEditorException("Your accessibility is not editor");
         }
-        return documentRepository.editDocument(documentId, title);
+        Document document = documentRepository.editDocument(documentId, title);
+        documentRepository.deleteTagIdAndDocumentIdInTagDocument(documentId);
+        tags.forEach(tagId -> documentRepository.InsertTagIdAndDocumentIdIntoTagDocument(tagId, document.getDocumentId()));
+        return document;
     }
 
     @Override
     public void currentEditing(UUID documentId) {
+        if(documentId == null){
+            throw new BadRequestException("Document id cannot be null");
+        } else if (documentId.toString().isBlank()) {
+            throw new BadRequestException("Document id cannot be blank or empty");
+        }
         documentRepository.currentEditing(documentId);
     }
 
@@ -72,22 +87,27 @@ public class DocumentServiceImp implements DocumentService {
     }
 
     @Override
-    public List<Document> getAllDocument() {
-        return documentRepository.getAllDocument();
-    }
-
-    @Override
     public Document viewDocument(UUID documentId) {
         return documentRepository.viewDocument(documentId);
     }
 
     @Override
-    public List<Document> getDocumentInEachWorkspace(UUID workspaceId) {
-        return documentRepository.getDocumentInEachWorkspace(workspaceId);
+    public List<Document> getDocumentInEachWorkspace(UUID workspaceId, Integer pageNo, Integer pageSize) {
+        pageNo = (pageNo - 1) * pageSize;
+        List<Document> documents = documentRepository.getDocumentInEachWorkspace(workspaceId, pageNo, pageSize);
+        if(documents.isEmpty()){
+            throw new NotFoundException("Empty document");
+        }
+        return documents;
     }
 
     @Override
     public Document duplicateDocument(UUID documentId) {
+        if(documentId == null){
+            throw new BadRequestException("Document id cannot be null");
+        } else if (documentId.toString().isBlank()) {
+            throw new BadRequestException("Document id cannot be blank or empty");
+        }
         Document document = documentRepository.duplicateDocument(documentId);
         List<Block> blocks = blockRepository.duplicateBlock(documentId);
         for (Block block : blocks){
@@ -97,13 +117,12 @@ public class DocumentServiceImp implements DocumentService {
     }
 
     @Override
-    public Document getDocumentById(UUID documentId) {
-        return documentRepository.getDocumentById(documentId);
-    }
-
-    @Override
     public List<Document> searchDocumentByTagName(UUID workspaceId, String tagName) {
-        return documentRepository.searchDocumentByTagName(workspaceId, tagName);
+        List<Document> documents = documentRepository.searchDocumentByTagName(workspaceId, tagName);
+        if(documents.isEmpty()){
+            throw new NotFoundException("Empty document");
+        }
+        return documents;
     }
 
     @Override
@@ -114,6 +133,29 @@ public class DocumentServiceImp implements DocumentService {
         }else{
             throw new NotOwnerException("You are not owner");
         }
+    }
+
+    @Override
+    public Document getDocumentByDocumentId(UUID documentId) {
+        if(documentId == null){
+            throw new BadRequestException("Document id cannot be null");
+        } else if (documentId.toString().isBlank()) {
+            throw new BadRequestException("Document id cannot be blank or empty");
+        }
+        Document document = documentRepository.getDocumentByDocumentId(documentId);
+        if(document == null){
+            throw new NotFoundException("Not found document");
+        }
+        return document;
+    }
+
+    @Override
+    public Set<Document> searchDocumentByManyTagName(UUID workspaceId, List<String> tags) {
+       Set<Document> documents = documentRepository.searchDocumentByManyTagName(workspaceId, tags);
+        if(documents.isEmpty()){
+            throw new NotFoundException("Empty document");
+        }
+        return documents;
     }
 
 }

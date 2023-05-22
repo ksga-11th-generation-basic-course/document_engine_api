@@ -2,6 +2,7 @@ package kh.com.kshrd.docengine.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
 import kh.com.kshrd.docengine.model.Tag;
 import kh.com.kshrd.docengine.model.request.TagRequest;
 import kh.com.kshrd.docengine.model.response.Response;
