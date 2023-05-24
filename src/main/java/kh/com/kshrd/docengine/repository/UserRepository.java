@@ -1,6 +1,6 @@
 package kh.com.kshrd.docengine.repository;
 
-import kh.com.kshrd.docengine.model.User;
+import kh.com.kshrd.docengine.model.entity.User;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;

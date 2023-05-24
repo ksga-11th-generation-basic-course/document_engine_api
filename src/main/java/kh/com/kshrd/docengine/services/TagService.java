@@ -1,6 +1,6 @@
 package kh.com.kshrd.docengine.services;
 
-import kh.com.kshrd.docengine.model.Tag;
+import kh.com.kshrd.docengine.model.entity.Tag;
 import kh.com.kshrd.docengine.model.request.TagRequest;
 
 import java.util.List;

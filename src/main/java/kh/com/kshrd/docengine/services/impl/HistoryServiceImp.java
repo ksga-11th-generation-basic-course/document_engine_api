@@ -1,6 +1,6 @@
 package kh.com.kshrd.docengine.services.impl;
 
-import kh.com.kshrd.docengine.model.History;
+import kh.com.kshrd.docengine.model.entity.History;
 import kh.com.kshrd.docengine.repository.HistoryRepository;
 import kh.com.kshrd.docengine.services.HistoryService;
 import lombok.AllArgsConstructor;

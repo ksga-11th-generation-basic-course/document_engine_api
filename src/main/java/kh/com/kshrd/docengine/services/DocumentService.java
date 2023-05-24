@@ -1,6 +1,6 @@
 package kh.com.kshrd.docengine.services;
 
-import kh.com.kshrd.docengine.model.Document;
+import kh.com.kshrd.docengine.model.entity.Document;
 import kh.com.kshrd.docengine.model.request.DocumentRequest;
 
 import java.util.List;

@@ -1,6 +1,6 @@
 package kh.com.kshrd.docengine.repository;
 
-import kh.com.kshrd.docengine.model.Workspace;
+import kh.com.kshrd.docengine.model.entity.Workspace;
 import kh.com.kshrd.docengine.model.request.WorkspaceRequest;
 import org.apache.ibatis.annotations.*;
 

@@ -1,6 +1,6 @@
 package kh.com.kshrd.docengine.repository;
 
-import kh.com.kshrd.docengine.model.Document;
+import kh.com.kshrd.docengine.model.entity.Document;
 import kh.com.kshrd.docengine.model.request.DocumentRequest;
 
 import kh.com.kshrd.docengine.repository.provider.DocumentSqlProvider;

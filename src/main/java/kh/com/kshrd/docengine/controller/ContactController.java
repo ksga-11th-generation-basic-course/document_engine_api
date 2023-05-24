@@ -22,7 +22,7 @@ public class ContactController {
 
     @PostMapping("contacts")
     @Operation(summary = "Contact Us")
-    public ResponseEntity<Response<ContactRequest>> contactUs(@RequestBody ContactRequest contactRequest) throws MessagingException {
+    public ResponseEntity<?> contactUs(@RequestBody ContactRequest contactRequest) throws MessagingException {
         contactService.contactUs(contactRequest);
         Response<ContactRequest> response = Response.<ContactRequest>builder()
                 .message("Contact Us Successful")

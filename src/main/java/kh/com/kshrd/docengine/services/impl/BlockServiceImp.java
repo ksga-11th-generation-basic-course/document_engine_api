@@ -1,7 +1,7 @@
 package kh.com.kshrd.docengine.services.impl;
 
 import kh.com.kshrd.docengine.exceptions.BadRequestException;
-import kh.com.kshrd.docengine.model.Block;
+import kh.com.kshrd.docengine.model.entity.Block;
 import kh.com.kshrd.docengine.model.request.BlockRequest;
 import kh.com.kshrd.docengine.repository.BlockRepository;
 import kh.com.kshrd.docengine.services.BlockService;

@@ -1,6 +1,6 @@
 package kh.com.kshrd.docengine.repository;
 
-import kh.com.kshrd.docengine.model.History;
+import kh.com.kshrd.docengine.model.entity.History;
 import org.apache.ibatis.annotations.*;
 
 import java.time.LocalDateTime;

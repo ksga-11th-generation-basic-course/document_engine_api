@@ -1,6 +1,6 @@
 package kh.com.kshrd.docengine.repository;
 
-import kh.com.kshrd.docengine.model.Tag;
+import kh.com.kshrd.docengine.model.entity.Tag;
 import kh.com.kshrd.docengine.model.request.TagRequest;
 import org.apache.ibatis.annotations.*;
 

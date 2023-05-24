@@ -4,10 +4,10 @@ import kh.com.kshrd.docengine.exceptions.BadRequestException;
 import kh.com.kshrd.docengine.exceptions.NotEditorException;
 import kh.com.kshrd.docengine.exceptions.NotFoundException;
 import kh.com.kshrd.docengine.exceptions.NotOwnerException;
-import kh.com.kshrd.docengine.model.Block;
-import kh.com.kshrd.docengine.model.Document;
-import kh.com.kshrd.docengine.model.History;
-import kh.com.kshrd.docengine.model.constant.Accessibility;
+import kh.com.kshrd.docengine.model.entity.Block;
+import kh.com.kshrd.docengine.model.entity.Document;
+import kh.com.kshrd.docengine.model.entity.History;
+import kh.com.kshrd.docengine.enums.EAccessibility;
 import kh.com.kshrd.docengine.model.request.DocumentRequest;
 import kh.com.kshrd.docengine.repository.BlockHistoryRepository;
 import kh.com.kshrd.docengine.repository.BlockRepository;
@@ -80,7 +80,7 @@ public class DocumentServiceImp implements DocumentService {
         Boolean isOwner = documentRepository.checkIsOwner(userAuthenticationService.getUserIdOfCurrentUser(), documentId);
         if (isOwner) {
             boolean isTrue = false;
-            for (Accessibility access : Accessibility.values()) {
+            for (EAccessibility access : EAccessibility.values()) {
                 if (accessibility.equalsIgnoreCase(access.name())) {
                     isTrue = true;
                     break;

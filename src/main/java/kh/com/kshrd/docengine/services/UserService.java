@@ -1,7 +1,6 @@
 package kh.com.kshrd.docengine.services;
 
-import kh.com.kshrd.docengine.model.User;
-import org.springframework.web.multipart.MultipartFile;
+import kh.com.kshrd.docengine.model.entity.User;
 
 import java.util.List;
 

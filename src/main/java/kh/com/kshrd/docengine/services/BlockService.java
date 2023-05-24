@@ -1,6 +1,6 @@
 package kh.com.kshrd.docengine.services;
 
-import kh.com.kshrd.docengine.model.Block;
+import kh.com.kshrd.docengine.model.entity.Block;
 import kh.com.kshrd.docengine.model.request.BlockRequest;
 
 import java.util.List;

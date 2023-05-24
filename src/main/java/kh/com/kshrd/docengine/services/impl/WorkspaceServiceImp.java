@@ -2,7 +2,7 @@ package kh.com.kshrd.docengine.services.impl;
 
 import kh.com.kshrd.docengine.exceptions.BadRequestException;
 import kh.com.kshrd.docengine.exceptions.NotOwnerException;
-import kh.com.kshrd.docengine.model.Workspace;
+import kh.com.kshrd.docengine.model.entity.Workspace;
 import kh.com.kshrd.docengine.model.request.WorkspaceRequest;
 import kh.com.kshrd.docengine.repository.WorkspaceRepository;
 import kh.com.kshrd.docengine.security.services.UserAuthenticationService;

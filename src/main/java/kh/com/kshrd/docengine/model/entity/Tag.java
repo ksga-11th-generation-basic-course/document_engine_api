@@ -1,4 +1,4 @@
-package kh.com.kshrd.docengine.model;
+package kh.com.kshrd.docengine.model.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

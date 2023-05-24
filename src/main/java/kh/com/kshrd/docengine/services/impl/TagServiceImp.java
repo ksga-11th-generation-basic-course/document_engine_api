@@ -3,7 +3,7 @@ package kh.com.kshrd.docengine.services.impl;
 import kh.com.kshrd.docengine.exceptions.BadRequestException;
 import kh.com.kshrd.docengine.exceptions.NotDuplicateException;
 import kh.com.kshrd.docengine.exceptions.NotFoundException;
-import kh.com.kshrd.docengine.model.Tag;
+import kh.com.kshrd.docengine.model.entity.Tag;
 import kh.com.kshrd.docengine.model.request.TagRequest;
 import kh.com.kshrd.docengine.repository.TagRepository;
 import kh.com.kshrd.docengine.services.TagService;

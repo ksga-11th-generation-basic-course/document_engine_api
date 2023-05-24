@@ -2,7 +2,7 @@ package kh.com.kshrd.docengine.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import kh.com.kshrd.docengine.model.Block;
+import kh.com.kshrd.docengine.model.entity.Block;
 import kh.com.kshrd.docengine.model.request.BlockRequest;
 import kh.com.kshrd.docengine.model.response.Response;
 import kh.com.kshrd.docengine.services.BlockService;
@@ -27,7 +27,7 @@ public class BlockController {
 
     @PostMapping("blocks")
     @Operation(summary = "Creat Block")
-    public ResponseEntity<Response<Block>> createBlock(@RequestBody BlockRequest blockRequest){
+    public ResponseEntity<?> createBlock(@RequestBody BlockRequest blockRequest){
         Response<Block> response = Response.<Block>builder()
                 .message("Create Block Successful")
                 .payload(blockService.createBlock(blockRequest))

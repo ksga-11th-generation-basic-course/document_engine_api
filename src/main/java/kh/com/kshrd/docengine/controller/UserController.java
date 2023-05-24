@@ -2,7 +2,7 @@ package kh.com.kshrd.docengine.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import kh.com.kshrd.docengine.model.User;
+import kh.com.kshrd.docengine.model.entity.User;
 import kh.com.kshrd.docengine.model.response.Response;
 import kh.com.kshrd.docengine.model.response.UserResponse;
 import kh.com.kshrd.docengine.services.UserService;
@@ -24,7 +24,7 @@ public class UserController {
 
     @PutMapping("users/close/account")
     @Operation(summary = "Close Account")
-    public ResponseEntity<Response<UserResponse>> closeAccount() {
+    public ResponseEntity<?> closeAccount() {
         User user = userService.closeAccount();
         Response<UserResponse> response = Response.<UserResponse>builder()
                 .message("Close Account Successful")
@@ -37,7 +37,7 @@ public class UserController {
 
     @PutMapping("users/change/username")
     @Operation(summary = "Change Username")
-    public ResponseEntity<Response<UserResponse>> changeUsername(@RequestParam String username) {
+    public ResponseEntity<?> changeUsername(@RequestParam String username) {
         User user = userService.changeUsername(username);
         Response<UserResponse> response = Response.<UserResponse>builder()
                 .message("Close Account Successful")
@@ -50,7 +50,7 @@ public class UserController {
 
     @PutMapping("users/change/password")
     @Operation(summary = "Change Password")
-    public ResponseEntity<Response<UserResponse>> changePassword(@RequestParam String currentPassword, @RequestParam String newPassword, @RequestParam String confirmNewPassword) {
+    public ResponseEntity<?> changePassword(@RequestParam String currentPassword, @RequestParam String newPassword, @RequestParam String confirmNewPassword) {
         User user = userService.changePassword(currentPassword, newPassword, confirmNewPassword);
         Response<UserResponse> response = Response.<UserResponse>builder()
                 .message("Close Account Successful")
@@ -63,7 +63,7 @@ public class UserController {
 
     @PutMapping(path = "users/change/profile/image")
     @Operation(summary = "Change Profile Image")
-    public ResponseEntity<Response<UserResponse>> changeProfileImage(@RequestBody String image) {
+    public ResponseEntity<?> changeProfileImage(@RequestBody String image) {
         User user = userService.changeProfileImage(image);
         Response<UserResponse> response = Response.<UserResponse>builder()
                 .message("Close Account Successful")
@@ -76,7 +76,7 @@ public class UserController {
 
     @GetMapping("users/get/all/user")
     @Operation(summary = "Get All User")
-    public ResponseEntity<Response<List<User>>> getAllUser(){
+    public ResponseEntity<?> getAllUser(){
         Response<List<User>> response = Response.<List<User>>builder()
                 .message("Get All User Successful")
                 .payload(userService.getAllUser())
@@ -88,7 +88,7 @@ public class UserController {
 
     @DeleteMapping("users/delete/profile/image")
     @Operation(summary = "Delete Profile Image")
-    public ResponseEntity<Response<User>> deleteProfileImage(){
+    public ResponseEntity<?> deleteProfileImage(){
         userService.deleteProfileImage();
         Response<User> response = Response.<User>builder()
                 .message("Delete Profile Image Successful")
@@ -101,7 +101,7 @@ public class UserController {
 
     @GetMapping("users/get/current/user")
     @Operation(summary = "Get Current User")
-    public ResponseEntity<Response<UserResponse>> getCurrentUser(){
+    public ResponseEntity<?> getCurrentUser(){
         User user =userService.getCurrentUser();
         Response<UserResponse> response = Response.<UserResponse>builder()
                 .message("Get Current User Successful")
