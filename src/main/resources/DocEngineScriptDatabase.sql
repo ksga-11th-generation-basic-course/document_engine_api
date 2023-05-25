@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS users
 CREATE TABLE IF NOT EXISTS opt_codes
 (
     opt_id       UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-    digit_code   INT       NOT NULL,
+    digit_code   VARCHAR(6) NOT NULL,
     created_date TIMESTAMP NOT NULL,
     expired_date TIMESTAMP NOT NULL,
     has_verified BOOLEAN,
