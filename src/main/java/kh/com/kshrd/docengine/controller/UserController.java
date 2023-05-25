@@ -18,11 +18,11 @@ import java.util.List;
 @SecurityRequirement(name = "bearerAuth")
 @AllArgsConstructor
 @CrossOrigin
-@RequestMapping("/api/v1/")
+@RequestMapping("/api/v1/users")
 public class UserController {
     private final UserService userService;
 
-    @PutMapping("users/close/account")
+    @PutMapping("/close/account")
     @Operation(summary = "Close Account")
     public ResponseEntity<?> closeAccount() {
         User user = userService.closeAccount();
@@ -35,7 +35,7 @@ public class UserController {
         return ResponseEntity.ok().body(response);
     }
 
-    @PutMapping("users/change/username")
+    @PutMapping("/change/username")
     @Operation(summary = "Change Username")
     public ResponseEntity<?> changeUsername(@RequestParam String username) {
         User user = userService.changeUsername(username);
@@ -48,7 +48,7 @@ public class UserController {
         return ResponseEntity.ok().body(response);
     }
 
-    @PutMapping("users/change/password")
+    @PutMapping("/change/password")
     @Operation(summary = "Change Password")
     public ResponseEntity<?> changePassword(@RequestParam String currentPassword, @RequestParam String newPassword, @RequestParam String confirmNewPassword) {
         User user = userService.changePassword(currentPassword, newPassword, confirmNewPassword);
@@ -61,7 +61,7 @@ public class UserController {
         return ResponseEntity.ok().body(response);
     }
 
-    @PutMapping(path = "users/change/profile/image")
+    @PutMapping(path = "/change/profile/image")
     @Operation(summary = "Change Profile Image")
     public ResponseEntity<?> changeProfileImage(@RequestBody String image) {
         User user = userService.changeProfileImage(image);
@@ -74,7 +74,7 @@ public class UserController {
         return ResponseEntity.ok().body(response);
     }
 
-    @GetMapping("users/get/all/user")
+    @GetMapping("/get/all/user")
     @Operation(summary = "Get All User")
     public ResponseEntity<?> getAllUser(){
         Response<List<User>> response = Response.<List<User>>builder()
@@ -86,7 +86,7 @@ public class UserController {
         return ResponseEntity.ok().body(response);
     }
 
-    @DeleteMapping("users/delete/profile/image")
+    @DeleteMapping("/delete/profile/image")
     @Operation(summary = "Delete Profile Image")
     public ResponseEntity<?> deleteProfileImage(){
         userService.deleteProfileImage();
@@ -99,7 +99,7 @@ public class UserController {
         return ResponseEntity.ok().body(response);
     }
 
-    @GetMapping("users/get/current/user")
+    @GetMapping("/get/current/user")
     @Operation(summary = "Get Current User")
     public ResponseEntity<?> getCurrentUser(){
         User user =userService.getCurrentUser();
