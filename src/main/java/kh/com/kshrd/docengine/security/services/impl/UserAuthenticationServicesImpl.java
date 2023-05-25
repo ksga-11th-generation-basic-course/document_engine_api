@@ -6,18 +6,24 @@ import kh.com.kshrd.docengine.exceptions.BadRequestException;
 import kh.com.kshrd.docengine.exceptions.NotFoundException;
 import kh.com.kshrd.docengine.exceptions.NotVerifyException;
 import kh.com.kshrd.docengine.exceptions.ValueNotEqualException;
+import kh.com.kshrd.docengine.model.entity.User;
+import kh.com.kshrd.docengine.repository.UserRepository;
 import kh.com.kshrd.docengine.security.model.entity.OptCode;
 import kh.com.kshrd.docengine.security.model.entity.UserAuthentication;
+import kh.com.kshrd.docengine.security.model.request.UserAuthenticationLoginRequest;
 import kh.com.kshrd.docengine.security.model.request.UserAuthenticationRegisterRequest;
+import kh.com.kshrd.docengine.security.model.request.UserAuthenticationRequestWithGoogleAndFacebook;
 import kh.com.kshrd.docengine.security.model.request.UserAuthenticationResetPasswordRequest;
 import kh.com.kshrd.docengine.security.repository.UserAuthenticationRepository;
 import kh.com.kshrd.docengine.security.services.EmailService;
 import kh.com.kshrd.docengine.security.services.UserAuthenticationService;
+import kh.com.kshrd.docengine.services.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 import java.util.UUID;
@@ -26,21 +32,22 @@ import java.util.UUID;
 @AllArgsConstructor
 public class UserAuthenticationServicesImpl implements UserAuthenticationService {
 
-    private final UserAuthenticationRepository userRepository;
+    private final UserAuthenticationRepository userAuthenticationRepository;
     private final Encoder encoder;
     private final EmailService emailServices;
+    private final UserRepository userRepository;
 
 
     /* method get authentication by email*/
     @Override
     public UserAuthentication getByEmail(String email) {
 
-        if (userRepository.getUserByEmail(email) == null) {
+        if (userAuthenticationRepository.getUserByEmail(email) == null) {
 
             throw new NotFoundException("User Not Found");
         }
 
-        return userRepository.getUserByEmail(email);
+        return userAuthenticationRepository.getUserByEmail(email);
 
     }
 
@@ -49,20 +56,23 @@ public class UserAuthenticationServicesImpl implements UserAuthenticationService
     @Override
     public UserAuthentication register(UserAuthenticationRegisterRequest userAuthenticationRegisterRequest) throws MessagingException {
 
+        List<User> user = userRepository.getAllUser();
+
+        System.out.println(user);
 
         userAuthenticationRegisterRequest.setPassword(encoder.PasswordEncoder().encode(userAuthenticationRegisterRequest.getPassword()));
 
 
-        UserAuthentication userAuthentication = userRepository.register(userAuthenticationRegisterRequest);
+        UserAuthentication userAuthentication = userAuthenticationRepository.register(userAuthenticationRegisterRequest);
 
         OptCode optCode = new OptCode();
 
         optCode.setUserId(userAuthentication.getUserId());
         optCode.setCreatedDate(LocalDateTime.now());
-        optCode.setExpiredDate(LocalDateTime.now().plusMinutes(3));
+        optCode.setExpiredDate(LocalDateTime.now().plusMinutes(1).plusSeconds(10));
         optCode.setDigitCode(generateOptCode());
 
-        userRepository.insertVerify(optCode);
+        userAuthenticationRepository.insertVerify(optCode);
 
         emailServices.sendMail(userAuthentication, optCode.getDigitCode());
 
@@ -74,7 +84,7 @@ public class UserAuthenticationServicesImpl implements UserAuthenticationService
     @Override
     public UserAuthentication verify(String code) {
 
-        OptCode optCode = userRepository.getOtpCode(code);
+        OptCode optCode = userAuthenticationRepository.getOtpCode(code);
 
         if (optCode == null) {
             throw new NotFoundException("Code : " + code + " Not Found");
@@ -90,11 +100,11 @@ public class UserAuthenticationServicesImpl implements UserAuthenticationService
             throw new NotFoundException("Code : " + code + " Expired");
         }
 
-        userRepository.verifyCode(optCode.getDigitCode());
+        userAuthenticationRepository.verifyCode(optCode.getDigitCode());
 
         //userRepository.deleteCode(code);
 
-        return userRepository.updateUser(optCode.getUserId());
+        return userAuthenticationRepository.updateUser(optCode.getUserId());
     }
 
     //forgot password
@@ -118,7 +128,7 @@ public class UserAuthenticationServicesImpl implements UserAuthenticationService
             throw new NotFoundException("User Not Found");
         }
 
-        OptCode optCode = userRepository.getOptCodeByMailId(userAuthentication.getUserId());
+        OptCode optCode = userAuthenticationRepository.getOptCodeByMailId(userAuthentication.getUserId());
 
         if (LocalDateTime.now().isBefore(optCode.getExpiredDate())) {
 
@@ -130,9 +140,9 @@ public class UserAuthenticationServicesImpl implements UserAuthenticationService
 
         optCode.setDigitCode(code);
         optCode.setCreatedDate(LocalDateTime.now());
-        optCode.setExpiredDate(LocalDateTime.now().plusMinutes(3));
+        optCode.setExpiredDate(LocalDateTime.now().plusMinutes(1).plusSeconds(10));
 
-        userRepository.updateOptCode(optCode);
+        userAuthenticationRepository.updateOptCode(optCode);
 
         emailServices.sendMail(userAuthentication, code);
 
@@ -145,14 +155,14 @@ public class UserAuthenticationServicesImpl implements UserAuthenticationService
 
         UserAuthentication userAuthentication = getByEmail(email);
 
-        if (!Objects.equals(userAuthenticationResetPasswordRequest.getNewPassword(), userAuthenticationResetPasswordRequest.getConfirmedPassword())) {
+        if (!Objects.equals(userAuthenticationResetPasswordRequest.getNewPassword(), userAuthenticationResetPasswordRequest.getNewConfirmPassword())) {
 
             throw new ValueNotEqualException("Your password is not equal !!!");
         }
 
         userAuthenticationResetPasswordRequest.setNewPassword(encoder.PasswordEncoder().encode(userAuthenticationResetPasswordRequest.getNewPassword()));
 
-        OptCode optCode = userRepository.getOptCodeByMailId(userAuthentication.getUserId());
+        OptCode optCode = userAuthenticationRepository.getOptCodeByMailId(userAuthentication.getUserId());
 
         if (!optCode.getHasVerified()) {
 
@@ -160,7 +170,7 @@ public class UserAuthenticationServicesImpl implements UserAuthenticationService
 
         }
 
-        userRepository.resetPassword(userAuthenticationResetPasswordRequest, optCode.getUserId());
+        userAuthenticationRepository.resetPassword(userAuthenticationResetPasswordRequest, optCode.getUserId());
 
         return userAuthentication;
     }
@@ -173,7 +183,7 @@ public class UserAuthenticationServicesImpl implements UserAuthenticationService
 
     @Override
     public Boolean checkIsVerify(String email) {
-        return userRepository.checkIsVerify(email);
+        return userAuthenticationRepository.checkIsVerify(email);
     }
 
     @Override
@@ -185,11 +195,16 @@ public class UserAuthenticationServicesImpl implements UserAuthenticationService
     @Override
     public UserAuthentication verifyForEnableAccount(String optCode) {
 
-        OptCode oc = userRepository.verifyForEnableAccount(optCode);
+        OptCode oc = userAuthenticationRepository.verifyForEnableAccount(optCode);
 
-        return userRepository.enableAccount(oc.getUserId());
+        return userAuthenticationRepository.enableAccount(oc.getUserId());
     }
 
+    @Override
+    public UserAuthentication signUpWithGoogleAndFacebook(UserAuthenticationRequestWithGoogleAndFacebook userAuthenticationRequestWithGoogleAndFacebook) {
+        userAuthenticationRequestWithGoogleAndFacebook.setPassword(encoder.PasswordEncoder().encode(userAuthenticationRequestWithGoogleAndFacebook.getPassword()));
+        return userAuthenticationRepository.signUpWithGoogleAndFacebook(userAuthenticationRequestWithGoogleAndFacebook);
+    }
 
     //generate opt code
     static String generateOptCode() {

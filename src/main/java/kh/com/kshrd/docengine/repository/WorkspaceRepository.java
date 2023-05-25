@@ -111,7 +111,7 @@ public interface WorkspaceRepository {
             INNER JOIN user_workspace uw on workspaces.workspace_id = uw.workspace_id
             WHERE user_id=#{userIdOfCurrentUser} AND workspace_name ILIKE (concat('%', #{input},'%'))
             """)
-    List<Workspace> searchWorkspace(UUID userIdOfCurrentUser,String input);
+    List<Workspace> searchWorkspace(UUID userIdOfCurrentUser,String search);
 
     @Update("""
             UPDATE workspaces SET workspace_image=#{image}

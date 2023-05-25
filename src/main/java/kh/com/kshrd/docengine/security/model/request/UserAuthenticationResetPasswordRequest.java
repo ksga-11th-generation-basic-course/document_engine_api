@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 public class UserAuthenticationResetPasswordRequest {
 
     private String newPassword;
-    private String confirmedPassword;
+    private String newConfirmPassword;
 
 }

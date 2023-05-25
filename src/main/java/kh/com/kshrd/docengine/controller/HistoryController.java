@@ -25,7 +25,7 @@ public class HistoryController {
 
     @GetMapping("histories/{documentId}")
     @Operation(summary = "Get History In Each Document")
-    public ResponseEntity<?> getHistoryInEachDocument(@PathVariable UUID documentId){
+    public ResponseEntity<Response<List<History>>> getHistoryInEachDocument(@PathVariable UUID documentId){
         Response<List<History>> response = Response.<List<History>>builder()
                 .message("Get History In Each Document Successful")
                 .payload(historyService.getHistoryInEachDocument(documentId))

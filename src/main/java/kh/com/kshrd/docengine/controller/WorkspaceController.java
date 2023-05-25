@@ -73,7 +73,7 @@ public class WorkspaceController {
         return ResponseEntity.ok().body(response);
     }
 
-    @DeleteMapping("/remove-member")
+    @DeleteMapping("/remove/member")
     @Operation(summary = "Remove Member From Workspace")
     public ResponseEntity<?> removeMemberFromWorkspace(@RequestParam UUID userId,@RequestParam UUID workspaceId){
         workspaceService.removeMemberFromWorkspace(userId,workspaceId);
@@ -86,7 +86,7 @@ public class WorkspaceController {
         return ResponseEntity.ok().body(response);
     }
 
-    @PutMapping("/set-accessibility")
+    @PutMapping("/set/accessibility")
     @Operation(summary = "Set Accessibility")
     public ResponseEntity<?> setAccessibilityToUser(@RequestParam UUID userId,@RequestParam UUID workspaceId,@RequestParam Boolean status){
         workspaceService.setAccessibilityToUser(userId,workspaceId,status);
@@ -135,7 +135,7 @@ public class WorkspaceController {
         return ResponseEntity.ok().body(response);
     }
 
-    @GetMapping("/count-document/{workspaceId}")
+    @GetMapping("/count/document/{workspaceId}")
     @Operation(summary = "Get Total Document")
     public ResponseEntity<?> getTotalOfDocument(@PathVariable UUID workspaceId){
         Response<Integer> response = Response.<Integer>builder()
@@ -159,12 +159,12 @@ public class WorkspaceController {
         return ResponseEntity.ok().body(response);
     }
 
-    @GetMapping("/search/{input}")
+    @GetMapping("/search/{search}")
     @Operation(summary = "Search Workspace")
-    public ResponseEntity<?> searchWorkspace(@PathVariable String input){
+    public ResponseEntity<?> searchWorkspace(@PathVariable String search){
         Response<List<Workspace>> response = Response.<List<Workspace>>builder()
                 .message("Get Total Document Successfully")
-                .payload(workspaceService.searchWorkspace(input))
+                .payload(workspaceService.searchWorkspace(search))
                 .status(HttpStatus.OK)
                 .dateTime(LocalDateTime.now())
                 .build();

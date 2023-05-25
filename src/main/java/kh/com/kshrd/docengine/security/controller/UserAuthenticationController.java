@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import kh.com.kshrd.docengine.security.model.entity.UserAuthentication;
 import kh.com.kshrd.docengine.security.model.request.UserAuthenticationLoginRequest;
 import kh.com.kshrd.docengine.security.model.request.UserAuthenticationRegisterRequest;
+import kh.com.kshrd.docengine.security.model.request.UserAuthenticationRequestWithGoogleAndFacebook;
 import kh.com.kshrd.docengine.security.model.request.UserAuthenticationResetPasswordRequest;
 import kh.com.kshrd.docengine.security.model.response.UserAuthenticationLoginResponse;
 import kh.com.kshrd.docengine.model.response.Response;
@@ -27,7 +28,8 @@ import java.time.LocalDateTime;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping(path = "/api/v1/users/authentication")
+@CrossOrigin
+@RequestMapping(path = "/api/v1/")
 public class UserAuthenticationController {
 
 
@@ -43,8 +45,8 @@ public class UserAuthenticationController {
           "email":"menglotdeveloper@gmail.com",
           "password":"12345"
      }*/
-    @PostMapping(path = "/register")
-    @Operation(summary = "Register")
+    @PostMapping(path = "authentications/signup")
+    @Operation(summary = "signup")
     public ResponseEntity<?> register(@RequestBody @Valid UserAuthenticationRegisterRequest userAuthenticationRegisterRequest) throws MessagingException {
 
         UserAuthentication user = userAuthenticationServices.register(userAuthenticationRegisterRequest);
@@ -63,7 +65,7 @@ public class UserAuthenticationController {
         {
          url :  http://localhost:8080/api/v1/user/verify?code=754167
         }*/
-    @PutMapping(path = "/verify")
+    @PutMapping(path = "authentications/verify")
     @Operation(summary = "Verify")
     public ResponseEntity<?> verify(@RequestParam String code) {
 
@@ -81,7 +83,7 @@ public class UserAuthenticationController {
     /*    sample test in postman forgot password
       url :  http://localhost:8080/api/v1/user/resend?email=menglotdeveloper@gmail.com
      */
-    @PutMapping(path = "/forgot-password")
+    @PutMapping(path = "authentications/forgot/password")
     @Operation(summary = "Forgot Password")
     public ResponseEntity<?> forgotPassword(@RequestParam String email) throws MessagingException {
 
@@ -105,7 +107,7 @@ public class UserAuthenticationController {
        "confirmedPassword":"12344"
     }
   */
-    @PutMapping(path = "/reset-password")
+    @PutMapping(path = "authentications/reset/password")
     @Operation(summary = "Reset Password")
     public ResponseEntity<?> resetPassword(@RequestBody UserAuthenticationResetPasswordRequest userAuthenticationResetPasswordRequest, @RequestParam String email) {
 
@@ -124,7 +126,7 @@ public class UserAuthenticationController {
     /*    sample test in postman resend code
      url :  http://localhost:8080/api/v1/user/resend?email=menglotdeveloper@gmail.com
     */
-    @PutMapping(path = "/resend")
+    @PutMapping(path = "authentications/resend")
     @Operation(summary = "Resend Verify Code")
     public ResponseEntity<?> resendCode(@RequestParam String email) throws MessagingException {
 
@@ -146,12 +148,12 @@ public class UserAuthenticationController {
         "email":"menglot@gmail",
         "password":"12345"
     }*/
-    @PostMapping(path = "/login")
+    @PostMapping(path = "authentications/login")
     @Operation(summary = "Login")
     public ResponseEntity<?> login(@Valid @RequestBody UserAuthenticationLoginRequest authenticationLoginRequest) throws Exception {
 
         Boolean isVerify = userAuthenticationServices.checkIsVerify(authenticationLoginRequest.getEmail());
-        if(isVerify){
+        if (isVerify) {
             login(authenticationLoginRequest.getEmail(), authenticationLoginRequest.getPassword());
 
             final UserDetails userDetails = jwtAuthenticationServices.loadUserByUsername(authenticationLoginRequest.getEmail());
@@ -183,7 +185,7 @@ public class UserAuthenticationController {
         }
     }
 
-    @PutMapping("/input/email/to/enable/account")
+    @PutMapping("authentications/input/email/to/enable/account")
     @Operation(summary = "Input Email To Enable Account")
     public ResponseEntity<?> inputEmailForEnableAccount(@RequestParam String email) throws MessagingException {
         UserAuthentication userAuthentication = userAuthenticationServices.inputEmailToEnableAccount(email);
@@ -198,9 +200,9 @@ public class UserAuthenticationController {
         return ResponseEntity.ok().body(response);
     }
 
-    @PutMapping("/verify/enable/account")
+    @PutMapping("authentications/verify/enable/account")
     @Operation(summary = "Verify For Enable Account")
-    public ResponseEntity<?> verifyForEnableAccount(@RequestParam String optCode){
+    public ResponseEntity<?> verifyForEnableAccount(@RequestParam String optCode) {
         UserAuthentication userAuthentication = userAuthenticationServices.verifyForEnableAccount(optCode);
 
         Response<UserAuthenticationRegisterResponse> response = Response.<UserAuthenticationRegisterResponse>builder()
@@ -210,6 +212,40 @@ public class UserAuthenticationController {
                 .dateTime(LocalDateTime.now())
 
                 .build();
+        return ResponseEntity.ok().body(response);
+    }
+
+    @PostMapping("authentications/signup/with/google/and/facebook")
+    @Operation(summary = "Sign Up With Google And Facebook")
+    public ResponseEntity<?> signUpWithGoogleAndFacebook(@RequestBody UserAuthenticationRequestWithGoogleAndFacebook userAuthenticationRequestWithGoogleAndFacebook) {
+        UserAuthentication userAuthentication = userAuthenticationServices.signUpWithGoogleAndFacebook(userAuthenticationRequestWithGoogleAndFacebook);
+        Response<UserAuthenticationRegisterResponse> response = Response.<UserAuthenticationRegisterResponse>builder()
+                .message("Sign up with Google and Facebook successful")
+                .status(HttpStatus.OK)
+                .payload(new UserAuthenticationRegisterResponse(userAuthentication.getUserName(), userAuthentication.getEmail(), userAuthentication.getProfileImage(), userAuthentication.getIsEnable()))
+                .dateTime(LocalDateTime.now())
+                .build();
+        return ResponseEntity.ok().body(response);
+    }
+
+    @PostMapping("authentications/login/with/google/and/facebook")
+    @Operation(summary = "login With Google And Facebook")
+    public ResponseEntity<?> signInWithGoogleAndFacebook(@RequestBody UserAuthenticationLoginRequest authenticationLoginRequest) throws Exception {
+
+        login(authenticationLoginRequest.getEmail(), authenticationLoginRequest.getPassword());
+
+        final UserDetails userDetails = jwtAuthenticationServices.loadUserByUsername(authenticationLoginRequest.getEmail());
+        final String token = jwtTokenUtil.generateToken(userDetails);
+
+        UserAuthentication authentication = userAuthenticationServices.getByEmail(authenticationLoginRequest.getEmail());
+
+        Response<UserAuthenticationLoginResponse> response = Response.<UserAuthenticationLoginResponse>builder()
+                .message("Authentication successful")
+                .status(HttpStatus.OK)
+                .payload(new UserAuthenticationLoginResponse(authentication.getUserName(), authentication.getEmail(), token, authentication.getProfileImage(), authentication.getIsEnable()))
+                .dateTime(LocalDateTime.now())
+                .build();
+
         return ResponseEntity.ok().body(response);
     }
 }

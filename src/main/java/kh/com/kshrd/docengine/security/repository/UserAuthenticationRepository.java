@@ -4,6 +4,7 @@ package kh.com.kshrd.docengine.security.repository;
 import kh.com.kshrd.docengine.security.model.entity.OptCode;
 import kh.com.kshrd.docengine.security.model.entity.UserAuthentication;
 import kh.com.kshrd.docengine.security.model.request.UserAuthenticationRegisterRequest;
+import kh.com.kshrd.docengine.security.model.request.UserAuthenticationRequestWithGoogleAndFacebook;
 import kh.com.kshrd.docengine.security.model.request.UserAuthenticationResetPasswordRequest;
 import org.apache.ibatis.annotations.*;
 
@@ -31,7 +32,7 @@ public interface UserAuthenticationRepository {
     UserAuthentication register(@Param("u") UserAuthenticationRegisterRequest userAuthenticationRegisterRequest);
 
     //insert verify code
-    @Insert("INSERT INTO opt_codes(digit_code, create_date,expired_date, user_id) VALUES(#{o.digitCode},#{o.createdDate},#{o.expiredDate},#{o.userId})")
+    @Insert("INSERT INTO opt_codes(digit_code, created_date,expired_date, user_id) VALUES(#{o.digitCode},#{o.createdDate},#{o.expiredDate},#{o.userId})")
     void insertVerify(@Param("o") OptCode optCode);
 
 
@@ -48,7 +49,7 @@ public interface UserAuthenticationRepository {
     OptCode getOtpCode(String code);
 
     //update opt code
-    @Update("UPDATE opt_codes SET digit_code = #{o.digitCode}, create_date = #{o.createdDate} , expired_date = #{o.expiredDate}, has_verified = false WHERE user_id = #{o.userId}")
+    @Update("UPDATE opt_codes SET digit_code = #{o.digitCode}, created_date = #{o.createdDate} , expired_date = #{o.expiredDate}, has_verified = false WHERE user_id = #{o.userId}")
     void updateOptCode(@Param("o") OptCode optCode);
 
     //get opt code by user id
@@ -79,4 +80,8 @@ public interface UserAuthenticationRepository {
     @Select("UPDATE opt_codes SET has_verified = true WHERE digit_code = #{optCode} RETURNING *;")
     @ResultMap("codeMap")
     OptCode verifyForEnableAccount(String optCode);
+
+    @Select("INSERT INTO users(username, email,password,profile_image) VALUES(#{u.username}, #{u.email}, #{u.password}, #{u.profileImage}) RETURNING *")
+    @ResultMap("userAuthMap")
+    UserAuthentication signUpWithGoogleAndFacebook(@Param("u") UserAuthenticationRequestWithGoogleAndFacebook userAuthenticationRequestWithGoogleAndFacebook);
 }
