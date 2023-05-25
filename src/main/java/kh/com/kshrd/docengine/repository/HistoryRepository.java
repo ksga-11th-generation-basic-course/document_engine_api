@@ -29,4 +29,6 @@ public interface HistoryRepository {
     @ResultMap("historyMap")
     @Select("SELECT * FROM histories WHERE history_id = #{historyId};")
     History getHistoryByHistoryId(UUID historyId);
+    @Delete("DELETE FROM histories WHERE history_id = #{historyId};")
+    void removeHistory(UUID historyId);
 }

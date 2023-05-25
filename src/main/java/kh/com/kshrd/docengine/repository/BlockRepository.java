@@ -51,5 +51,9 @@ public interface BlockRepository {
 
     @Insert("INSERT INTO blocks(block_type, block_content, block_order, document_id) SELECT history_block_type, history_block_content, history_block_order, document_id FROM history_block INNER JOIN histories h on history_block.history_id = h.history_id WHERE h.history_id = #{historyId};")
     void restoreBlockDocument(UUID historyId);
+
+    @ResultMap("blockMap")
+    @Select("SELECT * FROM blocks WHERE block_id = #{blockId};")
+    Block getBlockByBlockId(UUID blockId);
 }
 

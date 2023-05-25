@@ -22,48 +22,85 @@ public class UserServiceImp implements UserService {
 
     @Override
     public User closeAccount() {
-        return userRepository.closeAccount(userAuthenticationService.getUserIdOfCurrentUser());
+        User user = userRepository.getUserByUserId(userAuthenticationService.getUserIdOfCurrentUser());
+        if (user == null) {
+            throw new NotFoundException("User doesn't exist");
+        } else {
+            return userRepository.closeAccount(userAuthenticationService.getUserIdOfCurrentUser());
+        }
     }
 
     @Override
     public User changeUsername(String username) {
-        if(username == null){
+        if (username == null) {
             throw new BadRequestException("Username cannot be null");
-        }else if(username.isBlank()){
+        } else if (username.isBlank()) {
             throw new BadRequestException("Username cannot be blank or empty");
         }
-        return userRepository.changeUsername(userAuthenticationService.getUserIdOfCurrentUser(), username);
+        User user = userRepository.getUserByUserId(userAuthenticationService.getUserIdOfCurrentUser());
+        if (user == null) {
+            throw new NotFoundException("User doesn't exist");
+        } else {
+            return userRepository.changeUsername(userAuthenticationService.getUserIdOfCurrentUser(), username);
+        }
     }
 
     @Override
     public User changePassword(String currentPassword, String newPassword, String confirmNewPassword) {
+        if (currentPassword == null) {
+            throw new BadRequestException("Current password cannot be null");
+        } else if (newPassword == null) {
+            throw new BadRequestException("New password cannot be null");
+        } else if (confirmNewPassword == null) {
+            throw new BadRequestException("Confirm password cannot be null");
+        } else if (currentPassword.isBlank()) {
+            throw new BadRequestException("Current password cannot be blank or empty");
+        } else if (newPassword.isBlank()) {
+            throw new BadRequestException("New password cannot be blank or empty");
+        } else if (confirmNewPassword.isBlank()) {
+            throw new BadRequestException("Confirm password cannot be blank or empty");
+        }
         User user = userRepository.getUserByUserId(userAuthenticationService.getUserIdOfCurrentUser());
-        boolean isCurrentPasswordMatch = encoder.PasswordEncoder().matches(currentPassword, user.getPassword());
-        if (isCurrentPasswordMatch) {
-            if (newPassword.equals(confirmNewPassword)) {
-                return userRepository.changePassword(userAuthenticationService.getUserIdOfCurrentUser(), encoder.PasswordEncoder().encode(newPassword));
-            } else {
-                throw new NotFoundException("Password not match");
-            }
+        if (user == null) {
+            throw new NotFoundException("User doesn't exist");
         } else {
-            throw new NotFoundException("Wrong current password");
+            boolean isCurrentPasswordMatch = encoder.PasswordEncoder().matches(currentPassword, user.getPassword());
+            if (isCurrentPasswordMatch) {
+                if (newPassword.equals(confirmNewPassword)) {
+                    return userRepository.changePassword(userAuthenticationService.getUserIdOfCurrentUser(), encoder.PasswordEncoder().encode(newPassword));
+                } else {
+                    throw new NotFoundException("Password not match");
+                }
+            } else {
+                throw new NotFoundException("Wrong current password");
+            }
         }
     }
 
     @Override
     public User changeProfileImage(String image) {
-        return userRepository.changeProfileImage(userAuthenticationService.getUserIdOfCurrentUser(), image);
+        User user = userRepository.getUserByUserId(userAuthenticationService.getUserIdOfCurrentUser());
+        if (user == null) {
+            throw new NotFoundException("User doesn't exist");
+        } else {
+            return userRepository.changeProfileImage(userAuthenticationService.getUserIdOfCurrentUser(), image);
+        }
     }
 
     @Override
     public String getProfileImage() {
-        return userRepository.getProfileImage(userAuthenticationService.getUserIdOfCurrentUser());
+        User user = userRepository.getUserByUserId(userAuthenticationService.getUserIdOfCurrentUser());
+        if (user == null) {
+            throw new NotFoundException("User doesn't exist");
+        } else {
+            return userRepository.getProfileImage(userAuthenticationService.getUserIdOfCurrentUser());
+        }
     }
 
     @Override
     public List<User> getAllUser() {
         List<User> users = userRepository.getAllUser();
-        if(users.isEmpty()){
+        if (users.isEmpty()) {
             throw new NotFoundException("Empty user");
         }
         return users;
@@ -71,11 +108,21 @@ public class UserServiceImp implements UserService {
 
     @Override
     public void deleteProfileImage() {
-        userRepository.deleteProfileImage(userAuthenticationService.getUserIdOfCurrentUser());
+        User user = userRepository.getUserByUserId(userAuthenticationService.getUserIdOfCurrentUser());
+        if (user == null) {
+            throw new NotFoundException("User doesn't exist");
+        } else {
+            userRepository.deleteProfileImage(userAuthenticationService.getUserIdOfCurrentUser());
+        }
     }
 
     @Override
     public User getCurrentUser() {
-        return userRepository.getCurrentUser(userAuthenticationService.getUserIdOfCurrentUser());
+        User user = userRepository.getUserByUserId(userAuthenticationService.getUserIdOfCurrentUser());
+        if (user == null) {
+            throw new NotFoundException("User doesn't exist");
+        } else {
+            return userRepository.getCurrentUser(userAuthenticationService.getUserIdOfCurrentUser());
+        }
     }
 }

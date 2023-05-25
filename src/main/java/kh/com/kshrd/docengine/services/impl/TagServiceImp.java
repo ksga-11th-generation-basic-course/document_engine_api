@@ -42,7 +42,12 @@ public class TagServiceImp implements TagService {
         } else if (tagName.isBlank()) {
             throw new BadRequestException("Tag name cannot be blank or empty");
         }
-        return tagRepository.editTag(tagId, tagName);
+        Tag tag = tagRepository.getTagByTagId(tagId);
+        if (tag == null) {
+            throw new NotFoundException("Tag doesn't exist");
+        } else {
+            return tagRepository.editTag(tagId, tagName);
+        }
     }
 
     @Override
@@ -52,13 +57,18 @@ public class TagServiceImp implements TagService {
         } else if (tagId.toString().isBlank()) {
             throw new BadRequestException("Tag id cannot be blank or empty");
         }
-        tagRepository.deleteTag(tagId);
+        Tag tag = tagRepository.getTagByTagId(tagId);
+        if (tag == null) {
+            throw new NotFoundException("Tag doesn't exist");
+        } else {
+            tagRepository.deleteTag(tagId);
+        }
     }
 
     @Override
     public List<Tag> getAllTag() {
         List<Tag> tags = tagRepository.getAllTag();
-        if(tags.isEmpty()){
+        if (tags.isEmpty()) {
             throw new NotFoundException("Empty document");
         }
         return tags;

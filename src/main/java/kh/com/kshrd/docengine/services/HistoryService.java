@@ -11,4 +11,6 @@ public interface HistoryService {
     void restoreDocument(UUID historyId, UUID documentId);
 
     History getHistoryByHistoryId(UUID historyId);
+
+    void removeHistory(UUID historyId);
 }

@@ -37,4 +37,8 @@ public interface TagRepository {
     @ResultMap("tagMap")
     @Select("SELECT * FROM tags WHERE workspace_id = #{workspaceId}")
     List<Tag> getTagInEachWorkspace(UUID workspaceId);
+
+    @ResultMap("tagMap")
+    @Select("SELECT * FROM tags WHERE tag_id = #{tagId}")
+    Tag getTagByTagId(UUID tagId);
 }

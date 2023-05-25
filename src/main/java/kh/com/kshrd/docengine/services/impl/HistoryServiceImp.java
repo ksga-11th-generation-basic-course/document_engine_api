@@ -1,15 +1,19 @@
 package kh.com.kshrd.docengine.services.impl;
 
 import kh.com.kshrd.docengine.exceptions.BadRequestException;
+import kh.com.kshrd.docengine.exceptions.NotEditorException;
 import kh.com.kshrd.docengine.exceptions.NotFoundException;
 import kh.com.kshrd.docengine.model.entity.History;
 import kh.com.kshrd.docengine.repository.BlockRepository;
+import kh.com.kshrd.docengine.repository.DocumentRepository;
 import kh.com.kshrd.docengine.repository.HistoryRepository;
+import kh.com.kshrd.docengine.security.services.UserAuthenticationService;
 import kh.com.kshrd.docengine.services.HistoryService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -56,6 +60,19 @@ public class HistoryServiceImp implements HistoryService {
         } else if (historyId.toString().isBlank()) {
             throw new BadRequestException("History id cannot be blank and empty");
         }
+        History history = historyRepository.getHistoryByHistoryId(historyId);
+        if(history == null){
+            throw new NotFoundException("History doesn't exist");
+        }
         return historyRepository.getHistoryByHistoryId(historyId);
+    }
+
+    @Override
+    public void removeHistory(UUID historyId) {
+        History history = historyRepository.getHistoryByHistoryId(historyId);
+        if(history == null){
+            throw new NotFoundException("History doesn't exist");
+        }
+        historyRepository.removeHistory(historyId);
     }
 }

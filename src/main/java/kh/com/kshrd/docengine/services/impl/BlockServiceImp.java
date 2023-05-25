@@ -1,6 +1,7 @@
 package kh.com.kshrd.docengine.services.impl;
 
 import kh.com.kshrd.docengine.exceptions.BadRequestException;
+import kh.com.kshrd.docengine.exceptions.NotFoundException;
 import kh.com.kshrd.docengine.model.entity.Block;
 import kh.com.kshrd.docengine.model.request.BlockRequest;
 import kh.com.kshrd.docengine.repository.BlockRepository;
@@ -24,27 +25,37 @@ public class BlockServiceImp implements BlockService {
 
     @Override
     public Block editBlock(UUID blockId, Map<String, Object> content) {
-        if(blockId == null){
+        if (blockId == null) {
             throw new BadRequestException("Block id cannot be null");
         } else if (blockId.toString().isBlank()) {
             throw new BadRequestException("Block id cannot be blank or empty");
         }
-        return blockRepository.editBlock(blockId, content);
+        Block block = blockRepository.getBlockByBlockId(blockId);
+        if (block == null) {
+            throw new NotFoundException("Block doesn't exist");
+        } else {
+            return blockRepository.editBlock(blockId, content);
+        }
     }
 
     @Override
     public void deleteBlock(UUID blockId) {
-        if(blockId == null){
+        if (blockId == null) {
             throw new BadRequestException("Block id cannot be null");
         } else if (blockId.toString().isBlank()) {
             throw new BadRequestException("Block id cannot be blank or empty");
         }
-        blockRepository.deleteBlock(blockId);
+        Block block = blockRepository.getBlockByBlockId(blockId);
+        if (block == null) {
+            throw new NotFoundException("Block doesn't exist");
+        } else {
+            blockRepository.deleteBlock(blockId);
+        }
     }
 
     @Override
     public List<Block> getBlockForEachDocument(UUID documentId) {
-        if(documentId == null){
+        if (documentId == null) {
             throw new BadRequestException("Document id cannot be null");
         } else if (documentId.toString().isBlank()) {
             throw new BadRequestException("Document id cannot be blank or empty");

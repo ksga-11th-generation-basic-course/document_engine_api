@@ -58,4 +58,17 @@ public class HistoryController {
                 .build();
         return ResponseEntity.ok().body(response);
     }
+
+    @DeleteMapping("histories/{historyId}")
+    @Operation(summary = "Remove History")
+    public ResponseEntity<Response<History>> removeHistory(@PathVariable UUID historyId){
+        historyService.removeHistory(historyId);
+        Response<History> response = Response.<History>builder()
+                .message("Remove History Successful")
+                .payload(null)
+                .dateTime(LocalDateTime.now())
+                .status(HttpStatus.OK)
+                .build();
+        return ResponseEntity.ok().body(response);
+    }
 }
