@@ -34,4 +34,28 @@ public class HistoryController {
                 .build();
         return ResponseEntity.ok().body(response);
     }
+    @PutMapping("histories/restore/{historyId}/documents/{documentId}")
+    @Operation(summary = "Restore Document")
+    public ResponseEntity<Response<History>> restoreDocument(@PathVariable UUID historyId, @PathVariable UUID documentId){
+        historyService.restoreDocument(historyId, documentId);
+        Response<History> response = Response.<History>builder()
+                .message("Restore Document Successful")
+                .payload(null)
+                .dateTime(LocalDateTime.now())
+                .status(HttpStatus.OK)
+                .build();
+        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("histories/{historyId}/")
+    @Operation(summary = "Get History")
+    public ResponseEntity<Response<History>> getHistoryByHistoryId(@PathVariable UUID historyId){
+        Response<History> response = Response.<History>builder()
+                .message("Restore Document Successful")
+                .payload(historyService.getHistoryByHistoryId(historyId))
+                .dateTime(LocalDateTime.now())
+                .status(HttpStatus.OK)
+                .build();
+        return ResponseEntity.ok().body(response);
+    }
 }

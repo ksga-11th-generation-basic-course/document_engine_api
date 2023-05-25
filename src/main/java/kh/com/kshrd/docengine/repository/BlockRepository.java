@@ -2,6 +2,7 @@ package kh.com.kshrd.docengine.repository;
 
 import kh.com.kshrd.docengine.configuration.JsonTypeHandler;
 import kh.com.kshrd.docengine.model.entity.Block;
+import kh.com.kshrd.docengine.model.entity.History;
 import kh.com.kshrd.docengine.model.request.BlockRequest;
 import org.apache.ibatis.annotations.*;
 

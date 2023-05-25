@@ -29,6 +29,4 @@ public interface DocumentService {
     Document getDocumentByDocumentId(UUID documentId);
 
     Set<Document> searchDocumentByManyTagName(UUID workspaceId, List<String> tagName);
-
-    Document restoreDocument(UUID historyId, UUID documentId);
 }

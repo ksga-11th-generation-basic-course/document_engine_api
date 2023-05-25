@@ -154,23 +154,27 @@ public class UserAuthenticationController {
 
         Boolean isVerify = userAuthenticationServices.checkIsVerify(authenticationLoginRequest.getEmail());
         if (isVerify) {
-            login(authenticationLoginRequest.getEmail(), authenticationLoginRequest.getPassword());
-
-            final UserDetails userDetails = jwtAuthenticationServices.loadUserByUsername(authenticationLoginRequest.getEmail());
-            final String token = jwtTokenUtil.generateToken(userDetails);
-
-            UserAuthentication authentication = userAuthenticationServices.getByEmail(authenticationLoginRequest.getEmail());
-
-            Response<UserAuthenticationLoginResponse> response = Response.<UserAuthenticationLoginResponse>builder()
-                    .message("Authentication successful")
-                    .status(HttpStatus.OK)
-                    .payload(new UserAuthenticationLoginResponse(authentication.getUserName(), authentication.getEmail(), token, authentication.getProfileImage(), authentication.getIsEnable()))
-                    .dateTime(LocalDateTime.now())
-                    .build();
-
-            return ResponseEntity.ok().body(response);
+            return getResponseEntity(authenticationLoginRequest);
         }
         return ResponseEntity.notFound().build();
+    }
+
+    private ResponseEntity<?> getResponseEntity(@RequestBody @Valid UserAuthenticationLoginRequest authenticationLoginRequest) throws Exception {
+        login(authenticationLoginRequest.getEmail(), authenticationLoginRequest.getPassword());
+
+        final UserDetails userDetails = jwtAuthenticationServices.loadUserByUsername(authenticationLoginRequest.getEmail());
+        final String token = jwtTokenUtil.generateToken(userDetails);
+
+        UserAuthentication authentication = userAuthenticationServices.getByEmail(authenticationLoginRequest.getEmail());
+
+        Response<UserAuthenticationLoginResponse> response = Response.<UserAuthenticationLoginResponse>builder()
+                .message("Authentication successful")
+                .status(HttpStatus.OK)
+                .payload(new UserAuthenticationLoginResponse(authentication.getUserName(), authentication.getEmail(), token, authentication.getProfileImage(), authentication.getIsEnable()))
+                .dateTime(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity.ok().body(response);
     }
 
     private void login(String email, String password) throws Exception {
@@ -231,21 +235,6 @@ public class UserAuthenticationController {
     @PostMapping("authentications/login/with/google/and/facebook")
     @Operation(summary = "login With Google And Facebook")
     public ResponseEntity<?> signInWithGoogleAndFacebook(@RequestBody UserAuthenticationLoginRequest authenticationLoginRequest) throws Exception {
-
-        login(authenticationLoginRequest.getEmail(), authenticationLoginRequest.getPassword());
-
-        final UserDetails userDetails = jwtAuthenticationServices.loadUserByUsername(authenticationLoginRequest.getEmail());
-        final String token = jwtTokenUtil.generateToken(userDetails);
-
-        UserAuthentication authentication = userAuthenticationServices.getByEmail(authenticationLoginRequest.getEmail());
-
-        Response<UserAuthenticationLoginResponse> response = Response.<UserAuthenticationLoginResponse>builder()
-                .message("Authentication successful")
-                .status(HttpStatus.OK)
-                .payload(new UserAuthenticationLoginResponse(authentication.getUserName(), authentication.getEmail(), token, authentication.getProfileImage(), authentication.getIsEnable()))
-                .dateTime(LocalDateTime.now())
-                .build();
-
-        return ResponseEntity.ok().body(response);
+        return getResponseEntity(authenticationLoginRequest);
     }
 }

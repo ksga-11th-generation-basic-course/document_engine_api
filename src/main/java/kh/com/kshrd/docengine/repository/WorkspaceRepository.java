@@ -57,27 +57,15 @@ public interface WorkspaceRepository {
     void removeWorkspace(UUID workspaceId);
 
     @Delete("""
-            DELETE FROM user_workspace WHERE user_id=#{userId}
+            DELETE FROM user_workspace WHERE user_id=#{userId} AND workspace_id=#{workspaceId}
             """)
-    void removeMemberFromWorkspace(UUID userId);
+    void removeMemberFromWorkspace(UUID userId, UUID workspaceId);
 
     @Update("""
             UPDATE user_workspace SET accessibility_status=#{status}
             WHERE user_id=#{userId} AND workspace_id=#{workspaceId}
             """)
     void setAccessibilityToUser(UUID userId, UUID workspaceId, Boolean status);
-
-    @Update("""
-            UPDATE workspaces SET workspace_name=#{name}
-            WHERE workspace_id=#{workspaceId}
-            """)
-    void updateWorkspaceNameById(String name,UUID workspaceId);
-
-    @ResultMap("workspaceMap")
-    @Select("""
-            SELECT * FROM workspaces WHERE workspace_id=#{workspaceId}
-            """)
-    Workspace getWorkspaceById(UUID workspaceId);
 
 
     @ResultMap("workspaceMap")
@@ -109,19 +97,27 @@ public interface WorkspaceRepository {
             SELECT uw.workspace_id,workspace_name,workspace_image,workspace_code,created_date
             FROM workspaces
             INNER JOIN user_workspace uw on workspaces.workspace_id = uw.workspace_id
-            WHERE user_id=#{userIdOfCurrentUser} AND workspace_name ILIKE (concat('%', #{input},'%'))
+            WHERE user_id=#{userIdOfCurrentUser} AND workspace_name ILIKE (concat('%', #{workspaceName},'%'))
             """)
-    List<Workspace> searchWorkspace(UUID userIdOfCurrentUser,String search);
+    List<Workspace> searchWorkspace(UUID userIdOfCurrentUser,String workspaceName);
 
     @Update("""
-            UPDATE workspaces SET workspace_image=#{image}
+            UPDATE workspaces SET workspace_image=null
             WHERE workspace_id=#{workspaceId}
             """)
-    void deleteWorkspaceImage(UUID workspaceId,String image);
+    void deleteWorkspaceImage(UUID workspaceId);
 
+    @ResultMap("workspaceMap")
     @Update("""
-            UPDATE workspaces SET workspace_image=#{image}
-            WHERE workspace_id=#{workspaceId}
+            UPDATE workspaces SET workspace_name=#{workspaceName}, workspace_image=#{workspaceImage}
+            WHERE workspace_id=#{workspaceId};
             """)
-    void updateWorkspaceImageById(String image, UUID workspaceId);
+    void editWorkspace(UUID workspaceId, String workspaceName, String workspaceImage);
+
+    @ResultMap("workspaceMap")
+    @Select("SELECT * FROM workspaces WHERE workspace_id = #{workspaceId};")
+    Workspace getWorkspaceByWorkspaceId(UUID workspaceId);
+
+    @Select("SELECT user_id FROM user_workspace WHERE workspace_id = #{workspaceId};")
+    List<UUID> getUserIdByWorkspaceId(UUID workspaceId);
 }

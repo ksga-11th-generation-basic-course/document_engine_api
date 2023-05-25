@@ -2,10 +2,7 @@ package kh.com.kshrd.docengine.security.services.impl;
 
 import jakarta.mail.MessagingException;
 import kh.com.kshrd.docengine.configuration.Encoder;
-import kh.com.kshrd.docengine.exceptions.BadRequestException;
-import kh.com.kshrd.docengine.exceptions.NotFoundException;
-import kh.com.kshrd.docengine.exceptions.NotVerifyException;
-import kh.com.kshrd.docengine.exceptions.ValueNotEqualException;
+import kh.com.kshrd.docengine.exceptions.*;
 import kh.com.kshrd.docengine.model.entity.User;
 import kh.com.kshrd.docengine.repository.UserRepository;
 import kh.com.kshrd.docengine.security.model.entity.OptCode;
@@ -54,9 +51,13 @@ public class UserAuthenticationServicesImpl implements UserAuthenticationService
     @Override
     public UserAuthentication register(UserAuthenticationRegisterRequest userAuthenticationRegisterRequest) throws MessagingException {
 
-        List<User> user = userRepository.getAllUser();
+        List<User> users = userRepository.getAllUser();
 
-        System.out.println(user);
+        for(User user : users){
+            if(userAuthenticationRegisterRequest.getEmail().equals(user.getEmail())){
+                throw new NotDuplicateException("This email has already exist");
+            }
+        }
 
         userAuthenticationRegisterRequest.setPassword(encoder.PasswordEncoder().encode(userAuthenticationRegisterRequest.getPassword()));
 
@@ -193,7 +194,23 @@ public class UserAuthenticationServicesImpl implements UserAuthenticationService
     @Override
     public UserAuthentication verifyForEnableAccount(String optCode) {
 
-        OptCode oc = userAuthenticationRepository.verifyForEnableAccount(optCode);
+        OptCode OPTCode = userAuthenticationRepository.getOtpCode(optCode);
+
+        if (OPTCode == null) {
+            throw new NotFoundException("Code : " + optCode + " Not Found");
+        }
+
+        if (!Objects.equals(OPTCode.getDigitCode(), optCode)) {
+
+            throw new NotFoundException("Code : " + optCode + " Invalid");
+
+        }
+
+        if (LocalDateTime.now().isAfter(OPTCode.getExpiredDate())) {
+            throw new NotFoundException("Code : " + optCode + " Expired");
+        }
+
+        OptCode oc = userAuthenticationRepository.verifyForEnableAccount(OPTCode.getDigitCode());
 
         return userAuthenticationRepository.enableAccount(oc.getUserId());
     }

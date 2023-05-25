@@ -125,7 +125,7 @@ public class GlobalException extends ResponseEntityExceptionHandler {
                 HttpStatus.CONFLICT, exception.getMessage()
         );
         problemDetail.setType(URI.create("localhost:8080/error/conflict"));
-        problemDetail.setTitle("This tag has already");
+        problemDetail.setTitle("Has already exist");
         return problemDetail;
     }
 }

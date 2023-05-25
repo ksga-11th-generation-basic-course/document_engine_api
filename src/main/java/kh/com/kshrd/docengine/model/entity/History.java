@@ -12,6 +12,7 @@ import java.util.UUID;
 @Data
 public class History {
     private UUID historyId;
+    private String title;
     private LocalDateTime editedDate;
     private Boolean status;
     private String editedBy;

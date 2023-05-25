@@ -152,15 +152,5 @@ public class DocumentController {
         return ResponseEntity.ok().body(response);
     }
 
-    @PutMapping("documents/restore/{historyId}/histories/{documentId}")
-    @Operation(summary = "Restore Document")
-    public ResponseEntity<?> restoreDocument(@PathVariable UUID historyId, @PathVariable UUID documentId){
-        Response<Document> response = Response.<Document>builder()
-                .message("Restore Document Successful")
-                .payload(documentService.restoreDocument(historyId, documentId))
-                .dateTime(LocalDateTime.now())
-                .status(HttpStatus.OK)
-                .build();
-        return ResponseEntity.ok().body(response);
-    }
+
 }

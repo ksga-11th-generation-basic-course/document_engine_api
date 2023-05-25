@@ -170,11 +170,4 @@ public class DocumentServiceImp implements DocumentService {
         return documents;
     }
 
-    @Override
-    public Document restoreDocument(UUID historyId, UUID documentId) {
-        blockRepository.deleteBlockByDocumentId(documentId);
-        blockRepository.restoreBlockDocument(historyId);
-        return documentRepository.restoreDocument(historyId, documentId);
-    }
-
 }

@@ -13,11 +13,11 @@ public interface WorkspaceService {
     void removeWorkspace(UUID workspaceId);
     void removeMemberFromWorkspace(UUID userId,UUID workspaceId);
     void setAccessibilityToUser(UUID userId, UUID workspaceId,Boolean status);
-    Workspace updateWorkspaceName(String name, UUID workspaceId);
     List<Workspace> getAllWorkspace();
     Integer getTotalOfDocument(UUID workspaceId);
     List<Workspace> filterWorkspace(Boolean filter);
-    List<Workspace> searchWorkspace(String input);
+    List<Workspace> searchWorkspace(String workspaceName);
     void deleteWorkspaceImage(UUID workspaceId);
-    Workspace updateWorkspaceImage(String image, UUID workspaceId);
+    void editWorkspace(UUID workspaceId, String workspaceName, String workspaceImage);
+    Workspace getWorkspaceByWorkspaceId(UUID workspaceId);
 }
