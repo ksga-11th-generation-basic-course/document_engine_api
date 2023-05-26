@@ -2,6 +2,7 @@ package kh.com.kshrd.docengine.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import kh.com.kshrd.docengine.model.response.MemberResponse;
 import kh.com.kshrd.docengine.model.entity.Workspace;
 import kh.com.kshrd.docengine.model.request.WorkspaceRequest;
 import kh.com.kshrd.docengine.model.response.Response;
@@ -135,9 +136,9 @@ public class WorkspaceController {
         return ResponseEntity.ok().body(response);
     }
 
-    @GetMapping("workspaces/{workspaceName}")
+    @GetMapping("workspaces/search")
     @Operation(summary = "Search Workspace")
-    public ResponseEntity<?> searchWorkspace(@PathVariable String workspaceName) {
+    public ResponseEntity<?> searchWorkspace(@RequestParam String workspaceName) {
         Response<List<Workspace>> response = Response.<List<Workspace>>builder()
                 .message("Get Total Document Successfully")
                 .payload(workspaceService.searchWorkspace(workspaceName))
@@ -167,6 +168,18 @@ public class WorkspaceController {
         Response<Workspace> response = Response.<Workspace>builder()
                 .message("Update Workspace Successfully")
                 .payload(workspaceService.getWorkspaceByWorkspaceId(workspaceId))
+                .status(HttpStatus.OK)
+                .dateTime(LocalDateTime.now())
+                .build();
+        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("workspaces/{workspaceId}/member")
+    @Operation(summary = "Get All Member In Each Workspace")
+    public ResponseEntity<?> getAllMemberInEachWorkspace(@PathVariable UUID workspaceId){
+        Response<List<MemberResponse>> response = Response.<List<MemberResponse>>builder()
+                .message("Get All Member In Each Workspace Successfully")
+                .payload(workspaceService.getAllMemberInEachWorkspace(workspaceId))
                 .status(HttpStatus.OK)
                 .dateTime(LocalDateTime.now())
                 .build();

@@ -2,6 +2,8 @@ package kh.com.kshrd.docengine.services;
 
 import kh.com.kshrd.docengine.model.entity.Document;
 import kh.com.kshrd.docengine.model.request.DocumentRequest;
+import kh.com.kshrd.docengine.model.response.MemberResponse;
+import kh.com.kshrd.docengine.model.response.UserResponse;
 
 import java.util.List;
 import java.util.Set;
@@ -29,4 +31,6 @@ public interface DocumentService {
     Document getDocumentByDocumentId(UUID documentId);
 
     Set<Document> searchDocumentByManyTagName(UUID workspaceId, List<String> tagName);
+
+    List<MemberResponse> getAllMemberInEachDocument(UUID documentId);
 }

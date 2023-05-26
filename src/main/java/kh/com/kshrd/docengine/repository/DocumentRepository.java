@@ -3,6 +3,8 @@ package kh.com.kshrd.docengine.repository;
 import kh.com.kshrd.docengine.model.entity.Document;
 import kh.com.kshrd.docengine.model.request.DocumentRequest;
 
+import kh.com.kshrd.docengine.model.response.MemberResponse;
+import kh.com.kshrd.docengine.model.response.UserResponse;
 import kh.com.kshrd.docengine.repository.provider.DocumentSqlProvider;
 import org.apache.ibatis.annotations.*;
 
@@ -22,7 +24,7 @@ public interface DocumentRepository {
     @Select("INSERT INTO documents(title, created_date, page_id, workspace_id) VALUES (#{d.title}, #{d.createdDate}, #{d.pageId}, #{d.workspaceId}) RETURNING *;")
     Document createDocument(@Param("d") DocumentRequest documentRequest);
 
-    @Select("INSERT INTO user_document(user_id, document_id, is_owner ,accessibility_status) VALUES (#{userIdOfCurrentUser}, #{documentId}, default, 'Editor');")
+    @Select("INSERT INTO user_document(user_id, document_id, is_owner ,accessibility_status) VALUES (#{userIdOfCurrentUser}, #{documentId}, true, 'Editor');")
     void addDataToUserDocument(UUID userIdOfCurrentUser, UUID documentId);
 
     @ResultMap("documentMap")
@@ -75,5 +77,11 @@ public interface DocumentRepository {
     @SelectProvider(type = DocumentSqlProvider.class, method = "getDocumentsByWorkspaceAndTags")
     Set<Document> searchDocumentByManyTagName(UUID workspaceId, List<String> tags);
 
-
+    @Results(id = "userDocumentMap", value = {
+            @Result(property = "userId", column = "user_id"),
+            @Result(property = "isOwner", column = "is_owner"),
+            @Result(property = "accessibility", column = "accessibility_status")
+    })
+    @Select("SELECT ud.user_id, username, is_owner, accessibility_status FROM users INNER JOIN user_document ud on users.user_id = ud.user_id WHERE document_id = #{documentId};")
+    List<MemberResponse> getAllMemberInEachDocument(UUID documentId);
 }

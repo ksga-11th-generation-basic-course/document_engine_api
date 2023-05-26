@@ -34,7 +34,7 @@ public class HistoryController {
                 .build();
         return ResponseEntity.ok().body(response);
     }
-    @PutMapping("histories/restore/{historyId}/documents/{documentId}")
+    @PutMapping("histories/{historyId}/documents/{documentId}")
     @Operation(summary = "Restore Document")
     public ResponseEntity<Response<History>> restoreDocument(@PathVariable UUID historyId, @PathVariable UUID documentId){
         historyService.restoreDocument(historyId, documentId);

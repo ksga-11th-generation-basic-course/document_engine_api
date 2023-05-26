@@ -170,7 +170,6 @@ public class UserAuthenticationServicesImpl implements UserAuthenticationService
         }
 
         userAuthenticationRepository.resetPassword(userAuthenticationResetPasswordRequest, optCode.getUserId());
-
         return userAuthentication;
     }
 
@@ -217,6 +216,13 @@ public class UserAuthenticationServicesImpl implements UserAuthenticationService
 
     @Override
     public UserAuthentication signUpWithGoogleAndFacebook(UserAuthenticationRequestWithGoogleAndFacebook userAuthenticationRequestWithGoogleAndFacebook) {
+        List<User> users = userRepository.getAllUser();
+
+        for(User user : users){
+            if(userAuthenticationRequestWithGoogleAndFacebook.getEmail().equals(user.getEmail())){
+                throw new NotDuplicateException("This email has already exist");
+            }
+        }
         userAuthenticationRequestWithGoogleAndFacebook.setPassword(encoder.PasswordEncoder().encode(userAuthenticationRequestWithGoogleAndFacebook.getPassword()));
         return userAuthenticationRepository.signUpWithGoogleAndFacebook(userAuthenticationRequestWithGoogleAndFacebook);
     }

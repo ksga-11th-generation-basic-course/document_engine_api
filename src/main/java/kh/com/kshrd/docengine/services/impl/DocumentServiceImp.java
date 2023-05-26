@@ -4,15 +4,12 @@ import kh.com.kshrd.docengine.exceptions.BadRequestException;
 import kh.com.kshrd.docengine.exceptions.NotEditorException;
 import kh.com.kshrd.docengine.exceptions.NotFoundException;
 import kh.com.kshrd.docengine.exceptions.NotOwnerException;
-import kh.com.kshrd.docengine.model.entity.Block;
-import kh.com.kshrd.docengine.model.entity.Document;
-import kh.com.kshrd.docengine.model.entity.History;
+import kh.com.kshrd.docengine.model.entity.*;
 import kh.com.kshrd.docengine.enums.EAccessibility;
 import kh.com.kshrd.docengine.model.request.DocumentRequest;
-import kh.com.kshrd.docengine.repository.BlockHistoryRepository;
-import kh.com.kshrd.docengine.repository.BlockRepository;
-import kh.com.kshrd.docengine.repository.DocumentRepository;
-import kh.com.kshrd.docengine.repository.HistoryRepository;
+import kh.com.kshrd.docengine.model.response.MemberResponse;
+import kh.com.kshrd.docengine.model.response.UserResponse;
+import kh.com.kshrd.docengine.repository.*;
 import kh.com.kshrd.docengine.security.services.UserAuthenticationService;
 import kh.com.kshrd.docengine.services.DocumentService;
 import lombok.AllArgsConstructor;
@@ -33,13 +30,20 @@ public class DocumentServiceImp implements DocumentService {
     private final BlockRepository blockRepository;
     private final HistoryRepository historyRepository;
     private final BlockHistoryRepository blockHistoryRepository;
+    private final WorkspaceRepository workspaceRepository;
+    private final TagRepository tagRepository;
 
     @Override
     public Document createDocument(DocumentRequest documentRequest) {
-        Document document = documentRepository.createDocument(documentRequest);
-        documentRepository.addDataToUserDocument(userAuthenticationService.getUserIdOfCurrentUser(), document.getDocumentId());
-        documentRequest.getTags().forEach(tagId -> documentRepository.InsertTagIdAndDocumentIdIntoTagDocument(tagId, document.getDocumentId()));
-        return document;
+        Boolean isCheckAccessibility = workspaceRepository.checkAccessibility(userAuthenticationService.getUserIdOfCurrentUser(), documentRequest.getWorkspaceId());
+        if(isCheckAccessibility){
+            Document document = documentRepository.createDocument(documentRequest);
+            documentRepository.addDataToUserDocument(userAuthenticationService.getUserIdOfCurrentUser(), document.getDocumentId());
+            documentRequest.getTags().forEach(tagId -> documentRepository.InsertTagIdAndDocumentIdIntoTagDocument(tagId, document.getDocumentId()));
+            return document;
+        } else {
+            throw new BadRequestException("Your accessibility cannot create document");
+        }
     }
 
     @Override
@@ -158,6 +162,12 @@ public class DocumentServiceImp implements DocumentService {
             throw new NotFoundException("Document doesn't exist");
         } else {
             Document document = documentRepository.duplicateDocument(documentId);
+            documentRepository.addDataToUserDocument(userAuthenticationService.getUserIdOfCurrentUser(), document.getDocumentId());
+            List<Tag> tags = tagRepository.duplicateTag(documentId);
+            for(Tag tag : tags){
+                documentRepository.InsertTagIdAndDocumentIdIntoTagDocument(tag.getTagId(), document.getDocumentId());
+            }
+            document.setTags(tags);
             List<Block> blocks = blockRepository.duplicateBlock(documentId);
             for (Block block : blocks) {
                 blockRepository.updateDocumentIdForDuplicateBlock(document.getDocumentId(), block.getBlockId());
@@ -225,6 +235,11 @@ public class DocumentServiceImp implements DocumentService {
             throw new NotFoundException("Empty document");
         }
         return documents;
+    }
+
+    @Override
+    public List<MemberResponse> getAllMemberInEachDocument(UUID documentId) {
+        return documentRepository.getAllMemberInEachDocument(documentId);
     }
 
 }

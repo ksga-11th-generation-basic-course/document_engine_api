@@ -1,5 +1,6 @@
 package kh.com.kshrd.docengine.repository;
 
+import kh.com.kshrd.docengine.model.response.MemberResponse;
 import kh.com.kshrd.docengine.model.entity.Workspace;
 import kh.com.kshrd.docengine.model.request.WorkspaceRequest;
 import org.apache.ibatis.annotations.*;
@@ -120,4 +121,16 @@ public interface WorkspaceRepository {
 
     @Select("SELECT user_id FROM user_workspace WHERE workspace_id = #{workspaceId};")
     List<UUID> getUserIdByWorkspaceId(UUID workspaceId);
+
+    @Results(id = "userWorkspaceMap", value = {
+            @Result(property = "userId", column = "user_id"),
+            @Result(property = "isOwner", column = "is_owner"),
+            @Result(property = "accessibility", column = "accessibility_status")
+    })
+    @Select("SELECT uw.user_id, username, is_owner, accessibility_status FROM users INNER JOIN user_workspace uw on users.user_id = uw.user_id WHERE workspace_id = #{workspaceId};")
+    List<MemberResponse> getAllMemberInEachWorkspace(UUID workspaceId);
+
+
+    @Select("SELECT accessibility_status FROM user_workspace WHERE user_id = #{userIdOfCurrentUser} AND workspace_id = #{workspaceId};")
+    Boolean checkAccessibility(UUID userIdOfCurrentUser, UUID workspaceId);
 }

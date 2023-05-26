@@ -4,6 +4,7 @@ import kh.com.kshrd.docengine.exceptions.BadRequestException;
 import kh.com.kshrd.docengine.exceptions.NotDuplicateException;
 import kh.com.kshrd.docengine.exceptions.NotFoundException;
 import kh.com.kshrd.docengine.exceptions.NotOwnerException;
+import kh.com.kshrd.docengine.model.response.MemberResponse;
 import kh.com.kshrd.docengine.model.entity.Workspace;
 import kh.com.kshrd.docengine.model.request.WorkspaceRequest;
 import kh.com.kshrd.docengine.repository.WorkspaceRepository;
@@ -192,6 +193,8 @@ public class WorkspaceServiceImp implements WorkspaceService {
         } else {
             if (workspaceRepository.checkIsOwner(userAuthenticationService.getUserIdOfCurrentUser(), workspaceId)) {
                 workspaceRepository.deleteWorkspaceImage(workspaceId);
+            } else {
+                throw new NotOwnerException("You are not the owner of this workspace");
             }
         }
     }
@@ -235,6 +238,11 @@ public class WorkspaceServiceImp implements WorkspaceService {
             throw new NotFoundException("Workspace doesn't exist");
         }
         return workspace;
+    }
+
+    @Override
+    public List<MemberResponse> getAllMemberInEachWorkspace(UUID workspaceId) {
+        return workspaceRepository.getAllMemberInEachWorkspace(workspaceId);
     }
 
 

@@ -19,20 +19,12 @@ public interface UserRepository {
     User closeAccount(UUID userIdOfCurrentUser);
 
     @ResultMap("userMap")
-    @Select("UPDATE users SET username = #{username} WHERE user_id = #{userIdOfCurrentUser} RETURNING *;")
-    User changeUsername(UUID userIdOfCurrentUser, String username);
-
-    @ResultMap("userMap")
     @Select("UPDATE users SET password = #{newPassword} WHERE user_id = #{userIdOfCurrentUser} RETURNING *;")
     User changePassword(UUID userIdOfCurrentUser, String newPassword);
 
     @ResultMap("userMap")
     @Select("SELECT * FROM users WHERE user_id = #{userId};")
     User getUserByUserId(UUID userId);
-
-    @ResultMap("userMap")
-    @Select("UPDATE users SET profile_image = #{image} WHERE user_id = #{userIdOfCurrentUser} RETURNING *;")
-    User changeProfileImage(UUID userIdOfCurrentUser, String image);
 
     @Select("SELECT profile_image FROM users WHERE user_id = #{userIdOfCurrentUser};")
     String getProfileImage(UUID userIdOfCurrentUser);
@@ -47,6 +39,10 @@ public interface UserRepository {
     @ResultMap("userMap")
     @Select("SELECT * FROM users WHERE user_id = #{userIdOfCurrentUser};")
     User getCurrentUser(UUID userIdOfCurrentUser);
+
+    @ResultMap("userMap")
+    @Select("UPDATE users SET username = #{username}, profile_image = #{profileImage} WHERE user_id = #{userIdOfCurrentUser} RETURNING *;")
+    User editProfileInformation(UUID userIdOfCurrentUser, String username, String profileImage);
 
     @Select("SELECT username FROM users WHERE user_id = #{userID}")
     String getUserNameByUserId(UUID userID);

@@ -20,7 +20,7 @@ public class BlockServiceImp implements BlockService {
 
     @Override
     public Block createBlock(BlockRequest blockRequest) {
-        return blockRepository.createBlock(blockRequest);
+        return blockRepository.createBlock(blockRequest, blockRepository.order(blockRequest.getDocumentId()));
     }
 
     @Override

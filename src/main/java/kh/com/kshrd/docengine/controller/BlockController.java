@@ -32,7 +32,7 @@ public class BlockController {
                 .message("Create Block Successful")
                 .payload(blockService.createBlock(blockRequest))
                 .dateTime(LocalDateTime.now())
-                .status(HttpStatus.OK)
+                .status(HttpStatus.CREATED)
                 .build();
         return ResponseEntity.ok().body(response);
     }
@@ -62,7 +62,7 @@ public class BlockController {
         return ResponseEntity.ok().body(response);
     }
 
-    @GetMapping("blocks/get/block/For/each/document/{documentId}")
+    @GetMapping("blocks/{documentId}")
     @Operation(summary = "Get Block For Each Document")
     public ResponseEntity<Response<List<Block>>> getBlockForEachDocument(@PathVariable UUID documentId){
         Response<List<Block>> response = Response.<List<Block>>builder()

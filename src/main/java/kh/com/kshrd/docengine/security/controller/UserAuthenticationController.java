@@ -189,7 +189,7 @@ public class UserAuthenticationController {
         }
     }
 
-    @PutMapping("authentications/input/email/to/enable/account")
+    @PutMapping("authentications/enable/account")
     @Operation(summary = "Input Email To Enable Account")
     public ResponseEntity<?> inputEmailForEnableAccount(@RequestParam String email) throws MessagingException {
         UserAuthentication userAuthentication = userAuthenticationServices.inputEmailToEnableAccount(email);
@@ -219,7 +219,7 @@ public class UserAuthenticationController {
         return ResponseEntity.ok().body(response);
     }
 
-    @PostMapping("authentications/signup/with/google/and/facebook")
+    @PostMapping("authentications/signup/google/facebook")
     @Operation(summary = "Sign Up With Google And Facebook")
     public ResponseEntity<?> signUpWithGoogleAndFacebook(@RequestBody UserAuthenticationRequestWithGoogleAndFacebook userAuthenticationRequestWithGoogleAndFacebook) {
         UserAuthentication userAuthentication = userAuthenticationServices.signUpWithGoogleAndFacebook(userAuthenticationRequestWithGoogleAndFacebook);
@@ -232,7 +232,7 @@ public class UserAuthenticationController {
         return ResponseEntity.ok().body(response);
     }
 
-    @PostMapping("authentications/login/with/google/and/facebook")
+    @PostMapping("authentications/login/google/facebook")
     @Operation(summary = "login With Google And Facebook")
     public ResponseEntity<?> signInWithGoogleAndFacebook(@RequestBody UserAuthenticationLoginRequest authenticationLoginRequest) throws Exception {
         return getResponseEntity(authenticationLoginRequest);

@@ -1,5 +1,6 @@
 package kh.com.kshrd.docengine.services;
 
+import kh.com.kshrd.docengine.model.response.MemberResponse;
 import kh.com.kshrd.docengine.model.entity.Workspace;
 import kh.com.kshrd.docengine.model.request.WorkspaceRequest;
 
@@ -20,4 +21,5 @@ public interface WorkspaceService {
     void deleteWorkspaceImage(UUID workspaceId);
     void editWorkspace(UUID workspaceId, String workspaceName, String workspaceImage);
     Workspace getWorkspaceByWorkspaceId(UUID workspaceId);
+    List<MemberResponse> getAllMemberInEachWorkspace(UUID workspaceId);
 }
