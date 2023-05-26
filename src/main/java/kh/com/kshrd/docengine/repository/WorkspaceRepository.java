@@ -74,9 +74,9 @@ public interface WorkspaceRepository {
             SELECT uw.workspace_id,workspace_name,workspace_image,workspace_code,created_date
             FROM workspaces
             INNER JOIN user_workspace uw on workspaces.workspace_id = uw.workspace_id
-            WHERE user_id=#{currentUserId}
+            WHERE user_id=#{currentUserId} LIMIT #{pageSize} OFFSET #{pageNo};
             """)
-    List<Workspace> getAllWorkspaceByUserId(UUID currentUserId);
+    List<Workspace> getAllWorkspaceByUserId(UUID currentUserId, Integer pageNo, Integer pageSize);
 
     @Select("""
             SELECT count(*) FROM documents inner join workspaces w on documents.workspace_id = w.workspace_id

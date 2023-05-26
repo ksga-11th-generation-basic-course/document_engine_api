@@ -144,8 +144,9 @@ public class WorkspaceServiceImp implements WorkspaceService {
     }
 
     @Override
-    public List<Workspace> getAllWorkspace() {
-        return workspaceRepository.getAllWorkspaceByUserId(userAuthenticationService.getUserIdOfCurrentUser());
+    public List<Workspace> getAllWorkspace(Integer pageNo, Integer pageSize) {
+        pageNo = (pageNo - 1) * pageSize;
+        return workspaceRepository.getAllWorkspaceByUserId(userAuthenticationService.getUserIdOfCurrentUser(), pageNo, pageSize);
     }
 
     @Override
