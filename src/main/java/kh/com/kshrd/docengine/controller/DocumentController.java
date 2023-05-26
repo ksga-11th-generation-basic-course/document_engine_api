@@ -6,7 +6,6 @@ import kh.com.kshrd.docengine.model.entity.Document;
 import kh.com.kshrd.docengine.model.request.DocumentRequest;
 import kh.com.kshrd.docengine.model.response.MemberResponse;
 import kh.com.kshrd.docengine.model.response.Response;
-import kh.com.kshrd.docengine.model.response.UserResponse;
 import kh.com.kshrd.docengine.services.DocumentService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;

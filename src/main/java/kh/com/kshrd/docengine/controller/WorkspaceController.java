@@ -102,10 +102,10 @@ public class WorkspaceController {
 
     @GetMapping("workspaces")
     @Operation(summary = "Get All Workspace")
-    public ResponseEntity<?> getAllWorkspace() {
+    public ResponseEntity<?> getAllWorkspace(@RequestParam(defaultValue = "1") Integer pageNo, @RequestParam(defaultValue = "5") Integer pageSize) {
         Response<List<Workspace>> response = Response.<List<Workspace>>builder()
                 .message("Get All Workspace Successfully")
-                .payload(workspaceService.getAllWorkspace())
+                .payload(workspaceService.getAllWorkspace(pageNo, pageSize))
                 .status(HttpStatus.OK)
                 .dateTime(LocalDateTime.now())
                 .build();

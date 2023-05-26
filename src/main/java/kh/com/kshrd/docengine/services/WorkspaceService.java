@@ -14,7 +14,7 @@ public interface WorkspaceService {
     void removeWorkspace(UUID workspaceId);
     void removeMemberFromWorkspace(UUID userId,UUID workspaceId);
     void setAccessibilityToUser(UUID userId, UUID workspaceId,Boolean status);
-    List<Workspace> getAllWorkspace();
+    List<Workspace> getAllWorkspace(Integer pageNo, Integer pageSize);
     Integer getTotalOfDocument(UUID workspaceId);
     List<Workspace> filterWorkspace(Boolean filter);
     List<Workspace> searchWorkspace(String workspaceName);
