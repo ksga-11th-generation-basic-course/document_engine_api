@@ -101,6 +101,7 @@ public class GlobalException extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(body, status);
     }
 
+    /* not editor Exception*/
     @ExceptionHandler(NotEditorException.class)
     public ProblemDetail notEditor(NotEditorException notEditorException) {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, notEditorException.getMessage());
@@ -109,6 +110,7 @@ public class GlobalException extends ResponseEntityExceptionHandler {
         return problemDetail;
     }
 
+    /* problem Exception*/
     @ExceptionHandler(NotOwnerException.class)
     public ProblemDetail problem(NotOwnerException exception) {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
@@ -119,6 +121,7 @@ public class GlobalException extends ResponseEntityExceptionHandler {
         return problemDetail;
     }
 
+    /* not duplicate Exception*/
     @ExceptionHandler(NotDuplicateException.class)
     public ProblemDetail notDuplicate(NotDuplicateException exception){
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(

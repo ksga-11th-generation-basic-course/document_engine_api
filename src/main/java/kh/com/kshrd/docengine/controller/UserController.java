@@ -22,93 +22,102 @@ import java.util.List;
 public class UserController {
     private final UserService userService;
 
+    /*
+   endpoint for close account
+   {
+    url : http://localhost:8080/api/v1/users/close/account
+   }
+   */
     @PutMapping("/close/account")
     @Operation(summary = "Close Account")
     public ResponseEntity<?> closeAccount() {
         User user = userService.closeAccount();
-        Response<UserResponse> response = Response.<UserResponse>builder()
-                .message("Close Account Successful")
-                .payload(new UserResponse(user.getUserId(), user.getUserName(), user.getEmail(), user.getProfileImage(), user.getIsEnable()))
-                .dateTime(LocalDateTime.now())
-                .status(HttpStatus.OK)
-                .build();
+        Response<UserResponse> response = Response.<UserResponse>builder().message("Close Account Successful").payload(new UserResponse(user.getUserId(), user.getUserName(), user.getEmail(), user.getProfileImage(), user.getIsEnable())).dateTime(LocalDateTime.now()).status(HttpStatus.OK).build();
         return ResponseEntity.ok().body(response);
     }
 
+    /*
+     endpoint for change username
+     {
+      url : http://localhost:8080/api/v1/users/change/username
+     }
+     */
     @PutMapping("/change/username")
     @Operation(summary = "Change Username")
     public ResponseEntity<?> changeUsername(@RequestParam String username) {
         User user = userService.changeUsername(username);
-        Response<UserResponse> response = Response.<UserResponse>builder()
-                .message("Close Account Successful")
-                .payload(new UserResponse(user.getUserId(), user.getUserName(), user.getEmail(), user.getProfileImage(), user.getIsEnable()))
-                .dateTime(LocalDateTime.now())
-                .status(HttpStatus.OK)
-                .build();
+        Response<UserResponse> response = Response.<UserResponse>builder().message("Close Account Successful").payload(new UserResponse(user.getUserId(), user.getUserName(), user.getEmail(), user.getProfileImage(), user.getIsEnable())).dateTime(LocalDateTime.now()).status(HttpStatus.OK).build();
         return ResponseEntity.ok().body(response);
     }
 
+    /*
+     endpoint for change password
+     {
+      url : http://localhost:8080/api/v1/users/change/password
+     }
+     */
     @PutMapping("/change/password")
     @Operation(summary = "Change Password")
     public ResponseEntity<?> changePassword(@RequestParam String currentPassword, @RequestParam String newPassword, @RequestParam String confirmNewPassword) {
         User user = userService.changePassword(currentPassword, newPassword, confirmNewPassword);
-        Response<UserResponse> response = Response.<UserResponse>builder()
-                .message("Close Account Successful")
-                .payload(new UserResponse(user.getUserId(), user.getUserName(), user.getEmail(), user.getProfileImage(), user.getIsEnable()))
-                .dateTime(LocalDateTime.now())
-                .status(HttpStatus.OK)
-                .build();
+        Response<UserResponse> response = Response.<UserResponse>builder().message("Close Account Successful").payload(new UserResponse(user.getUserId(), user.getUserName(), user.getEmail(), user.getProfileImage(), user.getIsEnable())).dateTime(LocalDateTime.now()).status(HttpStatus.OK).build();
         return ResponseEntity.ok().body(response);
     }
 
+    /*
+     endpoint for change profile image
+     {
+      url : http://localhost:8080/api/v1/users/change/profile/image
+     }
+     */
     @PutMapping(path = "/change/profile/image")
     @Operation(summary = "Change Profile Image")
     public ResponseEntity<?> changeProfileImage(@RequestBody String image) {
         User user = userService.changeProfileImage(image);
-        Response<UserResponse> response = Response.<UserResponse>builder()
-                .message("Close Account Successful")
-                .payload(new UserResponse(user.getUserId(), user.getUserName(), user.getEmail(), user.getProfileImage(), user.getIsEnable()))
-                .dateTime(LocalDateTime.now())
-                .status(HttpStatus.OK)
-                .build();
+        Response<UserResponse> response = Response.<UserResponse>builder().message("Close Account Successful").payload(new UserResponse(user.getUserId(), user.getUserName(), user.getEmail(), user.getProfileImage(), user.getIsEnable())).dateTime(LocalDateTime.now()).status(HttpStatus.OK).build();
         return ResponseEntity.ok().body(response);
     }
 
+    /*
+     endpoint for get all user
+     {
+      url : http://localhost:8080/api/v1/users/get/all/user
+     }
+     */
     @GetMapping("/get/all/user")
     @Operation(summary = "Get All User")
-    public ResponseEntity<?> getAllUser(){
-        Response<List<User>> response = Response.<List<User>>builder()
-                .message("Get All User Successful")
-                .payload(userService.getAllUser())
-                .dateTime(LocalDateTime.now())
-                .status(HttpStatus.OK)
-                .build();
+    public ResponseEntity<?> getAllUser() {
+        Response<List<User>> response = Response.<List<User>>builder().message("Get All User Successful").payload(userService.getAllUser()).dateTime(LocalDateTime.now()).status(HttpStatus.OK).build();
         return ResponseEntity.ok().body(response);
     }
 
+
+    /*
+     endpoint for delete profile image
+     {
+      url : http://localhost:8080/api/v1/users/delete/profile/image
+     }
+     */
     @DeleteMapping("/delete/profile/image")
     @Operation(summary = "Delete Profile Image")
-    public ResponseEntity<?> deleteProfileImage(){
+    public ResponseEntity<?> deleteProfileImage() {
         userService.deleteProfileImage();
-        Response<User> response = Response.<User>builder()
-                .message("Delete Profile Image Successful")
-                .payload(null)
-                .dateTime(LocalDateTime.now())
-                .status(HttpStatus.OK)
-                .build();
+        Response<User> response = Response.<User>builder().message("Delete Profile Image Successful").payload(null).dateTime(LocalDateTime.now()).status(HttpStatus.OK).build();
         return ResponseEntity.ok().body(response);
     }
 
+
+    /*
+     endpoint for get current user
+     {
+      url : http://localhost:8080/api/v1/users/get/current/user
+     }
+     */
     @GetMapping("/get/current/user")
     @Operation(summary = "Get Current User")
-    public ResponseEntity<?> getCurrentUser(){
-        User user =userService.getCurrentUser();
-        Response<UserResponse> response = Response.<UserResponse>builder()
-                .message("Get Current User Successful")
-                .payload(new UserResponse(user.getUserId(), user.getUserName(), user.getEmail(), user.getProfileImage(), user.getIsEnable()))
-                .dateTime(LocalDateTime.now())
-                .status(HttpStatus.OK)
-                .build();
+    public ResponseEntity<?> getCurrentUser() {
+        User user = userService.getCurrentUser();
+        Response<UserResponse> response = Response.<UserResponse>builder().message("Get Current User Successful").payload(new UserResponse(user.getUserId(), user.getUserName(), user.getEmail(), user.getProfileImage(), user.getIsEnable())).dateTime(LocalDateTime.now()).status(HttpStatus.OK).build();
         return ResponseEntity.ok().body(response);
     }
 }

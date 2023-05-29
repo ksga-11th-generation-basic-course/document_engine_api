@@ -24,64 +24,69 @@ public class TagController {
 
     private final TagService tagService;
 
+    /*
+    endpoint for create tag
+    {
+     url : http://localhost:8080/api/v1/tags
+    }
+   */
     @PostMapping("tags")
     @Operation(summary = "Create Tag")
     public ResponseEntity<?> createTag(@RequestBody TagRequest tagRequest) {
-        Response<Tag> response = Response.<Tag>builder()
-                .message("Create Tag Successful")
-                .payload(tagService.createTag(tagRequest))
-                .dateTime(LocalDateTime.now())
-                .status(HttpStatus.OK)
-                .build();
+        Response<Tag> response = Response.<Tag>builder().message("Create Tag Successful").payload(tagService.createTag(tagRequest)).dateTime(LocalDateTime.now()).status(HttpStatus.OK).build();
         return ResponseEntity.ok().body(response);
     }
 
+    /*
+    endpoint for edit tag
+    {
+     url : http://localhost:8080/api/v1/tags/{{tagId}}
+    }
+   */
     @PutMapping("tags/{tagId}")
     @Operation(summary = "Edit Tag")
     public ResponseEntity<?> editTag(@PathVariable UUID tagId, @RequestParam String tagName) {
-        Response<Tag> response = Response.<Tag>builder()
-                .message("Edit Tag Successful")
-                .payload(tagService.editTag(tagId, tagName))
-                .dateTime(LocalDateTime.now())
-                .status(HttpStatus.OK)
-                .build();
+        Response<Tag> response = Response.<Tag>builder().message("Edit Tag Successful").payload(tagService.editTag(tagId, tagName)).dateTime(LocalDateTime.now()).status(HttpStatus.OK).build();
         return ResponseEntity.ok().body(response);
     }
 
+    /*
+    endpoint for delete tag
+    {
+     url : http://localhost:8080/api/v1/tags/{{tagId}}
+    }
+   */
     @DeleteMapping("tags/{tagId}")
     @Operation(summary = "Delete Tag")
-    public ResponseEntity<?> deleteTag(@PathVariable UUID tagId){
+    public ResponseEntity<?> deleteTag(@PathVariable UUID tagId) {
         tagService.deleteTag(tagId);
-        Response<Tag> response = Response.<Tag>builder()
-                .message("Delete Tag Successful")
-                .payload(null)
-                .dateTime(LocalDateTime.now())
-                .status(HttpStatus.OK)
-                .build();
+        Response<Tag> response = Response.<Tag>builder().message("Delete Tag Successful").payload(null).dateTime(LocalDateTime.now()).status(HttpStatus.OK).build();
         return ResponseEntity.ok().body(response);
     }
 
+    /*
+   endpoint for get all tag
+   {
+    url : http://localhost:8080/api/v1/tags
+   }
+   */
     @GetMapping("tags")
     @Operation(summary = "Get All Tag")
-    public ResponseEntity<?> getAllTag(){
-        Response<List<Tag>> response = Response.<List<Tag>>builder()
-                .message("Get All Tag Successful")
-                .payload(tagService.getAllTag())
-                .dateTime(LocalDateTime.now())
-                .status(HttpStatus.OK)
-                .build();
+    public ResponseEntity<?> getAllTag() {
+        Response<List<Tag>> response = Response.<List<Tag>>builder().message("Get All Tag Successful").payload(tagService.getAllTag()).dateTime(LocalDateTime.now()).status(HttpStatus.OK).build();
         return ResponseEntity.ok().body(response);
     }
 
+    /*
+    endpoint for get tag in each workspace
+    {
+     url : http://localhost:8080/api/v1/tags/{{workspaceId}}
+    }
+    */
     @GetMapping("tags/{workspaceId}")
     @Operation(summary = "Get Tag In Each Workspace")
-    public ResponseEntity<?> getTagInEachWorkspace(@PathVariable UUID workspaceId){
-        Response<List<Tag>> response = Response.<List<Tag>>builder()
-                .message("Get Tag In Each Workspace Successful")
-                .payload(tagService.getTagInEachWorkspace(workspaceId))
-                .dateTime(LocalDateTime.now())
-                .status(HttpStatus.OK)
-                .build();
+    public ResponseEntity<?> getTagInEachWorkspace(@PathVariable UUID workspaceId) {
+        Response<List<Tag>> response = Response.<List<Tag>>builder().message("Get Tag In Each Workspace Successful").payload(tagService.getTagInEachWorkspace(workspaceId)).dateTime(LocalDateTime.now()).status(HttpStatus.OK).build();
         return ResponseEntity.ok().body(response);
     }
 }
