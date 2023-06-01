@@ -19,7 +19,7 @@ import java.util.UUID;
 @RestController
 @SecurityRequirement(name = "bearerAuth")
 @AllArgsConstructor
-@CrossOrigin
+//@CrossOrigin
 @RequestMapping("/api/v1/")
 public class BlockController {
 

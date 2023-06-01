@@ -12,7 +12,7 @@ import java.util.UUID;
 public interface DocumentService {
     Document createDocument(DocumentRequest documentRequest);
 
-    Document editDocument(UUID documentId, String title, List<UUID> tags);
+    Document editDocument(UUID documentId, String title);
 
     void currentEditing(UUID documentId);
 

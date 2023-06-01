@@ -18,7 +18,7 @@ import java.util.UUID;
 @RestController
 @SecurityRequirement(name = "bearerAuth")
 @AllArgsConstructor
-@CrossOrigin
+//@CrossOrigin
 @RequestMapping("/api/v1/")
 public class TagController {
 
@@ -62,7 +62,7 @@ public class TagController {
     }
 
     @GetMapping("tags")
-    @Operation(summary = "Get All Tag")
+    @Operation(summary = "Get All Tag *")
     public ResponseEntity<?> getAllTag(){
         Response<List<Tag>> response = Response.<List<Tag>>builder()
                 .message("Get All Tag Successful")
@@ -83,5 +83,12 @@ public class TagController {
                 .status(HttpStatus.OK)
                 .build();
         return ResponseEntity.ok().body(response);
+    }
+
+    @PostMapping("tags/add")
+    @Operation(summary = "Add Tag For Document")
+    public ResponseEntity<?> addTagsForDocument(@RequestParam UUID tag_id, @RequestParam UUID document_id){
+        tagService.addTagsForDocument(tag_id, document_id);
+        return ResponseEntity.ok().body("Add Tag Successful");
     }
 }

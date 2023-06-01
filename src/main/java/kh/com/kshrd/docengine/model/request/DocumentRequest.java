@@ -17,5 +17,4 @@ public class DocumentRequest {
     private LocalDateTime createdDate;
     private UUID pageId;
     private UUID workspaceId;
-    private List<UUID> tags;
 }

@@ -17,7 +17,7 @@ public interface DocumentRepository {
     @Results(id = "documentMap", value = {
             @Result(property = "documentId", column = "document_id"),
             @Result(property = "createdDate", column = "created_date"),
-            @Result(property = "pageId", column = "page_id"),
+            @Result(property = "pageId", column = "page_id", one = @One(select = "getDocumentByDocumentId")),
             @Result(property = "workspaceId", column = "workspace_id"),
             @Result(property = "tags", column = "document_id", many = @Many(select = "kh.com.kshrd.docengine.repository.TagRepository.getTagFromTagDocument"))
     })
@@ -84,4 +84,8 @@ public interface DocumentRepository {
     })
     @Select("SELECT ud.user_id, username, is_owner, accessibility_status FROM users INNER JOIN user_document ud on users.user_id = ud.user_id WHERE document_id = #{documentId};")
     List<MemberResponse> getAllMemberInEachDocument(UUID documentId);
+
+    @ResultMap("documentMap")
+    @Select("SELECT * FROM documents WHERE page_id = #{documentId};")
+    List<Document> getDocumentIdByPageId(UUID documentId);
 }

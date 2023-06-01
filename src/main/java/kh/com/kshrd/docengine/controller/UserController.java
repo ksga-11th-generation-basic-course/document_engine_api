@@ -17,7 +17,7 @@ import java.util.List;
 @RestController
 @SecurityRequirement(name = "bearerAuth")
 @AllArgsConstructor
-@CrossOrigin
+//@CrossOrigin
 @RequestMapping("/api/v1/")
 public class UserController {
     private final UserService userService;

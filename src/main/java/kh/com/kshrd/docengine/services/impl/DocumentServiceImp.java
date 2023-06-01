@@ -8,7 +8,6 @@ import kh.com.kshrd.docengine.model.entity.*;
 import kh.com.kshrd.docengine.enums.EAccessibility;
 import kh.com.kshrd.docengine.model.request.DocumentRequest;
 import kh.com.kshrd.docengine.model.response.MemberResponse;
-import kh.com.kshrd.docengine.model.response.UserResponse;
 import kh.com.kshrd.docengine.repository.*;
 import kh.com.kshrd.docengine.security.services.UserAuthenticationService;
 import kh.com.kshrd.docengine.services.DocumentService;
@@ -39,7 +38,6 @@ public class DocumentServiceImp implements DocumentService {
         if(isCheckAccessibility){
             Document document = documentRepository.createDocument(documentRequest);
             documentRepository.addDataToUserDocument(userAuthenticationService.getUserIdOfCurrentUser(), document.getDocumentId());
-            documentRequest.getTags().forEach(tagId -> documentRepository.InsertTagIdAndDocumentIdIntoTagDocument(tagId, document.getDocumentId()));
             return document;
         } else {
             throw new BadRequestException("Your accessibility cannot create document");
@@ -47,7 +45,7 @@ public class DocumentServiceImp implements DocumentService {
     }
 
     @Override
-    public Document editDocument(UUID documentId, String title, List<UUID> tags) {
+    public Document editDocument(UUID documentId, String title) {
         if (documentId == null) {
             throw new BadRequestException("Document id cannot be null");
         } else if (documentId.toString().isBlank()) {
@@ -57,7 +55,11 @@ public class DocumentServiceImp implements DocumentService {
         if (documentData == null) {
             throw new NotFoundException("Document doesn't exist");
         } else {
-            History history = historyRepository.backUpDocument(documentData.getTitle(), LocalDateTime.now(), documentData.getStatus(), userAuthenticationService.getUserIdOfCurrentUser(), documentData.getDocumentId(), documentData.getPageId(), documentData.getWorkspaceId());
+            History history = historyRepository.backUpDocument(documentData.getTitle(), LocalDateTime.now(), documentData.getStatus(), userAuthenticationService.getUserIdOfCurrentUser(), documentData.getDocumentId(), documentData.getPageId().getDocumentId(), documentData.getWorkspaceId());
+            List<Document> documents = documentRepository.getDocumentIdByPageId(documentData.getDocumentId());
+            for(Document document : documents){
+                historyRepository.insertHistoryIdAndPageIdToHistoryPage(history.getHistoryId(), document.getDocumentId());
+            }
             List<Block> blocks = blockRepository.getBlockByDocumentId(documentData.getDocumentId());
             for (Block block : blocks) {
                 blockHistoryRepository.backUpBlock(block.getBlockType(), block.getContent(), block.getOrder(), history.getHistoryId());
@@ -68,7 +70,6 @@ public class DocumentServiceImp implements DocumentService {
             }
             Document document = documentRepository.editDocument(documentId, title);
             documentRepository.deleteTagIdAndDocumentIdInTagDocument(documentId);
-            tags.forEach(tagId -> documentRepository.InsertTagIdAndDocumentIdIntoTagDocument(tagId, document.getDocumentId()));
             return document;
         }
     }

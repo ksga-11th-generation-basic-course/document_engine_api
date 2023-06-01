@@ -2,19 +2,15 @@ package kh.com.kshrd.docengine.services.impl;
 
 import kh.com.kshrd.docengine.exceptions.BadRequestException;
 import kh.com.kshrd.docengine.exceptions.NotDuplicateException;
-import kh.com.kshrd.docengine.exceptions.NotEditorException;
 import kh.com.kshrd.docengine.exceptions.NotFoundException;
 import kh.com.kshrd.docengine.model.entity.Tag;
 import kh.com.kshrd.docengine.model.request.TagRequest;
-import kh.com.kshrd.docengine.repository.DocumentRepository;
 import kh.com.kshrd.docengine.repository.TagRepository;
-import kh.com.kshrd.docengine.security.services.UserAuthenticationService;
 import kh.com.kshrd.docengine.services.TagService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -32,7 +28,9 @@ public class TagServiceImp implements TagService {
                 throw new NotDuplicateException("This tag has already");
             }
         }
-        return tagRepository.createTag(tagRequest);
+        Tag tag = tagRepository.createTag(tagRequest);
+        tagRepository.insertTagIdAndDocumentIdIntoTagDocument(tag.getTagId(), tagRequest.getDocument_id());
+        return tag;
     }
 
     @Override
@@ -86,6 +84,20 @@ public class TagServiceImp implements TagService {
             throw new BadRequestException("Workspace id cannot be blank or empty");
         }
         return tagRepository.getTagInEachWorkspace(workspaceId);
+    }
+
+    @Override
+    public void addTagsForDocument(UUID tagId, UUID documentId) {
+        if (tagId == null) {
+            throw new BadRequestException("Tag id cannot be null");
+        } else if (documentId == null) {
+            throw new BadRequestException("Document id cannot be null");
+        } else if (tagId.toString().isBlank()) {
+            throw new BadRequestException("Tag id cannot be blank or empty");
+        } else if (documentId.toString().isBlank()) {
+            throw new BadRequestException("Document id cannot be blank or empty");
+        }
+        tagRepository.insertTagIdAndDocumentIdIntoTagDocument(tagId, documentId);
     }
 
     private void exception(TagRequest tagRequest) {

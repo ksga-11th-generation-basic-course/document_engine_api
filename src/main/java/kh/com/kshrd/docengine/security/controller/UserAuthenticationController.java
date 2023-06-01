@@ -28,7 +28,7 @@ import java.time.LocalDateTime;
 
 @RestController
 @AllArgsConstructor
-@CrossOrigin
+//@CrossOrigin
 @RequestMapping(path = "/api/v1/")
 public class UserAuthenticationController {
 

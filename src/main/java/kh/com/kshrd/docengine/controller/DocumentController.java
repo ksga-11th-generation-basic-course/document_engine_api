@@ -20,7 +20,7 @@ import java.util.UUID;
 @RestController
 @SecurityRequirement(name = "bearerAuth")
 @AllArgsConstructor
-@CrossOrigin
+//@CrossOrigin
 @RequestMapping("/api/v1/")
 public class DocumentController {
 
@@ -41,8 +41,8 @@ public class DocumentController {
 
     @PutMapping("documents/{documentId}")
     @Operation(summary = "Edit Document")
-    public ResponseEntity<?> editDocument(@PathVariable UUID documentId, @RequestParam String title, @RequestBody List<UUID> tags){
-        Document document = documentService.editDocument(documentId, title, tags);
+    public ResponseEntity<?> editDocument(@PathVariable UUID documentId, @RequestParam String title){
+        Document document = documentService.editDocument(documentId, title);
         Response<Document> response = Response.<Document>builder()
                 .message("Edit Document Successful")
                 .payload(documentService.getDocumentByDocumentId(document.getDocumentId()))

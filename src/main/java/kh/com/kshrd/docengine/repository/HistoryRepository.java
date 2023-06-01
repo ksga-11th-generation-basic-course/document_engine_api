@@ -31,4 +31,7 @@ public interface HistoryRepository {
     History getHistoryByHistoryId(UUID historyId);
     @Delete("DELETE FROM histories WHERE history_id = #{historyId};")
     void removeHistory(UUID historyId);
+
+    @Insert("INSERT INTO history_page(history_id, page_id) VALUES (#{historyId}, #{documentId})")
+    void insertHistoryIdAndPageIdToHistoryPage(UUID historyId, UUID documentId);
 }

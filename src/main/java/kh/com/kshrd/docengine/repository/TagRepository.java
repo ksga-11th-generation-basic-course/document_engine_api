@@ -45,4 +45,7 @@ public interface TagRepository {
     @ResultMap("tagMap")
     @Select("SELECT td.tag_id, tag_name, workspace_id FROM tags INNER JOIN tag_document td on tags.tag_id = td.tag_id WHERE document_id = #{documentId};")
     List<Tag> duplicateTag(UUID documentId);
+
+    @Insert("INSERT INTO tag_document(tag_id, document_id) VALUES(#{tagId}, #{documentId});")
+    void insertTagIdAndDocumentIdIntoTagDocument(UUID tagId, UUID documentId);
 }
