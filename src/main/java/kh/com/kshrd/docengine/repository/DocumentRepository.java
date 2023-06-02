@@ -17,9 +17,10 @@ public interface DocumentRepository {
     @Results(id = "documentMap", value = {
             @Result(property = "documentId", column = "document_id"),
             @Result(property = "createdDate", column = "created_date"),
-            @Result(property = "pageId", column = "page_id", one = @One(select = "getDocumentByDocumentId")),
+            @Result(property = "pages", column = "document_id", many = @Many(select = "getPageByPageId")),
             @Result(property = "workspaceId", column = "workspace_id"),
-            @Result(property = "tags", column = "document_id", many = @Many(select = "kh.com.kshrd.docengine.repository.TagRepository.getTagFromTagDocument"))
+            @Result(property = "tags", column = "document_id", many = @Many(select = "kh.com.kshrd.docengine.repository.TagRepository.getTagFromTagDocument")),
+            @Result(property = "blocks", column = "document_id", many = @Many(select = "kh.com.kshrd.docengine.repository.BlockRepository.getBlockByDocumentId"))
     })
     @Select("INSERT INTO documents(title, created_date, page_id, workspace_id) VALUES (#{d.title}, #{d.createdDate}, #{d.pageId}, #{d.workspaceId}) RETURNING *;")
     Document createDocument(@Param("d") DocumentRequest documentRequest);
@@ -88,4 +89,9 @@ public interface DocumentRepository {
     @ResultMap("documentMap")
     @Select("SELECT * FROM documents WHERE page_id = #{documentId};")
     List<Document> getDocumentIdByPageId(UUID documentId);
+
+    @ResultMap("documentMap")
+    @Select("SELECT * FROM documents WHERE page_id = #{documentId}")
+    List<Document> getPageByPageId(UUID documentId);
 }
+

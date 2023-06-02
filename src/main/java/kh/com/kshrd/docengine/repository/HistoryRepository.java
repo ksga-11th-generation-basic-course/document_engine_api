@@ -20,8 +20,8 @@ public interface HistoryRepository {
     List<History> getHistoryInEachDocument(UUID documentId);
 
     @ResultMap("historyMap")
-    @Select("INSERT INTO histories(title, edited_date, status, edited_by, document_id, page_id, workspace_id) VALUES (#{title}, #{now}, #{status}, #{userIdOfCurrentUser}, #{documentId}, #{pageId}, #{workspaceId}) RETURNING *")
-    History backUpDocument(String title, LocalDateTime now, Boolean status, UUID userIdOfCurrentUser, UUID documentId, UUID pageId, UUID workspaceId);
+    @Select("INSERT INTO histories(title, edited_date, status, edited_by, document_id, workspace_id) VALUES (#{title}, #{now}, #{status}, #{userIdOfCurrentUser}, #{documentId}, #{workspaceId}) RETURNING *")
+    History backUpDocument(String title, LocalDateTime now, Boolean status, UUID userIdOfCurrentUser, UUID documentId, UUID workspaceId);
 
     @Update("UPDATE documents SET title = #{title} WHERE document_id = #{documentId};")
     void restoreDocument(String title, UUID documentId);

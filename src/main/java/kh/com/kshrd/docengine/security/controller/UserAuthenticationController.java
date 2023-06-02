@@ -3,6 +3,9 @@ package kh.com.kshrd.docengine.security.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
+import kh.com.kshrd.docengine.configuration.Encoder;
+import kh.com.kshrd.docengine.exceptions.BadRequestException;
+import kh.com.kshrd.docengine.exceptions.NotFoundException;
 import kh.com.kshrd.docengine.security.model.entity.UserAuthentication;
 import kh.com.kshrd.docengine.security.model.request.UserAuthenticationLoginRequest;
 import kh.com.kshrd.docengine.security.model.request.UserAuthenticationRegisterRequest;
@@ -37,6 +40,7 @@ public class UserAuthenticationController {
     private final AuthenticationManager authenticationManager;
     private final JwtTokenUtil jwtTokenUtil;
     private final UserAuthenticationService userAuthenticationServices;
+    private final Encoder encoder;
 
     /*    sample test in postman register
     url :  http://localhost:8080/api/v1/user/register
@@ -151,6 +155,18 @@ public class UserAuthenticationController {
     @PostMapping(path = "authentications/login")
     @Operation(summary = "Login")
     public ResponseEntity<?> login(@Valid @RequestBody UserAuthenticationLoginRequest authenticationLoginRequest) throws Exception {
+
+        UserAuthentication userAuthentication = userAuthenticationServices.getByEmail(authenticationLoginRequest.getEmail());
+
+        boolean isPasswordMatch = encoder.PasswordEncoder().matches(authenticationLoginRequest.getPassword(), userAuthentication.getPassword());
+
+        if (!isPasswordMatch) {
+            throw new BadRequestException("Invalid Password");
+        }
+
+        if(!userAuthentication.getIsEnable()){
+            throw new BadRequestException("Account is close");
+        }
 
         Boolean isVerify = userAuthenticationServices.checkIsVerify(authenticationLoginRequest.getEmail());
         if (isVerify) {

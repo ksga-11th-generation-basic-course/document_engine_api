@@ -16,7 +16,8 @@ public class Document {
     private String title;
     private Boolean status;
     private LocalDateTime createdDate;
-    private Document pageId;
+    private List<Document> pages;
     private UUID workspaceId;
     private List<Tag> tags;
+    private List<Block> blocks;
 }

@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 @Service
 @AllArgsConstructor
@@ -53,10 +54,16 @@ public class UserAuthenticationServicesImpl implements UserAuthenticationService
 
         List<User> users = userRepository.getAllUser();
 
-        for(User user : users){
-            if(userAuthenticationRegisterRequest.getEmail().equals(user.getEmail())){
+        for (User user : users) {
+            if (userAuthenticationRegisterRequest.getEmail().equals(user.getEmail())) {
                 throw new NotDuplicateException("This email has already exist");
             }
+        }
+
+        if (!isValidEmail(userAuthenticationRegisterRequest.getEmail())) {
+            throw new BadRequestException("Invalid Email");
+        } else if (!isValidPassword(userAuthenticationRegisterRequest.getPassword())){
+            throw new BadRequestException("Invalid Password");
         }
 
         userAuthenticationRegisterRequest.setPassword(encoder.PasswordEncoder().encode(userAuthenticationRegisterRequest.getPassword()));
@@ -76,6 +83,34 @@ public class UserAuthenticationServicesImpl implements UserAuthenticationService
         emailServices.sendMail(userAuthentication, optCode.getDigitCode());
 
         return userAuthentication;
+    }
+
+    private static final String GMAIL_PATTERN =
+            "^[_A-Za-z0-9-+]+(\\.[_A-Za-z0-9-]+)*@gmail.com$";
+
+    private static final String YAHOO_PATTERN =
+            "^[_A-Za-z0-9-+]+(\\.[_A-Za-z0-9-]+)*@yahoo.com$";
+
+    private static final String HOTMAIL_PATTERN =
+            "^[_A-Za-z0-9-+]+(\\.[_A-Za-z0-9-]+)*@hotmail.com$";
+
+    private static final Pattern gmailPattern = Pattern.compile(GMAIL_PATTERN);
+    private static final Pattern yahooPattern = Pattern.compile(YAHOO_PATTERN);
+    private static final Pattern hotmailPattern = Pattern.compile(HOTMAIL_PATTERN);
+
+    public static boolean isValidEmail(String email) {
+        return gmailPattern.matcher(email).matches() ||
+                yahooPattern.matcher(email).matches() ||
+                hotmailPattern.matcher(email).matches();
+    }
+
+    private static final String PASSWORD_PATTERN =
+            "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$";
+
+    private static final Pattern pattern = Pattern.compile(PASSWORD_PATTERN);
+
+    public static boolean isValidPassword(String password) {
+        return pattern.matcher(password).matches();
     }
 
 
@@ -218,8 +253,8 @@ public class UserAuthenticationServicesImpl implements UserAuthenticationService
     public UserAuthentication signUpWithGoogleAndFacebook(UserAuthenticationRequestWithGoogleAndFacebook userAuthenticationRequestWithGoogleAndFacebook) {
         List<User> users = userRepository.getAllUser();
 
-        for(User user : users){
-            if(userAuthenticationRequestWithGoogleAndFacebook.getEmail().equals(user.getEmail())){
+        for (User user : users) {
+            if (userAuthenticationRequestWithGoogleAndFacebook.getEmail().equals(user.getEmail())) {
                 throw new NotDuplicateException("This email has already exist");
             }
         }

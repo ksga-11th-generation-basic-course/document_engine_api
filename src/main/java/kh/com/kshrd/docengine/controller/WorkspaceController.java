@@ -113,7 +113,7 @@ public class WorkspaceController {
     }
 
     @GetMapping("workspaces/{workspaceId}")
-    @Operation(summary = "Get Total Document")
+    @Operation(summary = "Get Total Document *")
     public ResponseEntity<?> getTotalOfDocument(@PathVariable UUID workspaceId) {
         Response<Integer> response = Response.<Integer>builder()
                 .message("Get Total Document Successfully")

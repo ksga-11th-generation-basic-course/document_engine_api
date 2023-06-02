@@ -17,6 +17,8 @@ public interface WorkspaceRepository {
             @Result(property = "workspaceCode", column = "workspace_code"),
             @Result(property = "createdDate",   column = "created_date"),
             @Result(property = "workspaceImage",column = "workspace_image"),
+            @Result(property = "totalDocument", column = "workspace_id", many = @Many(select = "getTotalDocumentOfWorkspace")),
+            @Result(property = "createBy", column = "workspace_id", many = @Many(select = "getAllMemberInEachWorkspace"))
     })
     @Select("""
             INSERT INTO workspaces(workspace_name,workspace_image,workspace_code,created_date)
@@ -133,4 +135,5 @@ public interface WorkspaceRepository {
 
     @Select("SELECT accessibility_status FROM user_workspace WHERE user_id = #{userIdOfCurrentUser} AND workspace_id = #{workspaceId};")
     Boolean checkAccessibility(UUID userIdOfCurrentUser, UUID workspaceId);
+
 }

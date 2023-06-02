@@ -55,7 +55,7 @@ public class DocumentServiceImp implements DocumentService {
         if (documentData == null) {
             throw new NotFoundException("Document doesn't exist");
         } else {
-            History history = historyRepository.backUpDocument(documentData.getTitle(), LocalDateTime.now(), documentData.getStatus(), userAuthenticationService.getUserIdOfCurrentUser(), documentData.getDocumentId(), documentData.getPageId().getDocumentId(), documentData.getWorkspaceId());
+            History history = historyRepository.backUpDocument(documentData.getTitle(), LocalDateTime.now(), documentData.getStatus(), userAuthenticationService.getUserIdOfCurrentUser(), documentData.getDocumentId(), documentData.getWorkspaceId());
             List<Document> documents = documentRepository.getDocumentIdByPageId(documentData.getDocumentId());
             for(Document document : documents){
                 historyRepository.insertHistoryIdAndPageIdToHistoryPage(history.getHistoryId(), document.getDocumentId());
