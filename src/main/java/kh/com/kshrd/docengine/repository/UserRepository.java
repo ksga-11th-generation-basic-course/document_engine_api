@@ -46,4 +46,8 @@ public interface UserRepository {
 
     @Select("SELECT username FROM users WHERE user_id = #{userID}")
     String getUserNameByUserId(UUID userID);
+
+    @ResultMap("userMap")
+    @Select("SELECT ud.user_id, username, email, profile_image, is_enabled FROM users INNER JOIN user_document ud on users.user_id = ud.user_id WHERE document_id = #{documentId} AND ud.user_id = #{userId};")
+    User getUserByUserIdAndDocumentId(UUID userId, UUID documentId);
 }

@@ -29,8 +29,8 @@ public interface HistoryRepository {
     @ResultMap("historyMap")
     @Select("SELECT * FROM histories WHERE history_id = #{historyId};")
     History getHistoryByHistoryId(UUID historyId);
-    @Delete("DELETE FROM histories WHERE history_id = #{historyId};")
-    void removeHistory(UUID historyId);
+    @Delete("DELETE FROM histories WHERE history_id = #{historyId} AND document_id = #{documentId};")
+    void removeHistory(UUID historyId, UUID documentId);
 
     @Insert("INSERT INTO history_page(history_id, page_id) VALUES (#{historyId}, #{documentId})")
     void insertHistoryIdAndPageIdToHistoryPage(UUID historyId, UUID documentId);

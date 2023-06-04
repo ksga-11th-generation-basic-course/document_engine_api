@@ -12,5 +12,5 @@ public interface HistoryService {
 
     History getHistoryByHistoryId(UUID historyId);
 
-    void removeHistory(UUID historyId);
+    void removeHistory(UUID historyId, UUID documentId);
 }

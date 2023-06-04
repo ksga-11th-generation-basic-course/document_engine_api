@@ -2,6 +2,7 @@ package kh.com.kshrd.docengine.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import kh.com.kshrd.docengine.enums.EAccessibility;
 import kh.com.kshrd.docengine.model.entity.Document;
 import kh.com.kshrd.docengine.model.request.DocumentRequest;
 import kh.com.kshrd.docengine.model.response.MemberResponse;
@@ -69,8 +70,8 @@ public class DocumentController {
 
     @PutMapping("documents/{documentId}/users/{userId}/accessibility")
     @Operation(summary = "Set Accessibility")
-    public ResponseEntity<?> setAccessibility(@PathVariable UUID documentId, @PathVariable UUID userId, @RequestParam String accessibility){
-        documentService.setAccessibility(documentId, userId, accessibility);
+    public ResponseEntity<?> setAccessibility(@PathVariable UUID documentId, @PathVariable UUID userId, @PathVariable UUID workspaceId, @RequestParam EAccessibility accessibility){
+        documentService.setAccessibility(documentId, userId, workspaceId, accessibility);
         Response<Document> response = Response.<Document>builder()
                 .message("Set Accessibility Successful")
                 .payload(null)

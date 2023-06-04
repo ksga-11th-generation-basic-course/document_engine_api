@@ -1,5 +1,6 @@
 package kh.com.kshrd.docengine.repository;
 
+import kh.com.kshrd.docengine.enums.EAccessibility;
 import kh.com.kshrd.docengine.model.entity.Document;
 import kh.com.kshrd.docengine.model.request.DocumentRequest;
 
@@ -25,7 +26,7 @@ public interface DocumentRepository {
     @Select("INSERT INTO documents(title, created_date, page_id, workspace_id) VALUES (#{d.title}, #{d.createdDate}, #{d.pageId}, #{d.workspaceId}) RETURNING *;")
     Document createDocument(@Param("d") DocumentRequest documentRequest);
 
-    @Select("INSERT INTO user_document(user_id, document_id, is_owner ,accessibility_status) VALUES (#{userIdOfCurrentUser}, #{documentId}, true, 'Editor');")
+    @Select("INSERT INTO user_document(user_id, document_id, is_owner ,accessibility_status) VALUES (#{userIdOfCurrentUser}, #{documentId}, true, 'EDITOR');")
     void addDataToUserDocument(UUID userIdOfCurrentUser, UUID documentId);
 
     @ResultMap("documentMap")
@@ -39,11 +40,12 @@ public interface DocumentRepository {
     @Select("SELECT accessibility_status FROM user_document WHERE user_id = #{userIdOfCurrentUser} AND document_id = #{documentId};")
     String checkAccessibility(UUID userIdOfCurrentUser, UUID documentId);
 
-    @Update("UPDATE user_document SET accessibility_status = #{accessibility} WHERE document_id = #{documentId} AND user_id = #{userId};")
-    void setAccessibility(UUID documentId, UUID userId, String accessibility);
+    @Update("UPDATE user_document SET accessibility_status = 'EDITOR' FROM documents WHERE documents.document_id = #{documentId} AND user_id = #{userId} AND workspace_id = #{workspaceId};")
+    void setAccessibility(UUID documentId, UUID userId, UUID workspaceId, EAccessibility accessibility);
 
     @Select("SELECT is_owner FROM user_document WHERE user_id = #{userIdOfCurrentUser} AND document_id = #{documentId};")
     Boolean checkIsOwner(UUID userIdOfCurrentUser, UUID documentId);
+
     @ResultMap("documentMap")
     @Select("SELECT * FROM documents WHERE document_id = #{documentId};")
     Document getDocumentByDocumentId(UUID documentId);
@@ -93,5 +95,30 @@ public interface DocumentRepository {
     @ResultMap("documentMap")
     @Select("SELECT * FROM documents WHERE page_id = #{documentId}")
     List<Document> getPageByPageId(UUID documentId);
+
+    @Delete("""
+            DELETE FROM documents
+            WHERE documents.document_id IN (
+                SELECT documents.document_id
+                FROM documents
+                         INNER JOIN user_document ud ON documents.document_id = ud.document_id
+                WHERE user_id = #{userId}
+            );
+            """)
+    void deleteDocumentFromUserDocument(UUID userId);
+
+    @ResultMap("documentMap")
+    @Select("SELECT * FROM documents WHERE workspace_id = #{workspaceId};")
+    List<Document> getDocumentByWorkspaceId(UUID workspaceId);
+
+    @Insert("INSERT INTO user_document(user_id, document_id, accessibility_status) VALUES (#{userIdOfCurrentUser}, #{documentId}, #{accessibility})")
+    void addUserIdDocumentIdToUserDocument(UUID userIdOfCurrentUser, UUID documentId, String accessibility);
+
+    @Select("SELECT is_owner FROM user_document WHERE user_id = #{userId} AND document_id = #{documentId} AND is_owner = true;")
+    Boolean isDocumentOwner(UUID userId, UUID documentId);
+
+    @ResultMap("documentMap")
+    @Select("SELECT * FROM documents WHERE document_id = #{documentId} AND workspace_id = #{workspaceId};")
+    Document getDocumentByDocumentIdAndWorkspaceId(UUID documentId, UUID workspaceId);
 }
 

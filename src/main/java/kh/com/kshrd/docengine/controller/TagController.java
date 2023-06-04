@@ -87,8 +87,8 @@ public class TagController {
 
     @PostMapping("tags/add")
     @Operation(summary = "Add Tag For Document")
-    public ResponseEntity<?> addTagsForDocument(@RequestParam UUID tag_id, @RequestParam UUID document_id){
-        tagService.addTagsForDocument(tag_id, document_id);
+    public ResponseEntity<?> addTagsForDocument(@RequestParam UUID tagId, @RequestParam UUID documentId, @RequestParam UUID workspaceId){
+        tagService.addTagsForDocument(tagId, documentId, workspaceId);
         return ResponseEntity.ok().body("Add Tag Successful");
     }
 }

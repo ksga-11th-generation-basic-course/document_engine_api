@@ -59,10 +59,10 @@ public class HistoryController {
         return ResponseEntity.ok().body(response);
     }
 
-    @DeleteMapping("histories/{historyId}")
+    @DeleteMapping("histories/{historyId}/documents/{documentId}")
     @Operation(summary = "Remove History")
-    public ResponseEntity<Response<History>> removeHistory(@PathVariable UUID historyId){
-        historyService.removeHistory(historyId);
+    public ResponseEntity<Response<History>> removeHistory(@PathVariable UUID historyId ,@PathVariable UUID documentId){
+        historyService.removeHistory(historyId, documentId);
         Response<History> response = Response.<History>builder()
                 .message("Remove History Successful")
                 .payload(null)

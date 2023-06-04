@@ -1,5 +1,6 @@
 package kh.com.kshrd.docengine.services;
 
+import kh.com.kshrd.docengine.enums.EAccessibility;
 import kh.com.kshrd.docengine.model.entity.Document;
 import kh.com.kshrd.docengine.model.request.DocumentRequest;
 import kh.com.kshrd.docengine.model.response.MemberResponse;
@@ -16,7 +17,7 @@ public interface DocumentService {
 
     void currentEditing(UUID documentId);
 
-    void setAccessibility(UUID documentId, UUID userId, String accessibility);
+    void setAccessibility(UUID documentId, UUID userId, UUID workspaceId, EAccessibility accessibility);
 
     Document viewDocument(UUID documentId);
 

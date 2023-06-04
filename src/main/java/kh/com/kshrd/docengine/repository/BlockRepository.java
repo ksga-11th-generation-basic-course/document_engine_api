@@ -23,12 +23,12 @@ public interface BlockRepository {
     Block createBlock(@Param("d") BlockRequest blockRequest, Integer order);
 
     @ResultMap("blockMap")
-    @Select("UPDATE blocks SET block_content = #{content, typeHandler = kh.com.kshrd.docengine.configuration.JsonTypeHandler}::JSON WHERE block_id = #{blockId} RETURNING *;")
-    Block editBlock(UUID blockId, Map<String, Object> content);
+    @Select("UPDATE blocks SET block_content = #{content, typeHandler = kh.com.kshrd.docengine.configuration.JsonTypeHandler}::JSON WHERE block_id = #{blockId} AND document_id = #{documentId} RETURNING *;")
+    Block editBlock(UUID blockId, UUID documentId , Map<String, Object> content);
 
     @ResultMap("blockMap")
-    @Delete("DELETE FROM blocks WHERE block_id = #{blockId};")
-    void deleteBlock(UUID blockId);
+    @Delete("DELETE FROM blocks WHERE block_id = #{blockId} AMD document_id = #{documentId};")
+    void deleteBlock(UUID blockId, UUID documentId);
 
     @ResultMap("blockMap")
     @Select("INSERT INTO blocks(block_type, block_content, document_id) SELECT block_type, block_content, document_id FROM blocks WHERE document_id = #{documentId} RETURNING *;")

@@ -31,13 +31,33 @@ public class DocumentServiceImp implements DocumentService {
     private final BlockHistoryRepository blockHistoryRepository;
     private final WorkspaceRepository workspaceRepository;
     private final TagRepository tagRepository;
+    private final UserRepository userRepository;
 
     @Override
     public Document createDocument(DocumentRequest documentRequest) {
+
+        if (documentRequest.getTitle() == null) {
+            throw new BadRequestException("Title cannot be null");
+        } else if (documentRequest.getTitle().isBlank()) {
+            throw new BadRequestException("Title cannot be blank or empty");
+        }
+
         Boolean isCheckAccessibility = workspaceRepository.checkAccessibility(userAuthenticationService.getUserIdOfCurrentUser(), documentRequest.getWorkspaceId());
-        if(isCheckAccessibility){
+        if (isCheckAccessibility) {
             Document document = documentRepository.createDocument(documentRequest);
             documentRepository.addDataToUserDocument(userAuthenticationService.getUserIdOfCurrentUser(), document.getDocumentId());
+            List<UUID> usersId = workspaceRepository.getUserIdByWorkspaceId(document.getWorkspaceId());
+            for (UUID userId : usersId) {
+                Boolean isDocumentOwner = documentRepository.isDocumentOwner(userId, document.getDocumentId());
+                if (isDocumentOwner == null) {
+                    Boolean isWorkspaceOwner = workspaceRepository.isOwnerWorkspace(document.getWorkspaceId(), userId);
+                    if (isWorkspaceOwner) {
+                        documentRepository.addUserIdDocumentIdToUserDocument(userId, document.getDocumentId(), "VIEWER");
+                    } else {
+                        documentRepository.addUserIdDocumentIdToUserDocument(userId, document.getDocumentId(), "NO_ACCESS");
+                    }
+                }
+            }
             return document;
         } else {
             throw new BadRequestException("Your accessibility cannot create document");
@@ -57,7 +77,7 @@ public class DocumentServiceImp implements DocumentService {
         } else {
             History history = historyRepository.backUpDocument(documentData.getTitle(), LocalDateTime.now(), documentData.getStatus(), userAuthenticationService.getUserIdOfCurrentUser(), documentData.getDocumentId(), documentData.getWorkspaceId());
             List<Document> documents = documentRepository.getDocumentIdByPageId(documentData.getDocumentId());
-            for(Document document : documents){
+            for (Document document : documents) {
                 historyRepository.insertHistoryIdAndPageIdToHistoryPage(history.getHistoryId(), document.getDocumentId());
             }
             List<Block> blocks = blockRepository.getBlockByDocumentId(documentData.getDocumentId());
@@ -65,7 +85,7 @@ public class DocumentServiceImp implements DocumentService {
                 blockHistoryRepository.backUpBlock(block.getBlockType(), block.getContent(), block.getOrder(), history.getHistoryId());
             }
             String checkAccessibility = documentRepository.checkAccessibility(userAuthenticationService.getUserIdOfCurrentUser(), documentId);
-            if (!Objects.equals(checkAccessibility, "Editor")) {
+            if (!Objects.equals(checkAccessibility, "EDITOR")) {
                 throw new NotEditorException("Your accessibility is not editor");
             }
             Document document = documentRepository.editDocument(documentId, title);
@@ -85,12 +105,18 @@ public class DocumentServiceImp implements DocumentService {
         if (document == null) {
             throw new NotFoundException("Document doesn't exist");
         } else {
-            documentRepository.currentEditing(documentId);
+            String checkAccessibility = documentRepository.checkAccessibility(userAuthenticationService.getUserIdOfCurrentUser(), document.getDocumentId());
+            if (Objects.equals(checkAccessibility, "VIEWER") || Objects.equals(checkAccessibility, "NO_ACCESS")) {
+                throw new NotEditorException("Your accessibility cannot set current editing on this document");
+            } else {
+                documentRepository.currentEditing(documentId);
+            }
         }
     }
 
     @Override
-    public void setAccessibility(UUID documentId, UUID userId, String accessibility) {
+    public void setAccessibility(UUID documentId, UUID userId, UUID workspaceId, EAccessibility accessibility) {
+
         if (documentId == null) {
             throw new BadRequestException("Document id cannot be null");
         } else if (userId == null) {
@@ -100,39 +126,52 @@ public class DocumentServiceImp implements DocumentService {
         } else if (userId.toString().isBlank()) {
             throw new BadRequestException("User id cannot be blank or empty");
         }
-        Document document = documentRepository.getDocumentByDocumentId(documentId);
-        if (document == null) {
-            throw new NotFoundException("Document doesn't exist");
+
+        User user = userRepository.getUserByUserIdAndDocumentId(userId, documentId);
+
+        if(user == null){
+            throw new NotFoundException("User not found for this document");
         } else {
-            Boolean isOwner = documentRepository.checkIsOwner(userAuthenticationService.getUserIdOfCurrentUser(), documentId);
-            if (isOwner) {
-                boolean isTrue = false;
-                for (EAccessibility access : EAccessibility.values()) {
-                    if (accessibility.equalsIgnoreCase(access.name())) {
-                        isTrue = true;
-                        break;
-                    }
-                }
-                if (!isTrue) {
-                    throw new BadRequestException("This accessibility is not correct : 'String' , " +
-                            "please input one of (EDITOR, VIEWER and NO_ACCESS)");
-                } else if (accessibility.isBlank()) {
-                    throw new BadRequestException("This field could not empty");
-                }
-                documentRepository.setAccessibility(documentId, userId, accessibility);
+            Document document = documentRepository.getDocumentByDocumentId(documentId);
+            if (document == null) {
+                throw new NotFoundException("Document doesn't exist");
             } else {
-                throw new NotOwnerException("You are not owner");
+                Boolean isOwner = documentRepository.checkIsOwner(userAuthenticationService.getUserIdOfCurrentUser(), documentId);
+                if (isOwner) {
+                    boolean isTrue = false;
+                    for (EAccessibility access : EAccessibility.values()) {
+                        if (accessibility.toString().equalsIgnoreCase(access.name())) {
+                            isTrue = true;
+                            break;
+                        }
+                    }
+                    if (!isTrue) {
+                        throw new BadRequestException("This accessibility is not correct : 'String' , " +
+                                "please input one of (EDITOR, VIEWER and NO_ACCESS)");
+                    } else if (accessibility.toString().isBlank()) {
+                        throw new BadRequestException("This field could not empty");
+                    }
+                    documentRepository.setAccessibility(documentId, userId, workspaceId, accessibility);
+                } else {
+                    throw new NotOwnerException("You are not owner");
+                }
             }
         }
     }
 
     @Override
     public Document viewDocument(UUID documentId) {
+
         Document document = documentRepository.getDocumentByDocumentId(documentId);
         if (document == null) {
             throw new NotFoundException("Document doesn't exist");
         } else {
-            return documentRepository.viewDocument(documentId);
+            String checkAccessibility = documentRepository.checkAccessibility(userAuthenticationService.getUserIdOfCurrentUser(), document.getDocumentId());
+            if (Objects.equals(checkAccessibility, "NO_ACCESS")) {
+                throw new NotEditorException("Your accessibility is NO_ACCESS so you cannot view this document");
+            } else {
+                return documentRepository.viewDocument(documentId);
+            }
         }
     }
 
@@ -162,18 +201,25 @@ public class DocumentServiceImp implements DocumentService {
         if (documentData == null) {
             throw new NotFoundException("Document doesn't exist");
         } else {
-            Document document = documentRepository.duplicateDocument(documentId);
-            documentRepository.addDataToUserDocument(userAuthenticationService.getUserIdOfCurrentUser(), document.getDocumentId());
-            List<Tag> tags = tagRepository.duplicateTag(documentId);
-            for(Tag tag : tags){
-                documentRepository.InsertTagIdAndDocumentIdIntoTagDocument(tag.getTagId(), document.getDocumentId());
+
+            String checkAccessibility = documentRepository.checkAccessibility(userAuthenticationService.getUserIdOfCurrentUser(), documentData.getDocumentId());
+
+            if (Objects.equals(checkAccessibility, "VIEWER") || Objects.equals(checkAccessibility, "NO_ACCESS")) {
+                throw new NotEditorException("Your accessibility cannot duplicate this document");
+            } else {
+                Document document = documentRepository.duplicateDocument(documentId);
+                documentRepository.addDataToUserDocument(userAuthenticationService.getUserIdOfCurrentUser(), document.getDocumentId());
+                List<Tag> tags = tagRepository.duplicateTag(documentId);
+                for (Tag tag : tags) {
+                    documentRepository.InsertTagIdAndDocumentIdIntoTagDocument(tag.getTagId(), document.getDocumentId());
+                }
+                document.setTags(tags);
+                List<Block> blocks = blockRepository.duplicateBlock(documentId);
+                for (Block block : blocks) {
+                    blockRepository.updateDocumentIdForDuplicateBlock(document.getDocumentId(), block.getBlockId());
+                }
+                return document;
             }
-            document.setTags(tags);
-            List<Block> blocks = blockRepository.duplicateBlock(documentId);
-            for (Block block : blocks) {
-                blockRepository.updateDocumentIdForDuplicateBlock(document.getDocumentId(), block.getBlockId());
-            }
-            return document;
         }
     }
 

@@ -43,6 +43,10 @@ public interface TagRepository {
     Tag getTagByTagId(UUID tagId);
 
     @ResultMap("tagMap")
+    @Select("SELECT * FROM tags WHERE tag_id = #{tagId} AND workspace_id = #{workspaceId};")
+    Tag getTagByTagIdAndWorkspaceId(UUID tagId, UUID workspaceId);
+
+    @ResultMap("tagMap")
     @Select("SELECT td.tag_id, tag_name, workspace_id FROM tags INNER JOIN tag_document td on tags.tag_id = td.tag_id WHERE document_id = #{documentId};")
     List<Tag> duplicateTag(UUID documentId);
 

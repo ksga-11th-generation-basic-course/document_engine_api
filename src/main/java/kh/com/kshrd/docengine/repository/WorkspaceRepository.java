@@ -1,5 +1,6 @@
 package kh.com.kshrd.docengine.repository;
 
+import kh.com.kshrd.docengine.model.entity.User;
 import kh.com.kshrd.docengine.model.response.MemberResponse;
 import kh.com.kshrd.docengine.model.entity.Workspace;
 import kh.com.kshrd.docengine.model.request.WorkspaceRequest;
@@ -136,4 +137,9 @@ public interface WorkspaceRepository {
     @Select("SELECT accessibility_status FROM user_workspace WHERE user_id = #{userIdOfCurrentUser} AND workspace_id = #{workspaceId};")
     Boolean checkAccessibility(UUID userIdOfCurrentUser, UUID workspaceId);
 
+    @Select("SELECT is_owner FROM user_workspace WHERE workspace_id = #{workspaceId} AND user_id = #{userId};")
+    Boolean isOwnerWorkspace(UUID workspaceId, UUID userId);
+
+    @Select("SELECT uw.user_id FROM users INNER JOIN user_workspace uw on users.user_id = uw.user_id WHERE workspace_id = #{workspaceId} AND users.user_id = #{userIdOfCurrentUser};")
+    String checkMemberInWorkspace(UUID workspaceId, UUID userIdOfCurrentUser);
 }

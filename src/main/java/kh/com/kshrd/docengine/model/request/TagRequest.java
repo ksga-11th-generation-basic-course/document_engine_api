@@ -12,5 +12,5 @@ import java.util.UUID;
 public class TagRequest {
     private String tagName;
     private UUID workspaceId;
-    private UUID document_id;
+    private UUID documentId;
 }
