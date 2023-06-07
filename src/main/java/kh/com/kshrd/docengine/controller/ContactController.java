@@ -20,12 +20,6 @@ public class ContactController {
 
     private final ContactService contactService;
 
-    /*
-     endpoint for contact us
-    {
-     url : http://localhost:8080/api/v1/contacts
-    }
-    */
     @PostMapping("contacts")
     @Operation(summary = "Contact Us")
     public ResponseEntity<?> contactUs(@RequestBody ContactRequest contactRequest) throws MessagingException {
