@@ -22,86 +22,100 @@ import java.util.UUID;
 //@CrossOrigin
 @RequestMapping("/api/v1/")
 public class WorkspaceController {
+
     private final WorkspaceService workspaceService;
 
+    /*
+     endpoint for create workspace
+     {
+      url : http://localhost:8080/api/v1/workspaces
+     }
+     */
     @PostMapping("workspaces")
     @Operation(summary = "Create Workspace")
     public ResponseEntity<?> createWorkspace(@RequestBody WorkspaceRequest workspaceRequest) {
-        Response<Workspace> response = Response.<Workspace>builder()
-                .message("Create Workspace Successfully")
-                .payload(workspaceService.createWorkspace(workspaceRequest))
-                .dateTime(LocalDateTime.now())
-                .status(HttpStatus.OK)
-                .build();
+        Response<Workspace> response = Response.<Workspace>builder().message("Create Workspace Successfully").payload(workspaceService.createWorkspace(workspaceRequest)).dateTime(LocalDateTime.now()).status(HttpStatus.OK).build();
         return ResponseEntity.ok().body(response);
     }
 
+    /*
+     endpoint for join workspace
+     {
+      url : http://localhost:8080/api/v1/workspaces/member
+     }
+     */
     @PostMapping("workspaces/member")
     @Operation(summary = "Join Workspace")
     public ResponseEntity<?> joinWorkspace(@RequestParam String workspaceCode) {
-        Response<Workspace> response = Response.<Workspace>builder()
-                .message("Join Workspace Successfully")
-                .payload(workspaceService.joinWorkspace(workspaceCode))
-                .status(HttpStatus.OK)
-                .dateTime(LocalDateTime.now())
-                .build();
+        Response<Workspace> response = Response.<Workspace>builder().message("Join Workspace Successfully").payload(workspaceService.joinWorkspace(workspaceCode)).status(HttpStatus.OK).dateTime(LocalDateTime.now()).build();
         return ResponseEntity.ok().body(response);
     }
 
+    /*
+    endpoint for leave workspace
+    {
+     url :  http://localhost:8080/api/v1/workspaces/leave
+    }
+    */
     @DeleteMapping("workspaces/leave")
     @Operation(summary = "Leave Workspace")
     public ResponseEntity<?> leaveWorkspace(@RequestParam UUID workspaceId) {
         workspaceService.leaveWorkspace(workspaceId);
-        Response<Workspace> response = Response.<Workspace>builder()
-                .message("Leaved Workspace Successfully")
-                .payload(null)
-                .status(HttpStatus.OK)
-                .dateTime(LocalDateTime.now())
-                .build();
+        Response<Workspace> response = Response.<Workspace>builder().message("Leaved Workspace Successfully").payload(null).status(HttpStatus.OK).dateTime(LocalDateTime.now()).build();
         return ResponseEntity.ok().body(response);
     }
 
+    /*
+   endpoint for remove workspace
+   {
+    url :  http://localhost:8080/api/v1/workspaces
+   }
+   */
     @DeleteMapping("workspaces")
     @Operation(summary = "Remove Workspace")
     public ResponseEntity<?> removeWorkspace(@RequestParam UUID workspaceId) {
         workspaceService.removeWorkspace(workspaceId);
-        Response<Workspace> response = Response.<Workspace>builder()
-                .message("Remove Workspace Successfully")
-                .payload(null)
-                .status(HttpStatus.OK)
-                .dateTime(LocalDateTime.now())
-                .build();
+        Response<Workspace> response = Response.<Workspace>builder().message("Remove Workspace Successfully").payload(null).status(HttpStatus.OK).dateTime(LocalDateTime.now()).build();
         return ResponseEntity.ok().body(response);
     }
 
+    /*
+    endpoint for remove member workspace
+    {
+     url :  http://localhost:8080/api/v1/workspaces/member
+     }
+     */
     @DeleteMapping("workspaces/member")
     @Operation(summary = "Remove Member From Workspace")
     public ResponseEntity<?> removeMemberFromWorkspace(@RequestParam UUID userId, @RequestParam UUID workspaceId) {
         workspaceService.removeMemberFromWorkspace(userId, workspaceId);
-        Response<Workspace> response = Response.<Workspace>builder()
-                .message("Remove Member Successfully")
-                .payload(null)
-                .status(HttpStatus.OK)
-                .dateTime(LocalDateTime.now())
-                .build();
+        Response<Workspace> response = Response.<Workspace>builder().message("Remove Member Successfully").payload(null).status(HttpStatus.OK).dateTime(LocalDateTime.now()).build();
         return ResponseEntity.ok().body(response);
     }
 
+    /*
+   endpoint for set accessibility to user
+   {
+    url :  http://localhost:8080/api/v1/workspaces/accessibility
+    }
+    */
     @PutMapping("workspaces/accessibility")
     @Operation(summary = "Set Accessibility")
     public ResponseEntity<?> setAccessibilityToUser(@RequestParam UUID userId, @RequestParam UUID workspaceId, @RequestParam Boolean status) {
         workspaceService.setAccessibilityToUser(userId, workspaceId, status);
-        Response<Workspace> response = Response.<Workspace>builder()
-                .message("Set Accessibility Successfully")
-                .payload(null)
-                .status(HttpStatus.OK)
-                .dateTime(LocalDateTime.now())
-                .build();
+        Response<Workspace> response = Response.<Workspace>builder().message("Set Accessibility Successfully").payload(null).status(HttpStatus.OK).dateTime(LocalDateTime.now()).build();
         return ResponseEntity.ok().body(response);
     }
 
+    /*
+    endpoint for get all workspace
+    {
+      url :  http://localhost:8080/api/v1/workspaces
+    }
+    */
     @GetMapping("workspaces")
     @Operation(summary = "Get All Workspace")
+
     public ResponseEntity<?> getAllWorkspace(@RequestParam(defaultValue = "1") Integer pageNo, @RequestParam(defaultValue = "5") Integer pageSize) {
         Response<List<Workspace>> response = Response.<List<Workspace>>builder()
                 .message("Get All Workspace Successfully")
@@ -109,32 +123,40 @@ public class WorkspaceController {
                 .status(HttpStatus.OK)
                 .dateTime(LocalDateTime.now())
                 .build();
+
+    public ResponseEntity<?> getAllWorkspace() {
+        Response<List<Workspace>> response = Response.<List<Workspace>>builder().message("Get All Workspace Successfully").payload(workspaceService.getAllWorkspace()).status(HttpStatus.OK).dateTime(LocalDateTime.now()).build();
+
         return ResponseEntity.ok().body(response);
     }
 
+    /*
+   endpoint for get total of document
+   {
+     url :  http://localhost:8080/api/v1/workspaces/{{workspaceId}}
+   }
+   */
     @GetMapping("workspaces/{workspaceId}")
     @Operation(summary = "Get Total Document *")
     public ResponseEntity<?> getTotalOfDocument(@PathVariable UUID workspaceId) {
-        Response<Integer> response = Response.<Integer>builder()
-                .message("Get Total Document Successfully")
-                .payload(workspaceService.getTotalOfDocument(workspaceId))
-                .status(HttpStatus.OK)
-                .dateTime(LocalDateTime.now())
-                .build();
+        Response<Integer> response = Response.<Integer>builder().message("Get Total Document Successfully").payload(workspaceService.getTotalOfDocument(workspaceId)).status(HttpStatus.OK).dateTime(LocalDateTime.now()).build();
         return ResponseEntity.ok().body(response);
     }
 
+
+    /*
+   endpoint for filter workspace
+   {
+    url :  http://localhost:8080/api/v1/workspaces/filter
+   }
+   */
     @GetMapping("workspaces/filter")
     @Operation(summary = "Filter Owner Workspace Or Another Workspace")
     public ResponseEntity<?> filterWorkspace(@RequestParam Boolean filter) {
-        Response<List<Workspace>> response = Response.<List<Workspace>>builder()
-                .message("Get Total Document Successfully")
-                .payload(workspaceService.filterWorkspace(filter))
-                .status(HttpStatus.OK)
-                .dateTime(LocalDateTime.now())
-                .build();
+        Response<List<Workspace>> response = Response.<List<Workspace>>builder().message("Get Total Document Successfully").payload(workspaceService.filterWorkspace(filter)).status(HttpStatus.OK).dateTime(LocalDateTime.now()).build();
         return ResponseEntity.ok().body(response);
     }
+
 
     @GetMapping("workspaces/search")
     @Operation(summary = "Search Workspace")
@@ -145,32 +167,47 @@ public class WorkspaceController {
                 .status(HttpStatus.OK)
                 .dateTime(LocalDateTime.now())
                 .build();
+
+    /*
+     endpoint for search workspace
+    {
+     url :  http://localhost:8080/api/v1/workspaces/{{workspaceName}}
+    }
+    */
+    @GetMapping("workspaces/{workspaceName}")
+    @Operation(summary = "Search Workspace")
+    public ResponseEntity<?> searchWorkspace(@PathVariable String workspaceName) {
+        Response<List<Workspace>> response = Response.<List<Workspace>>builder().message("Get Total Document Successfully").payload(workspaceService.searchWorkspace(workspaceName)).status(HttpStatus.OK).dateTime(LocalDateTime.now()).build();
+
         return ResponseEntity.ok().body(response);
     }
 
+
+    /*
+    endpoint for delete workspace image
+   {
+    url :  http://localhost:8080/api/v1/workspaces/image
+   }
+   */
     @DeleteMapping("workspaces/image")
     @Operation(summary = "Delete Workspace Image")
     public ResponseEntity<?> deleteWorkspaceImage(@RequestParam UUID workspaceId) {
         workspaceService.deleteWorkspaceImage(workspaceId);
-        Response<Workspace> response = Response.<Workspace>builder()
-                .message("Delete Workspace Image Successfully")
-                .payload(null)
-                .status(HttpStatus.OK)
-                .dateTime(LocalDateTime.now())
-                .build();
+        Response<Workspace> response = Response.<Workspace>builder().message("Delete Workspace Image Successfully").payload(null).status(HttpStatus.OK).dateTime(LocalDateTime.now()).build();
         return ResponseEntity.ok().body(response);
     }
 
+    /*
+   endpoint for edit workspace
+  {
+   url :  http://localhost:8080/api/v1/workspaces/{{workspaceId}}
+  }
+  */
     @PutMapping("workspaces/{workspaceId}")
     @Operation(summary = "Edit Workspace")
     public ResponseEntity<?> editWorkspace(@PathVariable UUID workspaceId, @RequestParam(required = false) String workspaceName, @RequestParam(required = false) String workspaceImage) {
         workspaceService.editWorkspace(workspaceId, workspaceName, workspaceImage);
-        Response<Workspace> response = Response.<Workspace>builder()
-                .message("Update Workspace Successfully")
-                .payload(workspaceService.getWorkspaceByWorkspaceId(workspaceId))
-                .status(HttpStatus.OK)
-                .dateTime(LocalDateTime.now())
-                .build();
+        Response<Workspace> response = Response.<Workspace>builder().message("Update Workspace Successfully").payload(workspaceService.getWorkspaceByWorkspaceId(workspaceId)).status(HttpStatus.OK).dateTime(LocalDateTime.now()).build();
         return ResponseEntity.ok().body(response);
     }
 

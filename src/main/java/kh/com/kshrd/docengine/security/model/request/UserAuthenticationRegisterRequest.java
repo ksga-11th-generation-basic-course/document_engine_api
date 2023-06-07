@@ -26,7 +26,7 @@ public class UserAuthenticationRegisterRequest {
 
     @NotBlank(message = "Your password must be not empty")
     @NotNull(message = "Your password may not be null")
-    @Size(min = 4, message = "Your email must be have around 8 character ")
+    @Size(min = 4, message = "Your password must be have 4 character up  ")
     private String password;
 
 }

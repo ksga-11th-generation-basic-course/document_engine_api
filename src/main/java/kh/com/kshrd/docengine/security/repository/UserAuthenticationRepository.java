@@ -70,17 +70,21 @@ public interface UserAuthenticationRepository {
     @Update("UPDATE users SET password = #{u.newPassword} WHERE user_id = #{id}")
     void resetPassword(@Param("u") UserAuthenticationResetPasswordRequest userAuthenticationResetPasswordRequest, UUID id);
 
+   /* check IsVerify*/
     @Select("SELECT has_verified FROM opt_codes INNER JOIN users u ON u.user_id = opt_codes.user_id WHERE email = #{email};")
     Boolean checkIsVerify(String email);
 
+   /* enable Account*/
     @Select("UPDATE users SET is_enabled = true WHERE user_id = #{userId} RETURNING *;")
     @ResultMap("userAuthMap")
     UserAuthentication enableAccount(UUID userId);
 
+   /* verify For Enable Account*/
     @Select("UPDATE opt_codes SET has_verified = true WHERE digit_code = #{optCode} RETURNING *;")
     @ResultMap("codeMap")
     OptCode verifyForEnableAccount(String optCode);
 
+   /* signUp With Google And  Facebook*/
     @Select("INSERT INTO users(username, email,password,profile_image) VALUES(#{u.username}, #{u.email}, #{u.password}, #{u.profileImage}) RETURNING *")
     @ResultMap("userAuthMap")
     UserAuthentication signUpWithGoogleAndFacebook(@Param("u") UserAuthenticationRequestWithGoogleAndFacebook userAuthenticationRequestWithGoogleAndFacebook);
