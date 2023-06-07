@@ -17,7 +17,7 @@ import java.util.UUID;
 @RestController
 @SecurityRequirement(name = "bearerAuth")
 @AllArgsConstructor
-@CrossOrigin
+//@CrossOrigin
 @RequestMapping("/api/v1/")
 public class HistoryController {
 
@@ -40,6 +40,7 @@ public class HistoryController {
                 .build();
         return ResponseEntity.ok().body(response);
     }
+    @PutMapping("histories/{historyId}/documents/{documentId}")
 
     /*
      endpoint for restore document
@@ -78,6 +79,10 @@ public class HistoryController {
         return ResponseEntity.ok().body(response);
     }
 
+    @DeleteMapping("histories/{historyId}/documents/{documentId}")
+    @Operation(summary = "Remove History")
+    public ResponseEntity<Response<History>> removeHistory(@PathVariable UUID historyId ,@PathVariable UUID documentId){
+        historyService.removeHistory(historyId, documentId);
     /*
      endpoint for remove history
     {

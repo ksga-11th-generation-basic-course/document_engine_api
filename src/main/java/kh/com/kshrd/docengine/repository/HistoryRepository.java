@@ -23,8 +23,8 @@ public interface HistoryRepository {
 
     /* back up document*/
     @ResultMap("historyMap")
-    @Select("INSERT INTO histories(title, edited_date, status, edited_by, document_id, page_id, workspace_id) VALUES (#{title}, #{now}, #{status}, #{userIdOfCurrentUser}, #{documentId}, #{pageId}, #{workspaceId}) RETURNING *")
-    History backUpDocument(String title, LocalDateTime now, Boolean status, UUID userIdOfCurrentUser, UUID documentId, UUID pageId, UUID workspaceId);
+    @Select("INSERT INTO histories(title, edited_date, status, edited_by, document_id, workspace_id) VALUES (#{title}, #{now}, #{status}, #{userIdOfCurrentUser}, #{documentId}, #{workspaceId}) RETURNING *")
+    History backUpDocument(String title, LocalDateTime now, Boolean status, UUID userIdOfCurrentUser, UUID documentId, UUID workspaceId);
 
     /* restore document*/
     @Update("UPDATE documents SET title = #{title} WHERE document_id = #{documentId};")
@@ -35,7 +35,15 @@ public interface HistoryRepository {
     @Select("SELECT * FROM histories WHERE history_id = #{historyId};")
     History getHistoryByHistoryId(UUID historyId);
 
+    @Delete("DELETE FROM histories WHERE history_id = #{historyId} AND document_id = #{documentId};")
+    void removeHistory(UUID historyId, UUID documentId);
+
+    @Insert("INSERT INTO history_page(history_id, page_id) VALUES (#{historyId}, #{documentId})")
+    void insertHistoryIdAndPageIdToHistoryPage(UUID historyId, UUID documentId);
+
+
     /*  remove history*/
     @Delete("DELETE FROM histories WHERE history_id = #{historyId};")
     void removeHistory(UUID historyId);
+
 }

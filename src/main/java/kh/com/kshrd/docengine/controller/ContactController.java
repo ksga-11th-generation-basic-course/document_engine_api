@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 
 @RestController
 @AllArgsConstructor
-@CrossOrigin
+//@CrossOrigin
 @RequestMapping("/api/v1/")
 public class ContactController {
 

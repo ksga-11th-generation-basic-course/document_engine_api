@@ -1,5 +1,6 @@
 package kh.com.kshrd.docengine.services;
 
+import kh.com.kshrd.docengine.model.response.MemberResponse;
 import kh.com.kshrd.docengine.model.entity.Workspace;
 import kh.com.kshrd.docengine.model.request.WorkspaceRequest;
 
@@ -13,11 +14,12 @@ public interface WorkspaceService {
     void removeWorkspace(UUID workspaceId);
     void removeMemberFromWorkspace(UUID userId,UUID workspaceId);
     void setAccessibilityToUser(UUID userId, UUID workspaceId,Boolean status);
-    List<Workspace> getAllWorkspace();
+    List<Workspace> getAllWorkspace(Integer pageNo, Integer pageSize);
     Integer getTotalOfDocument(UUID workspaceId);
     List<Workspace> filterWorkspace(Boolean filter);
     List<Workspace> searchWorkspace(String workspaceName);
     void deleteWorkspaceImage(UUID workspaceId);
     void editWorkspace(UUID workspaceId, String workspaceName, String workspaceImage);
     Workspace getWorkspaceByWorkspaceId(UUID workspaceId);
+    List<MemberResponse> getAllMemberInEachWorkspace(UUID workspaceId);
 }

@@ -19,8 +19,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @AllArgsConstructor
 public class AuthenticationConfigurations {
-
-
     private final JwtAuthenticationService userServices;
     private final Encoder encoder;
     private final JwtRequestFilter jwtRequestFilter;

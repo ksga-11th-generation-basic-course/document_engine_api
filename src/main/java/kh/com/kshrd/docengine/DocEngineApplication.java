@@ -8,10 +8,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 @SecurityScheme(name = "bearerAuth", type = SecuritySchemeType.HTTP, scheme = "bearer")
-@OpenAPIDefinition(info = @Info(title = "DocEngine", version = "1.0", description = "A to-do list simple and effective tool for keeping track of the thing you need to do"))
+@OpenAPIDefinition(info = @Info(title = "DocEngine", version = "1.0", description = "DocEngine is a platform that gives users the ability to create documents and manage those documents within the team \n" +
+        "."))
 public class DocEngineApplication {
     public static void main(String[] args) {
         SpringApplication.run(DocEngineApplication.class, args);
     }
-
 }

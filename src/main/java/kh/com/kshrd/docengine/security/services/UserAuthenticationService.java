@@ -2,7 +2,6 @@ package kh.com.kshrd.docengine.security.services;
 
 import jakarta.mail.MessagingException;
 import kh.com.kshrd.docengine.security.model.entity.UserAuthentication;
-import kh.com.kshrd.docengine.security.model.request.UserAuthenticationLoginRequest;
 import kh.com.kshrd.docengine.security.model.request.UserAuthenticationRegisterRequest;
 import kh.com.kshrd.docengine.security.model.request.UserAuthenticationRequestWithGoogleAndFacebook;
 import kh.com.kshrd.docengine.security.model.request.UserAuthenticationResetPasswordRequest;

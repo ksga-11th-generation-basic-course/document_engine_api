@@ -32,4 +32,5 @@ public class DocumentRequest {
     @NotBlank(message = "Your tags may not be empty")
     @NotNull(message = "Your tags may not be null")
     private List<UUID> tags;
+
 }

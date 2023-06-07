@@ -4,8 +4,12 @@ import kh.com.kshrd.docengine.exceptions.BadRequestException;
 import kh.com.kshrd.docengine.exceptions.NotDuplicateException;
 import kh.com.kshrd.docengine.exceptions.NotFoundException;
 import kh.com.kshrd.docengine.exceptions.NotOwnerException;
+import kh.com.kshrd.docengine.model.entity.Document;
+import kh.com.kshrd.docengine.model.entity.User;
+import kh.com.kshrd.docengine.model.response.MemberResponse;
 import kh.com.kshrd.docengine.model.entity.Workspace;
 import kh.com.kshrd.docengine.model.request.WorkspaceRequest;
+import kh.com.kshrd.docengine.repository.DocumentRepository;
 import kh.com.kshrd.docengine.repository.WorkspaceRepository;
 import kh.com.kshrd.docengine.security.services.UserAuthenticationService;
 import kh.com.kshrd.docengine.services.WorkspaceService;
@@ -23,6 +27,7 @@ import java.util.UUID;
 public class WorkspaceServiceImp implements WorkspaceService {
     private final WorkspaceRepository workspaceRepository;
     private final UserAuthenticationService userAuthenticationService;
+    private final DocumentRepository documentRepository;
 
     @Override
     public Workspace createWorkspace(WorkspaceRequest workspaceRequest) {
@@ -46,10 +51,13 @@ public class WorkspaceServiceImp implements WorkspaceService {
         } else if (workspaceCode.isBlank()) {
             throw new BadRequestException("Workspace code cannot be blank or empty");
         }
+
+
         Workspace workspace = workspaceRepository.getWorkspaceByCode(workspaceCode);
         if (workspace == null) {
             throw new NotFoundException("Workspace doesn't exist");
         }
+
         if (Objects.equals(workspaceCode, workspace.getWorkspaceCode())) {
             List<UUID> usersId = workspaceRepository.getUserIdByWorkspaceId(workspace.getWorkspaceId());
             for (UUID userId : usersId) {
@@ -58,6 +66,10 @@ public class WorkspaceServiceImp implements WorkspaceService {
                 }
             }
             workspaceRepository.addUserIdAndWorkspaceIdToUserWorkspaceForMember(userAuthenticationService.getUserIdOfCurrentUser(), workspace.getWorkspaceId());
+            List<Document> documents = documentRepository.getDocumentByWorkspaceId(workspace.getWorkspaceId());
+            for (Document document : documents) {
+                documentRepository.addUserIdDocumentIdToUserDocument(userAuthenticationService.getUserIdOfCurrentUser(), document.getDocumentId(), "NO_ACCESS");
+            }
         } else {
             throw new BadRequestException("WorkspaceCode is incorrect");
         }
@@ -71,25 +83,31 @@ public class WorkspaceServiceImp implements WorkspaceService {
         } else if (workspaceId.toString().isBlank()) {
             throw new BadRequestException("Workspace id cannot be blank or empty");
         }
-        Workspace workspace = workspaceRepository.getWorkspaceByWorkspaceId(workspaceId);
-        if (workspace == null) {
-            throw new NotFoundException("Workspace doesn't exist");
-        } else {
-            if (workspaceRepository.checkIsOwner(userAuthenticationService.getUserIdOfCurrentUser(), workspaceId)) {
-                throw new BadRequestException("You are owner you cannot leave this workspace");
+
+        String checkMemberInWorkspace = workspaceRepository.checkMemberInWorkspace(workspaceId, userAuthenticationService.getUserIdOfCurrentUser());
+
+        if (checkMemberInWorkspace != null) {
+            Workspace workspace = workspaceRepository.getWorkspaceByWorkspaceId(workspaceId);
+            if (workspace == null) {
+                throw new NotFoundException("Workspace doesn't exist");
             } else {
-                workspaceRepository.leaveWorkspace(userAuthenticationService.getUserIdOfCurrentUser(), workspaceId);
+                if (workspaceRepository.checkIsOwner(userAuthenticationService.getUserIdOfCurrentUser(), workspaceId)) {
+                    throw new BadRequestException("You are owner you cannot leave this workspace");
+                } else {
+                    workspaceRepository.leaveWorkspace(userAuthenticationService.getUserIdOfCurrentUser(), workspaceId);
+                }
             }
+        } else {
+            throw new NotFoundException("You are not member in workspace");
         }
+
+
     }
 
     @Override
     public void removeWorkspace(UUID workspaceId) {
-        if (workspaceId == null) {
-            throw new BadRequestException("Workspace id cannot be null");
-        } else if (workspaceId.toString().isBlank()) {
-            throw new BadRequestException("Workspace id cannot be blank or empty");
-        }
+        validateWorkspaceId(workspaceId);
+
         Workspace workspace = workspaceRepository.getWorkspaceByWorkspaceId(workspaceId);
         if (workspace == null) {
             throw new NotFoundException("Workspace doesn't exist");
@@ -105,15 +123,23 @@ public class WorkspaceServiceImp implements WorkspaceService {
     @Override
     public void removeMemberFromWorkspace(UUID userId, UUID workspaceId) {
         exceptionUserIdAndWorkspaceId(userId, workspaceId);
+
+        Boolean isWorkspaceOwner = workspaceRepository.checkIsOwner(userAuthenticationService.getUserIdOfCurrentUser(), workspaceId);
+
+        if (isWorkspaceOwner == null) {
+            throw new NotFoundException("You are not member in workspace");
+        }
+
         Workspace workspace = workspaceRepository.getWorkspaceByWorkspaceId(workspaceId);
         if (workspace == null) {
             throw new NotFoundException("Workspace doesn't exist");
         } else {
-            if (workspaceRepository.checkIsOwner(userAuthenticationService.getUserIdOfCurrentUser(), workspaceId)) {
+            if (isWorkspaceOwner) {
                 if (workspaceRepository.checkIsOwner(userId, workspaceId)) {
                     throw new BadRequestException("You are owner you cannot remove yourself");
                 }
                 workspaceRepository.removeMemberFromWorkspace(userId, workspaceId);
+                documentRepository.deleteDocumentFromUserDocument(userId);
             } else {
                 throw new NotOwnerException("You are not the owner of this workspace");
             }
@@ -123,7 +149,7 @@ public class WorkspaceServiceImp implements WorkspaceService {
     @Override
     public void setAccessibilityToUser(UUID userId, UUID workspaceId, Boolean status) {
         exceptionUserIdAndWorkspaceId(userId, workspaceId);
-        if (workspaceRepository.checkIsOwner(userAuthenticationService.getUserIdOfCurrentUser(), workspaceId)) {
+        if (workspaceRepository.checkIsOwner(userAuthenticationService.getUserIdOfCurrentUser(), workspaceId) != null) {
             workspaceRepository.setAccessibilityToUser(userId, workspaceId, status);
         } else {
             throw new NotOwnerException("You are not the owner of this workspace");
@@ -143,8 +169,9 @@ public class WorkspaceServiceImp implements WorkspaceService {
     }
 
     @Override
-    public List<Workspace> getAllWorkspace() {
-        return workspaceRepository.getAllWorkspaceByUserId(userAuthenticationService.getUserIdOfCurrentUser());
+    public List<Workspace> getAllWorkspace(Integer pageNo, Integer pageSize) {
+        pageNo = (pageNo - 1) * pageSize;
+        return workspaceRepository.getAllWorkspaceByUserId(userAuthenticationService.getUserIdOfCurrentUser(), pageNo, pageSize);
     }
 
     @Override
@@ -181,18 +208,31 @@ public class WorkspaceServiceImp implements WorkspaceService {
 
     @Override
     public void deleteWorkspaceImage(UUID workspaceId) {
-        if (workspaceId == null) {
-            throw new BadRequestException("Workspace id cannot be null");
-        } else if (workspaceId.toString().isBlank()) {
-            throw new BadRequestException("Workspace id cannot be blank or empty");
-        }
+        validateWorkspaceId(workspaceId);
+
         Workspace workspace = workspaceRepository.getWorkspaceByWorkspaceId((workspaceId));
         if (workspace == null) {
             throw new NotFoundException("Workspace doesn't exist");
         } else {
             if (workspaceRepository.checkIsOwner(userAuthenticationService.getUserIdOfCurrentUser(), workspaceId)) {
                 workspaceRepository.deleteWorkspaceImage(workspaceId);
+            } else {
+                throw new NotOwnerException("You are not the owner of this workspace");
             }
+        }
+    }
+
+    private void validateWorkspaceId(UUID workspaceId) {
+        if (workspaceId == null) {
+            throw new BadRequestException("Workspace id cannot be null");
+        } else if (workspaceId.toString().isBlank()) {
+            throw new BadRequestException("Workspace id cannot be blank or empty");
+        }
+
+        Boolean isWorkspaceOwner = workspaceRepository.checkIsOwner(userAuthenticationService.getUserIdOfCurrentUser(), workspaceId);
+
+        if (isWorkspaceOwner == null) {
+            throw new NotFoundException("You are not member in workspace");
         }
     }
 
@@ -205,7 +245,7 @@ public class WorkspaceServiceImp implements WorkspaceService {
         }
         Boolean isOwner = workspaceRepository.checkIsOwner(userAuthenticationService.getUserIdOfCurrentUser(), workspaceId);
         if (isOwner == null) {
-            throw new NotFoundException("Owner doesn't exist");
+            throw new NotOwnerException("You are not the owner of this workspace");
         } else if (isOwner) {
             Workspace workspace = workspaceRepository.getWorkspaceByWorkspaceId(workspaceId);
             if (workspace == null) {
@@ -235,6 +275,11 @@ public class WorkspaceServiceImp implements WorkspaceService {
             throw new NotFoundException("Workspace doesn't exist");
         }
         return workspace;
+    }
+
+    @Override
+    public List<MemberResponse> getAllMemberInEachWorkspace(UUID workspaceId) {
+        return workspaceRepository.getAllMemberInEachWorkspace(workspaceId);
     }
 
 

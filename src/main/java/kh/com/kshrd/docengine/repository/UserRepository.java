@@ -57,7 +57,17 @@ public interface UserRepository {
     @Select("SELECT * FROM users WHERE user_id = #{userIdOfCurrentUser};")
     User getCurrentUser(UUID userIdOfCurrentUser);
 
+
+    @ResultMap("userMap")
+    @Select("UPDATE users SET username = #{username}, profile_image = #{profileImage} WHERE user_id = #{userIdOfCurrentUser} RETURNING *;")
+    User editProfileInformation(UUID userIdOfCurrentUser, String username, String profileImage);
+
+
    /* get username by userId*/
     @Select("SELECT username FROM users WHERE user_id = #{userID}")
     String getUserNameByUserId(UUID userID);
+
+    @ResultMap("userMap")
+    @Select("SELECT ud.user_id, username, email, profile_image, is_enabled FROM users INNER JOIN user_document ud on users.user_id = ud.user_id WHERE document_id = #{documentId} AND ud.user_id = #{userId};")
+    User getUserByUserIdAndDocumentId(UUID userId, UUID documentId);
 }

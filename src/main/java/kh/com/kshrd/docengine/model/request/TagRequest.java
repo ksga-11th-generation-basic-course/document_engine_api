@@ -20,4 +20,5 @@ public class TagRequest {
     private String tagName;
 
     private UUID workspaceId;
+    private UUID documentId;
 }

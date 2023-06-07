@@ -3,6 +3,9 @@ package kh.com.kshrd.docengine.security.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
+import kh.com.kshrd.docengine.configuration.Encoder;
+import kh.com.kshrd.docengine.exceptions.BadRequestException;
+import kh.com.kshrd.docengine.exceptions.NotFoundException;
 import kh.com.kshrd.docengine.security.model.entity.UserAuthentication;
 import kh.com.kshrd.docengine.security.model.request.UserAuthenticationLoginRequest;
 import kh.com.kshrd.docengine.security.model.request.UserAuthenticationRegisterRequest;
@@ -17,6 +20,7 @@ import kh.com.kshrd.docengine.security.services.JwtAuthenticationService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -28,7 +32,7 @@ import java.time.LocalDateTime;
 
 @RestController
 @AllArgsConstructor
-@CrossOrigin
+//@CrossOrigin
 @RequestMapping(path = "/api/v1/")
 public class UserAuthenticationController {
 
@@ -37,6 +41,7 @@ public class UserAuthenticationController {
     private final AuthenticationManager authenticationManager;
     private final JwtTokenUtil jwtTokenUtil;
     private final UserAuthenticationService userAuthenticationServices;
+    private final Encoder encoder;
 
     /*    sample test in postman register
     url :  http://localhost:8080/api/v1/user/register
@@ -152,6 +157,18 @@ public class UserAuthenticationController {
     @Operation(summary = "Login")
     public ResponseEntity<?> login(@Valid @RequestBody UserAuthenticationLoginRequest authenticationLoginRequest) throws Exception {
 
+        UserAuthentication userAuthentication = userAuthenticationServices.getByEmail(authenticationLoginRequest.getEmail());
+
+        boolean isPasswordMatch = encoder.PasswordEncoder().matches(authenticationLoginRequest.getPassword(), userAuthentication.getPassword());
+
+        if (!isPasswordMatch) {
+            throw new BadRequestException("Invalid Password");
+        }
+
+        if(!userAuthentication.getIsEnable()){
+            throw new BadRequestException("Account is close");
+        }
+
         Boolean isVerify = userAuthenticationServices.checkIsVerify(authenticationLoginRequest.getEmail());
         if (isVerify) {
             return getResponseEntity(authenticationLoginRequest);
@@ -189,7 +206,7 @@ public class UserAuthenticationController {
         }
     }
 
-    @PutMapping("authentications/input/email/to/enable/account")
+    @PutMapping("authentications/enable/account")
     @Operation(summary = "Input Email To Enable Account")
     public ResponseEntity<?> inputEmailForEnableAccount(@RequestParam String email) throws MessagingException {
         UserAuthentication userAuthentication = userAuthenticationServices.inputEmailToEnableAccount(email);
@@ -219,7 +236,7 @@ public class UserAuthenticationController {
         return ResponseEntity.ok().body(response);
     }
 
-    @PostMapping("authentications/signup/with/google/and/facebook")
+    @PostMapping("authentications/signup/google/facebook")
     @Operation(summary = "Sign Up With Google And Facebook")
     public ResponseEntity<?> signUpWithGoogleAndFacebook(@RequestBody UserAuthenticationRequestWithGoogleAndFacebook userAuthenticationRequestWithGoogleAndFacebook) {
         UserAuthentication userAuthentication = userAuthenticationServices.signUpWithGoogleAndFacebook(userAuthenticationRequestWithGoogleAndFacebook);
@@ -232,7 +249,7 @@ public class UserAuthenticationController {
         return ResponseEntity.ok().body(response);
     }
 
-    @PostMapping("authentications/login/with/google/and/facebook")
+    @PostMapping("authentications/login/google/facebook")
     @Operation(summary = "login With Google And Facebook")
     public ResponseEntity<?> signInWithGoogleAndFacebook(@RequestBody UserAuthenticationLoginRequest authenticationLoginRequest) throws Exception {
         return getResponseEntity(authenticationLoginRequest);

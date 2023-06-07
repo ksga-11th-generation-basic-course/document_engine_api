@@ -31,21 +31,6 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
-    public User changeUsername(String username) {
-        if (username == null) {
-            throw new BadRequestException("Username cannot be null");
-        } else if (username.isBlank()) {
-            throw new BadRequestException("Username cannot be blank or empty");
-        }
-        User user = userRepository.getUserByUserId(userAuthenticationService.getUserIdOfCurrentUser());
-        if (user == null) {
-            throw new NotFoundException("User doesn't exist");
-        } else {
-            return userRepository.changeUsername(userAuthenticationService.getUserIdOfCurrentUser(), username);
-        }
-    }
-
-    @Override
     public User changePassword(String currentPassword, String newPassword, String confirmNewPassword) {
         if (currentPassword == null) {
             throw new BadRequestException("Current password cannot be null");
@@ -74,16 +59,6 @@ public class UserServiceImp implements UserService {
             } else {
                 throw new NotFoundException("Wrong current password");
             }
-        }
-    }
-
-    @Override
-    public User changeProfileImage(String image) {
-        User user = userRepository.getUserByUserId(userAuthenticationService.getUserIdOfCurrentUser());
-        if (user == null) {
-            throw new NotFoundException("User doesn't exist");
-        } else {
-            return userRepository.changeProfileImage(userAuthenticationService.getUserIdOfCurrentUser(), image);
         }
     }
 
@@ -123,6 +98,22 @@ public class UserServiceImp implements UserService {
             throw new NotFoundException("User doesn't exist");
         } else {
             return userRepository.getCurrentUser(userAuthenticationService.getUserIdOfCurrentUser());
+        }
+    }
+
+    @Override
+    public User editProfileInformation(String username, String profileImage) {
+        User user = userRepository.getUserByUserId(userAuthenticationService.getUserIdOfCurrentUser());
+        if (user == null) {
+            throw new NotFoundException("User doesn't exist");
+        } else {
+            if (username == null || username.isBlank()) {
+                return userRepository.editProfileInformation(userAuthenticationService.getUserIdOfCurrentUser(), user.getUserName(), profileImage);
+            } else if (profileImage == null || profileImage.isBlank()) {
+                return userRepository.editProfileInformation(userAuthenticationService.getUserIdOfCurrentUser(), username, user.getProfileImage());
+            } else {
+                return userRepository.editProfileInformation(userAuthenticationService.getUserIdOfCurrentUser(), username, profileImage);
+            }
         }
     }
 }

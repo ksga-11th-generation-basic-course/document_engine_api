@@ -21,18 +21,18 @@ public interface BlockRepository {
             @Result(property = "order", column = "block_order"),
             @Result(property = "documentId", column = "document_id")
     })
-    @Select("INSERT INTO blocks(block_type, block_content, block_order, document_id) VALUES (#{d.blockType}, #{d.content, typeHandler = kh.com.kshrd.docengine.configuration.JsonTypeHandler}::JSON , #{d.order}, #{d.documentId}) RETURNING *;")
-    Block createBlock(@Param("d") BlockRequest blockRequest);
+    @Select("INSERT INTO blocks(block_type, block_content, block_order, document_id) VALUES (#{d.blockType}, #{d.content, typeHandler = kh.com.kshrd.docengine.configuration.JsonTypeHandler}::JSON , #{order}, #{d.documentId}) RETURNING *;")
+    Block createBlock(@Param("d") BlockRequest blockRequest, Integer order);
 
     /*edit block*/
     @ResultMap("blockMap")
-    @Select("UPDATE blocks SET block_content = #{content, typeHandler = kh.com.kshrd.docengine.configuration.JsonTypeHandler}::JSON WHERE block_id = #{blockId} RETURNING *;")
-    Block editBlock(UUID blockId, Map<String, Object> content);
+    @Select("UPDATE blocks SET block_content = #{content, typeHandler = kh.com.kshrd.docengine.configuration.JsonTypeHandler}::JSON WHERE block_id = #{blockId} AND document_id = #{documentId} RETURNING *;")
+    Block editBlock(UUID blockId, UUID documentId , Map<String, Object> content);
 
     /*delete block*/
     @ResultMap("blockMap")
-    @Delete("DELETE FROM blocks WHERE block_id = #{blockId};")
-    void deleteBlock(UUID blockId);
+    @Delete("DELETE FROM blocks WHERE block_id = #{blockId} AMD document_id = #{documentId};")
+    void deleteBlock(UUID blockId, UUID documentId);
 
     /*duplicate block*/
     @ResultMap("blockMap")
@@ -66,5 +66,8 @@ public interface BlockRepository {
     @ResultMap("blockMap")
     @Select("SELECT * FROM blocks WHERE block_id = #{blockId};")
     Block getBlockByBlockId(UUID blockId);
+
+    @Select("SELECT COUNT(*) FROM blocks WHERE document_id = #{documentId};")
+    Integer order(UUID documentId);
 }
 

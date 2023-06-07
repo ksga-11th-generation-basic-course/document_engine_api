@@ -6,12 +6,7 @@ import java.util.List;
 
 public interface UserService {
     User closeAccount();
-
-    User changeUsername(String username);
-
     User changePassword(String currentPassword, String newPassword, String confirmNewPassword);
-
-    User changeProfileImage(String image);
 
     String getProfileImage();
 
@@ -20,4 +15,6 @@ public interface UserService {
     void deleteProfileImage();
 
     User getCurrentUser();
+
+    User editProfileInformation(String username, String profileImage);
 }

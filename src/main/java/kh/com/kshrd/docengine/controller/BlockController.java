@@ -19,7 +19,7 @@ import java.util.UUID;
 @RestController
 @SecurityRequirement(name = "bearerAuth")
 @AllArgsConstructor
-@CrossOrigin
+//@CrossOrigin
 @RequestMapping("/api/v1/")
 public class BlockController {
 
@@ -32,6 +32,42 @@ public class BlockController {
      }*/
     @PostMapping("blocks")
     @Operation(summary = "Creat Block")
+    public ResponseEntity<?> createBlock(@RequestBody BlockRequest blockRequest){
+        Response<Block> response = Response.<Block>builder()
+                .message("Create Block Successful")
+                .payload(blockService.createBlock(blockRequest))
+                .dateTime(LocalDateTime.now())
+                .status(HttpStatus.CREATED)
+                .build();
+        return ResponseEntity.ok().body(response);
+    }
+
+    @PutMapping("blocks/{blockId}/documents/{documentId}")
+    @Operation(summary = "Edit Block")
+    public ResponseEntity<Response<Block>> editBlock(@PathVariable UUID blockId, @PathVariable UUID documentId ,@RequestBody Map<String, Object> content){
+        Response<Block> response = Response.<Block>builder()
+                .message("Edit Block Successful")
+                .payload(blockService.editBlock(blockId, documentId, content))
+                .dateTime(LocalDateTime.now())
+                .status(HttpStatus.OK)
+                .build();
+        return ResponseEntity.ok().body(response);
+    }
+
+    @DeleteMapping("blocks/{blockId}/documents/{documentId}")
+    @Operation(summary = "Delete Block")
+    public ResponseEntity<Response<Block>> deleteBlock(@PathVariable UUID blockId, @PathVariable UUID documentId){
+        blockService.deleteBlock(blockId, documentId);
+        Response<Block> response = Response.<Block>builder()
+                .message("Delete Block Successful")
+                .payload(null)
+                .dateTime(LocalDateTime.now())
+                .status(HttpStatus.OK)
+                .build();
+        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("blocks/{documentId}")
     public ResponseEntity<?> createBlock(@RequestBody BlockRequest blockRequest) {
         Response<Block> response = Response.<Block>builder().message("Create Block Successful").payload(blockService.createBlock(blockRequest)).dateTime(LocalDateTime.now()).status(HttpStatus.OK).build();
         return ResponseEntity.ok().body(response);

@@ -18,7 +18,7 @@ import java.util.UUID;
 @RestController
 @SecurityRequirement(name = "bearerAuth")
 @AllArgsConstructor
-@CrossOrigin
+//@CrossOrigin
 @RequestMapping("/api/v1/")
 public class TagController {
 
@@ -71,6 +71,14 @@ public class TagController {
    }
    */
     @GetMapping("tags")
+    @Operation(summary = "Get All Tag *")
+    public ResponseEntity<?> getAllTag(){
+        Response<List<Tag>> response = Response.<List<Tag>>builder()
+                .message("Get All Tag Successful")
+                .payload(tagService.getAllTag())
+                .dateTime(LocalDateTime.now())
+                .status(HttpStatus.OK)
+                .build();
     @Operation(summary = "Get All Tag")
     public ResponseEntity<?> getAllTag() {
         Response<List<Tag>> response = Response.<List<Tag>>builder().message("Get All Tag Successful").payload(tagService.getAllTag()).dateTime(LocalDateTime.now()).status(HttpStatus.OK).build();
@@ -88,5 +96,12 @@ public class TagController {
     public ResponseEntity<?> getTagInEachWorkspace(@PathVariable UUID workspaceId) {
         Response<List<Tag>> response = Response.<List<Tag>>builder().message("Get Tag In Each Workspace Successful").payload(tagService.getTagInEachWorkspace(workspaceId)).dateTime(LocalDateTime.now()).status(HttpStatus.OK).build();
         return ResponseEntity.ok().body(response);
+    }
+
+    @PostMapping("tags/add")
+    @Operation(summary = "Add Tag For Document")
+    public ResponseEntity<?> addTagsForDocument(@RequestParam UUID tagId, @RequestParam UUID documentId, @RequestParam UUID workspaceId){
+        tagService.addTagsForDocument(tagId, documentId, workspaceId);
+        return ResponseEntity.ok().body("Add Tag Successful");
     }
 }

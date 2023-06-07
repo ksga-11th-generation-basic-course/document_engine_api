@@ -2,6 +2,7 @@ package kh.com.kshrd.docengine.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import kh.com.kshrd.docengine.model.response.MemberResponse;
 import kh.com.kshrd.docengine.model.entity.Workspace;
 import kh.com.kshrd.docengine.model.request.WorkspaceRequest;
 import kh.com.kshrd.docengine.model.response.Response;
@@ -18,7 +19,7 @@ import java.util.UUID;
 @RestController
 @SecurityRequirement(name = "bearerAuth")
 @AllArgsConstructor
-@CrossOrigin
+//@CrossOrigin
 @RequestMapping("/api/v1/")
 public class WorkspaceController {
 
@@ -114,8 +115,18 @@ public class WorkspaceController {
     */
     @GetMapping("workspaces")
     @Operation(summary = "Get All Workspace")
+
+    public ResponseEntity<?> getAllWorkspace(@RequestParam(defaultValue = "1") Integer pageNo, @RequestParam(defaultValue = "5") Integer pageSize) {
+        Response<List<Workspace>> response = Response.<List<Workspace>>builder()
+                .message("Get All Workspace Successfully")
+                .payload(workspaceService.getAllWorkspace(pageNo, pageSize))
+                .status(HttpStatus.OK)
+                .dateTime(LocalDateTime.now())
+                .build();
+
     public ResponseEntity<?> getAllWorkspace() {
         Response<List<Workspace>> response = Response.<List<Workspace>>builder().message("Get All Workspace Successfully").payload(workspaceService.getAllWorkspace()).status(HttpStatus.OK).dateTime(LocalDateTime.now()).build();
+
         return ResponseEntity.ok().body(response);
     }
 
@@ -126,7 +137,7 @@ public class WorkspaceController {
    }
    */
     @GetMapping("workspaces/{workspaceId}")
-    @Operation(summary = "Get Total Document")
+    @Operation(summary = "Get Total Document *")
     public ResponseEntity<?> getTotalOfDocument(@PathVariable UUID workspaceId) {
         Response<Integer> response = Response.<Integer>builder().message("Get Total Document Successfully").payload(workspaceService.getTotalOfDocument(workspaceId)).status(HttpStatus.OK).dateTime(LocalDateTime.now()).build();
         return ResponseEntity.ok().body(response);
@@ -146,6 +157,17 @@ public class WorkspaceController {
         return ResponseEntity.ok().body(response);
     }
 
+
+    @GetMapping("workspaces/search")
+    @Operation(summary = "Search Workspace")
+    public ResponseEntity<?> searchWorkspace(@RequestParam String workspaceName) {
+        Response<List<Workspace>> response = Response.<List<Workspace>>builder()
+                .message("Get Total Document Successfully")
+                .payload(workspaceService.searchWorkspace(workspaceName))
+                .status(HttpStatus.OK)
+                .dateTime(LocalDateTime.now())
+                .build();
+
     /*
      endpoint for search workspace
     {
@@ -156,6 +178,7 @@ public class WorkspaceController {
     @Operation(summary = "Search Workspace")
     public ResponseEntity<?> searchWorkspace(@PathVariable String workspaceName) {
         Response<List<Workspace>> response = Response.<List<Workspace>>builder().message("Get Total Document Successfully").payload(workspaceService.searchWorkspace(workspaceName)).status(HttpStatus.OK).dateTime(LocalDateTime.now()).build();
+
         return ResponseEntity.ok().body(response);
     }
 
@@ -185,6 +208,18 @@ public class WorkspaceController {
     public ResponseEntity<?> editWorkspace(@PathVariable UUID workspaceId, @RequestParam(required = false) String workspaceName, @RequestParam(required = false) String workspaceImage) {
         workspaceService.editWorkspace(workspaceId, workspaceName, workspaceImage);
         Response<Workspace> response = Response.<Workspace>builder().message("Update Workspace Successfully").payload(workspaceService.getWorkspaceByWorkspaceId(workspaceId)).status(HttpStatus.OK).dateTime(LocalDateTime.now()).build();
+        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("workspaces/{workspaceId}/member")
+    @Operation(summary = "Get All Member In Each Workspace")
+    public ResponseEntity<?> getAllMemberInEachWorkspace(@PathVariable UUID workspaceId){
+        Response<List<MemberResponse>> response = Response.<List<MemberResponse>>builder()
+                .message("Get All Member In Each Workspace Successfully")
+                .payload(workspaceService.getAllMemberInEachWorkspace(workspaceId))
+                .status(HttpStatus.OK)
+                .dateTime(LocalDateTime.now())
+                .build();
         return ResponseEntity.ok().body(response);
     }
 
