@@ -88,7 +88,7 @@ public interface WorkspaceRepository {
 
     @ResultMap("workspaceMap")
     @Select("""
-            SELECT uw.workspace_id,workspace_name,workspace_image,workspace_code,created_date
+            SELECT uw.workspace_id,workspace_name,workspace_image,workspace_code,created_date,is_owner
             FROM workspaces
             INNER JOIN user_workspace uw on workspaces.workspace_id = uw.workspace_id
             WHERE user_id=#{userIdOfCurrentUser} AND is_owner=#{filter}
