@@ -5,7 +5,6 @@ import kh.com.kshrd.docengine.exceptions.NotDuplicateException;
 import kh.com.kshrd.docengine.exceptions.NotFoundException;
 import kh.com.kshrd.docengine.exceptions.NotOwnerException;
 import kh.com.kshrd.docengine.model.entity.Document;
-import kh.com.kshrd.docengine.model.entity.User;
 import kh.com.kshrd.docengine.model.response.MemberResponse;
 import kh.com.kshrd.docengine.model.entity.Workspace;
 import kh.com.kshrd.docengine.model.request.WorkspaceRequest;
@@ -33,6 +32,8 @@ public class WorkspaceServiceImp implements WorkspaceService {
     public Workspace createWorkspace(WorkspaceRequest workspaceRequest) {
         if (workspaceRequest.getWorkspaceName() == null) {
             throw new BadRequestException("Workspace name cannot be null");
+        } else if (workspaceRequest.getWorkspaceImage() == null) {
+            throw new BadRequestException("Workspace image cannot be null");
         } else if (workspaceRequest.getWorkspaceName().isBlank()) {
             throw new BadRequestException("Workspace name cannot be blank and empty");
         } else if (workspaceRequest.getWorkspaceImage().isBlank()) {
