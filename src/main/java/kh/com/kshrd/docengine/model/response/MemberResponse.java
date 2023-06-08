@@ -12,6 +12,8 @@ import java.util.UUID;
 public class MemberResponse<T> {
     private UUID userId;
     private String username;
+    private String email;
     private Boolean isOwner;
+    private String profileImage;
     private T accessibility;
 }

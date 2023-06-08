@@ -27,9 +27,10 @@ public class WorkspaceController {
     @PostMapping("workspaces")
     @Operation(summary = "Create Workspace")
     public ResponseEntity<?> createWorkspace(@RequestBody WorkspaceRequest workspaceRequest) {
+       Workspace workspace = workspaceService.createWorkspace(workspaceRequest);
         Response<Workspace> response = Response.<Workspace>builder()
                 .message("Create Workspace Successfully")
-                .payload(workspaceService.createWorkspace(workspaceRequest))
+                .payload(workspaceService.getWorkspaceByWorkspaceId(workspace.getWorkspaceId()))
                 .dateTime(LocalDateTime.now())
                 .status(HttpStatus.OK)
                 .build();
@@ -61,9 +62,9 @@ public class WorkspaceController {
         return ResponseEntity.ok().body(response);
     }
 
-    @DeleteMapping("workspaces")
+    @DeleteMapping("workspaces/{workspaceId}")
     @Operation(summary = "Remove Workspace")
-    public ResponseEntity<?> removeWorkspace(@RequestParam UUID workspaceId) {
+    public ResponseEntity<?> removeWorkspace(@PathVariable UUID workspaceId) {
         workspaceService.removeWorkspace(workspaceId);
         Response<Workspace> response = Response.<Workspace>builder()
                 .message("Remove Workspace Successfully")
@@ -112,7 +113,7 @@ public class WorkspaceController {
         return ResponseEntity.ok().body(response);
     }
 
-    @GetMapping("workspaces/{workspaceId}")
+    @GetMapping("workspaces/{workspaceId}/total")
     @Operation(summary = "Get Total Document *")
     public ResponseEntity<?> getTotalOfDocument(@PathVariable UUID workspaceId) {
         Response<Integer> response = Response.<Integer>builder()
@@ -163,11 +164,11 @@ public class WorkspaceController {
 
     @PutMapping("workspaces/{workspaceId}")
     @Operation(summary = "Edit Workspace")
-    public ResponseEntity<?> editWorkspace(@PathVariable UUID workspaceId, @RequestParam(required = false) String workspaceName, @RequestParam(required = false) String workspaceImage) {
-        workspaceService.editWorkspace(workspaceId, workspaceName, workspaceImage);
+    public ResponseEntity<?> editWorkspace(@PathVariable UUID workspaceId, @RequestBody WorkspaceRequest workspaceRequest) {
+        workspaceService.editWorkspace(workspaceId, workspaceRequest);
         Response<Workspace> response = Response.<Workspace>builder()
                 .message("Update Workspace Successfully")
-                .payload(workspaceService.getWorkspaceByWorkspaceId(workspaceId))
+                .payload(workspaceService.getWorkspaceById(workspaceId))
                 .status(HttpStatus.OK)
                 .dateTime(LocalDateTime.now())
                 .build();
@@ -180,6 +181,30 @@ public class WorkspaceController {
         Response<List<MemberResponse>> response = Response.<List<MemberResponse>>builder()
                 .message("Get All Member In Each Workspace Successfully")
                 .payload(workspaceService.getAllMemberInEachWorkspace(workspaceId))
+                .status(HttpStatus.OK)
+                .dateTime(LocalDateTime.now())
+                .build();
+        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("workspaces/{workspaceId}/isOwner")
+    @Operation(summary = "Get Workspace By WorkspaceId")
+    public ResponseEntity<?> getWorkspaceByWorkspaceId(@PathVariable UUID workspaceId){
+        Response<Workspace> response = Response.<Workspace>builder()
+                .message("Get All Member In Each Workspace Successfully")
+                .payload(workspaceService.getWorkspaceByWorkspaceId(workspaceId))
+                .status(HttpStatus.OK)
+                .dateTime(LocalDateTime.now())
+                .build();
+        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("workspaces/{workspaceId}")
+    @Operation(summary = "Get Workspace By WorkspaceId")
+    public ResponseEntity<?> getWorkspaceById(@PathVariable UUID workspaceId){
+        Response<Workspace> response = Response.<Workspace>builder()
+                .message("Get All Member In Each Workspace Successfully")
+                .payload(workspaceService.getWorkspaceById(workspaceId))
                 .status(HttpStatus.OK)
                 .dateTime(LocalDateTime.now())
                 .build();

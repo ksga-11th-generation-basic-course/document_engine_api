@@ -216,8 +216,8 @@ public class UserAuthenticationController {
                 .status(HttpStatus.OK)
                 .payload(new UserAuthenticationRegisterResponse(userAuthentication.getUserName(), userAuthentication.getEmail(), userAuthentication.getProfileImage(), userAuthentication.getIsEnable()))
                 .dateTime(LocalDateTime.now())
-
                 .build();
+
         return ResponseEntity.ok().body(response);
     }
 

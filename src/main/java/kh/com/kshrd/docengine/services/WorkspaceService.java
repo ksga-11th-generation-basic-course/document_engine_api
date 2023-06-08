@@ -19,7 +19,9 @@ public interface WorkspaceService {
     List<Workspace> filterWorkspace(Boolean filter);
     List<Workspace> searchWorkspace(String workspaceName);
     void deleteWorkspaceImage(UUID workspaceId);
-    void editWorkspace(UUID workspaceId, String workspaceName, String workspaceImage);
+    void editWorkspace(UUID workspaceId, WorkspaceRequest workspaceRequest);
     Workspace getWorkspaceByWorkspaceId(UUID workspaceId);
     List<MemberResponse> getAllMemberInEachWorkspace(UUID workspaceId);
+
+    Workspace getWorkspaceById(UUID workspaceId);
 }

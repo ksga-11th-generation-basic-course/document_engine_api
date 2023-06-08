@@ -1,5 +1,6 @@
 package kh.com.kshrd.docengine.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import kh.com.kshrd.docengine.model.response.MemberResponse;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,7 +18,8 @@ public class Workspace {
     private String workspaceName;
     private String workspaceCode;
     private String workspaceImage;
+    @JsonFormat(pattern = "dd-MM-yyyy")
     private LocalDateTime createdDate;
-    private List<MemberResponse> createBy;
+    private Boolean isOwner;
     private Integer totalDocument;
 }

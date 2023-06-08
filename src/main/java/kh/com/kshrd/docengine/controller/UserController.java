@@ -3,6 +3,7 @@ package kh.com.kshrd.docengine.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import kh.com.kshrd.docengine.model.entity.User;
+import kh.com.kshrd.docengine.model.request.UserEditRequest;
 import kh.com.kshrd.docengine.model.response.Response;
 import kh.com.kshrd.docengine.model.response.UserResponse;
 import kh.com.kshrd.docengine.services.UserService;
@@ -50,10 +51,10 @@ public class UserController {
     @DeleteMapping("users/profile")
     @Operation(summary = "Delete Profile Image")
     public ResponseEntity<?> deleteProfileImage() {
-        userService.deleteProfileImage();
-        Response<User> response = Response.<User>builder()
+        User user = userService.deleteProfileImage();
+        Response<UserResponse> response = Response.<UserResponse>builder()
                 .message("Delete Profile Image Successful")
-                .payload(null)
+                .payload(new UserResponse(user.getUserId(), user.getUserName(), user.getEmail(), user.getProfileImage(), user.getIsEnable()))
                 .dateTime(LocalDateTime.now())
                 .status(HttpStatus.OK)
                 .build();
@@ -75,10 +76,23 @@ public class UserController {
 
     @PutMapping("users")
     @Operation(summary = "Edit Profile Information")
-    public ResponseEntity<?> editProfileInformation(@RequestParam(required = false) String username, @RequestParam(required = false) String profileImage) {
-        User user = userService.editProfileInformation(username, profileImage);
+    public ResponseEntity<?> editProfileInformation(@RequestBody UserEditRequest userEditRequest) {
+        User user = userService.editProfileInformation(userEditRequest);
         Response<UserResponse> response = Response.<UserResponse>builder()
                 .message("Get Current User Successful")
+                .payload(new UserResponse(user.getUserId(), user.getUserName(), user.getEmail(), user.getProfileImage(), user.getIsEnable()))
+                .dateTime(LocalDateTime.now())
+                .status(HttpStatus.OK)
+                .build();
+        return ResponseEntity.ok().body(response);
+    }
+
+    @PutMapping("users/change/password")
+    @Operation(summary = "Change Password")
+    public ResponseEntity<Response<UserResponse>> changePassword(@RequestParam String currentPassword, @RequestParam String newPassword, @RequestParam String confirmNewPassword) {
+        User user = userService.changePassword(currentPassword, newPassword, confirmNewPassword);
+        Response<UserResponse> response = Response.<UserResponse>builder()
+                .message("Close Account Successful")
                 .payload(new UserResponse(user.getUserId(), user.getUserName(), user.getEmail(), user.getProfileImage(), user.getIsEnable()))
                 .dateTime(LocalDateTime.now())
                 .status(HttpStatus.OK)

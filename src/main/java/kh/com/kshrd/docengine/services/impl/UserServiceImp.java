@@ -4,6 +4,7 @@ import kh.com.kshrd.docengine.configuration.Encoder;
 import kh.com.kshrd.docengine.exceptions.BadRequestException;
 import kh.com.kshrd.docengine.exceptions.NotFoundException;
 import kh.com.kshrd.docengine.model.entity.User;
+import kh.com.kshrd.docengine.model.request.UserEditRequest;
 import kh.com.kshrd.docengine.repository.UserRepository;
 import kh.com.kshrd.docengine.security.services.UserAuthenticationService;
 import kh.com.kshrd.docengine.services.UserService;
@@ -82,12 +83,12 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
-    public void deleteProfileImage() {
+    public User deleteProfileImage() {
         User user = userRepository.getUserByUserId(userAuthenticationService.getUserIdOfCurrentUser());
         if (user == null) {
             throw new NotFoundException("User doesn't exist");
         } else {
-            userRepository.deleteProfileImage(userAuthenticationService.getUserIdOfCurrentUser());
+            return userRepository.deleteProfileImage(userAuthenticationService.getUserIdOfCurrentUser());
         }
     }
 
@@ -102,17 +103,17 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
-    public User editProfileInformation(String username, String profileImage) {
+    public User editProfileInformation(UserEditRequest userEditRequest) {
         User user = userRepository.getUserByUserId(userAuthenticationService.getUserIdOfCurrentUser());
         if (user == null) {
             throw new NotFoundException("User doesn't exist");
         } else {
-            if (username == null || username.isBlank()) {
-                return userRepository.editProfileInformation(userAuthenticationService.getUserIdOfCurrentUser(), user.getUserName(), profileImage);
-            } else if (profileImage == null || profileImage.isBlank()) {
-                return userRepository.editProfileInformation(userAuthenticationService.getUserIdOfCurrentUser(), username, user.getProfileImage());
+            if (userEditRequest.getUsername() == null || userEditRequest.getUsername().isBlank()) {
+                return userRepository.editProfileInformation(userAuthenticationService.getUserIdOfCurrentUser(), user.getUserName(), userEditRequest.getProfileImage());
+            } else if (userEditRequest.getProfileImage() == null || userEditRequest.getProfileImage().isBlank()) {
+                return userRepository.editProfileInformation(userAuthenticationService.getUserIdOfCurrentUser(), userEditRequest.getUsername(), user.getProfileImage());
             } else {
-                return userRepository.editProfileInformation(userAuthenticationService.getUserIdOfCurrentUser(), username, profileImage);
+                return userRepository.editProfileInformation(userAuthenticationService.getUserIdOfCurrentUser(), userEditRequest.getUsername(), userEditRequest.getProfileImage());
             }
         }
     }

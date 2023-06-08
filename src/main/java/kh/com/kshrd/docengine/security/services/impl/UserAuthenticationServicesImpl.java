@@ -68,7 +68,6 @@ public class UserAuthenticationServicesImpl implements UserAuthenticationService
 
         userAuthenticationRegisterRequest.setPassword(encoder.PasswordEncoder().encode(userAuthenticationRegisterRequest.getPassword()));
 
-
         UserAuthentication userAuthentication = userAuthenticationRepository.register(userAuthenticationRegisterRequest);
 
         OptCode optCode = new OptCode();

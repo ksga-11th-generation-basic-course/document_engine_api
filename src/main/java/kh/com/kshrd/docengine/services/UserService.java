@@ -1,6 +1,7 @@
 package kh.com.kshrd.docengine.services;
 
 import kh.com.kshrd.docengine.model.entity.User;
+import kh.com.kshrd.docengine.model.request.UserEditRequest;
 
 import java.util.List;
 
@@ -12,9 +13,9 @@ public interface UserService {
 
     List<User> getAllUser();
 
-    void deleteProfileImage();
+    User deleteProfileImage();
 
     User getCurrentUser();
 
-    User editProfileInformation(String username, String profileImage);
+    User editProfileInformation(UserEditRequest userEditRequest);
 }

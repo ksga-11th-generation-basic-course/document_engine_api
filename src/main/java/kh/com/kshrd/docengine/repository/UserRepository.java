@@ -33,8 +33,9 @@ public interface UserRepository {
     @Select("SELECT * FROM users;")
     List<User> getAllUser();
 
-    @Update("UPDATE users SET profile_image = null WHERE user_id = #{userIdOfCurrentUser};")
-    void deleteProfileImage(UUID userIdOfCurrentUser);
+    @ResultMap("userMap")
+    @Select("UPDATE users SET profile_image = null WHERE user_id = #{userIdOfCurrentUser} RETURNING *;")
+    User deleteProfileImage(UUID userIdOfCurrentUser);
 
     @ResultMap("userMap")
     @Select("SELECT * FROM users WHERE user_id = #{userIdOfCurrentUser};")

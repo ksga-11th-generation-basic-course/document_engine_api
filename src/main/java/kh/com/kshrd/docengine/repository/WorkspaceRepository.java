@@ -1,6 +1,5 @@
 package kh.com.kshrd.docengine.repository;
 
-import kh.com.kshrd.docengine.model.entity.User;
 import kh.com.kshrd.docengine.model.response.MemberResponse;
 import kh.com.kshrd.docengine.model.entity.Workspace;
 import kh.com.kshrd.docengine.model.request.WorkspaceRequest;
@@ -13,13 +12,13 @@ import java.util.UUID;
 @Mapper
 public interface WorkspaceRepository {
     @Results(id = "workspaceMap", value = {
-            @Result(property = "workspaceId",   column = "workspace_id"),
+            @Result(property = "workspaceId", column = "workspace_id"),
             @Result(property = "workspaceName", column = "workspace_name"),
+            @Result(property = "isOwner", column = "is_owner"),
             @Result(property = "workspaceCode", column = "workspace_code"),
-            @Result(property = "createdDate",   column = "created_date"),
-            @Result(property = "workspaceImage",column = "workspace_image"),
-            @Result(property = "totalDocument", column = "workspace_id", many = @Many(select = "getTotalDocumentOfWorkspace")),
-            @Result(property = "createBy", column = "workspace_id", many = @Many(select = "getAllMemberInEachWorkspace"))
+            @Result(property = "createdDate", column = "created_date"),
+            @Result(property = "workspaceImage", column = "workspace_image"),
+            @Result(property = "totalDocument", column = "workspace_id", many = @Many(select = "getTotalDocumentOfWorkspace"))
     })
     @Select("""
             INSERT INTO workspaces(workspace_name,workspace_image,workspace_code,created_date)
@@ -50,7 +49,7 @@ public interface WorkspaceRepository {
     @Delete("""
             DELETE FROM user_workspace WHERE user_id=#{currentUserId} AND workspace_id=#{workspaceId}
             """)
-    void leaveWorkspace(UUID currentUserId,UUID workspaceId);
+    void leaveWorkspace(UUID currentUserId, UUID workspaceId);
 
     @Select("SELECT is_owner FROM user_workspace WHERE user_id = #{userIdOfCurrentUser} AND workspace_id = #{workspaceId};")
     Boolean checkIsOwner(UUID userIdOfCurrentUser, UUID workspaceId);
@@ -74,7 +73,7 @@ public interface WorkspaceRepository {
 
     @ResultMap("workspaceMap")
     @Select("""
-            SELECT uw.workspace_id,workspace_name,workspace_image,workspace_code,created_date
+            SELECT uw.workspace_id,workspace_name, is_owner, workspace_image,workspace_code,created_date
             FROM workspaces
             INNER JOIN user_workspace uw on workspaces.workspace_id = uw.workspace_id
             WHERE user_id=#{currentUserId} LIMIT #{pageSize} OFFSET #{pageNo};
@@ -103,7 +102,7 @@ public interface WorkspaceRepository {
             INNER JOIN user_workspace uw on workspaces.workspace_id = uw.workspace_id
             WHERE user_id=#{userIdOfCurrentUser} AND workspace_name ILIKE (concat('%', #{workspaceName},'%'))
             """)
-    List<Workspace> searchWorkspace(UUID userIdOfCurrentUser,String workspaceName);
+    List<Workspace> searchWorkspace(UUID userIdOfCurrentUser, String workspaceName);
 
     @Update("""
             UPDATE workspaces SET workspace_image=null
@@ -119,7 +118,7 @@ public interface WorkspaceRepository {
     void editWorkspace(UUID workspaceId, String workspaceName, String workspaceImage);
 
     @ResultMap("workspaceMap")
-    @Select("SELECT * FROM workspaces WHERE workspace_id = #{workspaceId};")
+    @Select("SELECT uw.workspace_id, workspace_name, workspace_image, workspace_code, created_date, is_owner FROM workspaces INNER JOIN user_workspace uw on workspaces.workspace_id = uw.workspace_id WHERE uw.workspace_id = #{workspaceId}")
     Workspace getWorkspaceByWorkspaceId(UUID workspaceId);
 
     @Select("SELECT user_id FROM user_workspace WHERE workspace_id = #{workspaceId};")
@@ -128,9 +127,10 @@ public interface WorkspaceRepository {
     @Results(id = "userWorkspaceMap", value = {
             @Result(property = "userId", column = "user_id"),
             @Result(property = "isOwner", column = "is_owner"),
+            @Result(property = "profileImage", column = "profile_image"),
             @Result(property = "accessibility", column = "accessibility_status")
     })
-    @Select("SELECT uw.user_id, username, is_owner, accessibility_status FROM users INNER JOIN user_workspace uw on users.user_id = uw.user_id WHERE workspace_id = #{workspaceId};")
+    @Select("SELECT uw.user_id, username, email, profile_image ,is_owner, accessibility_status FROM users INNER JOIN user_workspace uw on users.user_id = uw.user_id WHERE workspace_id = #{workspaceId};")
     List<MemberResponse> getAllMemberInEachWorkspace(UUID workspaceId);
 
 
@@ -142,4 +142,8 @@ public interface WorkspaceRepository {
 
     @Select("SELECT uw.user_id FROM users INNER JOIN user_workspace uw on users.user_id = uw.user_id WHERE workspace_id = #{workspaceId} AND users.user_id = #{userIdOfCurrentUser};")
     String checkMemberInWorkspace(UUID workspaceId, UUID userIdOfCurrentUser);
+
+    @ResultMap("workspaceMap")
+    @Select("SELECT uw.workspace_id, workspace_name, workspace_image, workspace_code, created_date, is_owner FROM workspaces INNER JOIN user_workspace uw on workspaces.workspace_id = uw.workspace_id WHERE uw.workspace_id = #{workspaceId} AND is_owner = TRUE")
+    Workspace getWorkspaceById(UUID workspaceId);
 }

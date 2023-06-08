@@ -183,11 +183,7 @@ public class DocumentServiceImp implements DocumentService {
             throw new BadRequestException("Workspace id cannot be blank or empty");
         }
         pageNo = (pageNo - 1) * pageSize;
-        List<Document> documents = documentRepository.getDocumentInEachWorkspace(workspaceId, pageNo, pageSize);
-        if (documents.isEmpty()) {
-            throw new NotFoundException("Empty document");
-        }
-        return documents;
+        return documentRepository.getDocumentInEachWorkspace(workspaceId, pageNo, pageSize);
     }
 
     @Override

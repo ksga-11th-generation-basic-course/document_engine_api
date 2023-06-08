@@ -33,6 +33,8 @@ public class WorkspaceServiceImp implements WorkspaceService {
     public Workspace createWorkspace(WorkspaceRequest workspaceRequest) {
         if (workspaceRequest.getWorkspaceName() == null) {
             throw new BadRequestException("Workspace name cannot be null");
+        } else if (workspaceRequest.getWorkspaceImage() == null) {
+            throw new BadRequestException("Workspace image cannot be null");
         } else if (workspaceRequest.getWorkspaceName().isBlank()) {
             throw new BadRequestException("Workspace name cannot be blank and empty");
         } else if (workspaceRequest.getWorkspaceImage().isBlank()) {
@@ -87,7 +89,7 @@ public class WorkspaceServiceImp implements WorkspaceService {
         String checkMemberInWorkspace = workspaceRepository.checkMemberInWorkspace(workspaceId, userAuthenticationService.getUserIdOfCurrentUser());
 
         if (checkMemberInWorkspace != null) {
-            Workspace workspace = workspaceRepository.getWorkspaceByWorkspaceId(workspaceId);
+            Workspace workspace = workspaceRepository.getWorkspaceById(workspaceId);
             if (workspace == null) {
                 throw new NotFoundException("Workspace doesn't exist");
             } else {
@@ -108,7 +110,7 @@ public class WorkspaceServiceImp implements WorkspaceService {
     public void removeWorkspace(UUID workspaceId) {
         validateWorkspaceId(workspaceId);
 
-        Workspace workspace = workspaceRepository.getWorkspaceByWorkspaceId(workspaceId);
+        Workspace workspace = workspaceRepository.getWorkspaceById(workspaceId);
         if (workspace == null) {
             throw new NotFoundException("Workspace doesn't exist");
         } else {
@@ -130,7 +132,7 @@ public class WorkspaceServiceImp implements WorkspaceService {
             throw new NotFoundException("You are not member in workspace");
         }
 
-        Workspace workspace = workspaceRepository.getWorkspaceByWorkspaceId(workspaceId);
+        Workspace workspace = workspaceRepository.getWorkspaceById(workspaceId);
         if (workspace == null) {
             throw new NotFoundException("Workspace doesn't exist");
         } else {
@@ -210,7 +212,7 @@ public class WorkspaceServiceImp implements WorkspaceService {
     public void deleteWorkspaceImage(UUID workspaceId) {
         validateWorkspaceId(workspaceId);
 
-        Workspace workspace = workspaceRepository.getWorkspaceByWorkspaceId((workspaceId));
+        Workspace workspace = workspaceRepository.getWorkspaceById((workspaceId));
         if (workspace == null) {
             throw new NotFoundException("Workspace doesn't exist");
         } else {
@@ -237,7 +239,7 @@ public class WorkspaceServiceImp implements WorkspaceService {
     }
 
     @Override
-    public void editWorkspace(UUID workspaceId, String workspaceName, String workspaceImage) {
+    public void editWorkspace(UUID workspaceId, WorkspaceRequest workspaceRequest) {
         if (workspaceId == null) {
             throw new BadRequestException("Workspace id cannot be null");
         } else if (workspaceId.toString().isBlank()) {
@@ -247,16 +249,16 @@ public class WorkspaceServiceImp implements WorkspaceService {
         if (isOwner == null) {
             throw new NotOwnerException("You are not the owner of this workspace");
         } else if (isOwner) {
-            Workspace workspace = workspaceRepository.getWorkspaceByWorkspaceId(workspaceId);
+            Workspace workspace = workspaceRepository.getWorkspaceById(workspaceId);
             if (workspace == null) {
                 throw new NotFoundException("Workspace doesn't exist");
             }
-            if (workspaceName == null || workspaceName.isBlank()) {
-                workspaceRepository.editWorkspace(workspaceId, workspace.getWorkspaceName(), workspaceImage);
-            } else if (workspaceImage == null || workspaceImage.isBlank()) {
-                workspaceRepository.editWorkspace(workspaceId, workspaceName, workspace.getWorkspaceImage());
+            if (workspaceRequest.getWorkspaceName() == null || workspaceRequest.getWorkspaceName().isBlank()) {
+                workspaceRepository.editWorkspace(workspaceId, workspace.getWorkspaceName(), workspaceRequest.getWorkspaceImage());
+            } else if (workspaceRequest.getWorkspaceImage() == null || workspaceRequest.getWorkspaceImage().isBlank()) {
+                workspaceRepository.editWorkspace(workspaceId, workspaceRequest.getWorkspaceName(), workspace.getWorkspaceImage());
             } else {
-                workspaceRepository.editWorkspace(workspaceId, workspaceName, workspaceImage);
+                workspaceRepository.editWorkspace(workspaceId, workspaceRequest.getWorkspaceName(), workspaceRequest.getWorkspaceImage());
             }
         } else {
             throw new NotOwnerException("You are not the owner of this workspace");
@@ -280,6 +282,20 @@ public class WorkspaceServiceImp implements WorkspaceService {
     @Override
     public List<MemberResponse> getAllMemberInEachWorkspace(UUID workspaceId) {
         return workspaceRepository.getAllMemberInEachWorkspace(workspaceId);
+    }
+
+    @Override
+    public Workspace getWorkspaceById(UUID workspaceId) {
+        if (workspaceId == null) {
+            throw new BadRequestException("Workspace id cannot be null");
+        } else if (workspaceId.toString().isBlank()) {
+            throw new BadRequestException("Workspace id cannot be blank or empty");
+        }
+        Workspace workspace = workspaceRepository.getWorkspaceById(workspaceId);
+        if (workspace == null) {
+            throw new NotFoundException("Workspace doesn't exist");
+        }
+        return workspace;
     }
 
 
