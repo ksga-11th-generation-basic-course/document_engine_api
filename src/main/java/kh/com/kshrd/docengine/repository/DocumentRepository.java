@@ -120,5 +120,11 @@ public interface DocumentRepository {
     @ResultMap("documentMap")
     @Select("SELECT * FROM documents WHERE document_id = #{documentId} AND workspace_id = #{workspaceId};")
     Document getDocumentByDocumentIdAndWorkspaceId(UUID documentId, UUID workspaceId);
+
+    @Select("SELECT username from users inner join user_document ud on users.user_id = ud.user_id where document_id=#{documentId} and is_owner=true")
+    String getUsernameByDocumentId(UUID documentId);
+
+    @Select("SELECT workspace_name from documents inner join workspaces w on w.workspace_id = documents.workspace_id where document_id=#{documentId}")
+    String getWorkspaceNameByDocumentId(UUID documentId);
 }
 

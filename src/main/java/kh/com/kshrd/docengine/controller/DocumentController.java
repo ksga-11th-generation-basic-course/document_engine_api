@@ -177,4 +177,28 @@ public class DocumentController {
                 .build();
         return ResponseEntity.ok().body(response);
     }
+
+    @GetMapping("documents/{documentId}/username")
+    @Operation(summary = "Get Username By Document Id")
+    public ResponseEntity<?> getUsernameByDocumentId(@PathVariable UUID documentId) {
+        Response<String> response = Response.<String>builder()
+                .message("Get Username By Document By Id")
+                .payload(documentService.getUserByDocumentId(documentId))
+                .dateTime(LocalDateTime.now())
+                .status(HttpStatus.OK)
+                .build();
+        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("documents/{documentId}/workspace")
+    @Operation(summary = "Get Workspace Name By Document Id")
+    public ResponseEntity<?> getWorkspaceNameByDocumentId(@PathVariable UUID documentId) {
+        Response<String> response = Response.<String>builder()
+                .message("Get Username By Document By Id")
+                .payload(documentService.getWorkspaceNameByDocumentId(documentId))
+                .dateTime(LocalDateTime.now())
+                .status(HttpStatus.OK)
+                .build();
+        return ResponseEntity.ok().body(response);
+    }
 }

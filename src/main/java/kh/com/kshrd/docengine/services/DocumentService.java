@@ -34,4 +34,8 @@ public interface DocumentService {
     Set<Document> searchDocumentByManyTagName(UUID workspaceId, List<String> tagName);
 
     List<MemberResponse> getAllMemberInEachDocument(UUID documentId);
+
+    String getUserByDocumentId(UUID documentId);
+
+    String getWorkspaceNameByDocumentId(UUID documentId);
 }

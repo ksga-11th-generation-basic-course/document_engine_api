@@ -285,4 +285,14 @@ public class DocumentServiceImp implements DocumentService {
         return documentRepository.getAllMemberInEachDocument(documentId);
     }
 
+    @Override
+    public String getUserByDocumentId(UUID documentId) {
+        return documentRepository.getUsernameByDocumentId(documentId);
+    }
+
+    @Override
+    public String getWorkspaceNameByDocumentId(UUID documentId) {
+        return documentRepository.getWorkspaceNameByDocumentId(documentId);
+    }
+
 }
