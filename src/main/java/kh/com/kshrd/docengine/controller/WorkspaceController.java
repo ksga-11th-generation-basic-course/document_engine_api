@@ -2,6 +2,8 @@ package kh.com.kshrd.docengine.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.mail.MessagingException;
+import kh.com.kshrd.docengine.enums.ESortCurrentDateTime;
 import kh.com.kshrd.docengine.model.response.MemberResponse;
 import kh.com.kshrd.docengine.model.entity.Workspace;
 import kh.com.kshrd.docengine.model.request.WorkspaceRequest;
@@ -27,7 +29,7 @@ public class WorkspaceController {
     @PostMapping("workspaces")
     @Operation(summary = "Create Workspace")
     public ResponseEntity<?> createWorkspace(@RequestBody WorkspaceRequest workspaceRequest) {
-       Workspace workspace = workspaceService.createWorkspace(workspaceRequest);
+        Workspace workspace = workspaceService.createWorkspace(workspaceRequest);
         Response<Workspace> response = Response.<Workspace>builder()
                 .message("Create Workspace Successfully")
                 .payload(workspaceService.getWorkspaceByWorkspaceId(workspace.getWorkspaceId()))
@@ -91,10 +93,9 @@ public class WorkspaceController {
     @PutMapping("workspaces/accessibility")
     @Operation(summary = "Set Accessibility")
     public ResponseEntity<?> setAccessibilityToUser(@RequestParam UUID userId, @RequestParam UUID workspaceId, @RequestParam Boolean status) {
-        workspaceService.setAccessibilityToUser(userId, workspaceId, status);
-        Response<Workspace> response = Response.<Workspace>builder()
+        Response<MemberResponse> response = Response.<MemberResponse>builder()
                 .message("Set Accessibility Successfully")
-                .payload(null)
+                .payload(workspaceService.setAccessibilityToUser(userId, workspaceId, status))
                 .status(HttpStatus.OK)
                 .dateTime(LocalDateTime.now())
                 .build();
@@ -103,10 +104,10 @@ public class WorkspaceController {
 
     @GetMapping("workspaces")
     @Operation(summary = "Get All Workspace")
-    public ResponseEntity<?> getAllWorkspace(@RequestParam(defaultValue = "1") Integer pageNo, @RequestParam(defaultValue = "5") Integer pageSize) {
+    public ResponseEntity<?> getAllWorkspace(@RequestParam(defaultValue = "1") Integer pageNo, @RequestParam(defaultValue = "5") Integer pageSize, @RequestParam(defaultValue = "false") Boolean asc, @RequestParam(defaultValue = "false") Boolean desc, @RequestParam ESortCurrentDateTime eSortWorkspace) {
         Response<List<Workspace>> response = Response.<List<Workspace>>builder()
                 .message("Get All Workspace Successfully")
-                .payload(workspaceService.getAllWorkspace(pageNo, pageSize))
+                .payload(workspaceService.getAllWorkspace(pageNo, pageSize, asc, desc, eSortWorkspace))
                 .status(HttpStatus.OK)
                 .dateTime(LocalDateTime.now())
                 .build();
@@ -152,10 +153,10 @@ public class WorkspaceController {
     @DeleteMapping("workspaces/image")
     @Operation(summary = "Delete Workspace Image")
     public ResponseEntity<?> deleteWorkspaceImage(@RequestParam UUID workspaceId) {
-        workspaceService.deleteWorkspaceImage(workspaceId);
+        Workspace workspace = workspaceService.deleteWorkspaceImage(workspaceId);
         Response<Workspace> response = Response.<Workspace>builder()
                 .message("Delete Workspace Image Successfully")
-                .payload(null)
+                .payload(workspaceService.getWorkspaceByWorkspaceId(workspace.getWorkspaceId()))
                 .status(HttpStatus.OK)
                 .dateTime(LocalDateTime.now())
                 .build();
@@ -177,7 +178,7 @@ public class WorkspaceController {
 
     @GetMapping("workspaces/{workspaceId}/member")
     @Operation(summary = "Get All Member In Each Workspace")
-    public ResponseEntity<?> getAllMemberInEachWorkspace(@PathVariable UUID workspaceId){
+    public ResponseEntity<?> getAllMemberInEachWorkspace(@PathVariable UUID workspaceId) {
         Response<List<MemberResponse>> response = Response.<List<MemberResponse>>builder()
                 .message("Get All Member In Each Workspace Successfully")
                 .payload(workspaceService.getAllMemberInEachWorkspace(workspaceId))
@@ -189,7 +190,7 @@ public class WorkspaceController {
 
     @GetMapping("workspaces/{workspaceId}/isOwner")
     @Operation(summary = "Get Workspace By WorkspaceId")
-    public ResponseEntity<?> getWorkspaceByWorkspaceId(@PathVariable UUID workspaceId){
+    public ResponseEntity<?> getWorkspaceByWorkspaceId(@PathVariable UUID workspaceId) {
         Response<Workspace> response = Response.<Workspace>builder()
                 .message("Get All Member In Each Workspace Successfully")
                 .payload(workspaceService.getWorkspaceByWorkspaceId(workspaceId))
@@ -201,7 +202,7 @@ public class WorkspaceController {
 
     @GetMapping("workspaces/{workspaceId}")
     @Operation(summary = "Get Workspace By WorkspaceId")
-    public ResponseEntity<?> getWorkspaceById(@PathVariable UUID workspaceId){
+    public ResponseEntity<?> getWorkspaceById(@PathVariable UUID workspaceId) {
         Response<Workspace> response = Response.<Workspace>builder()
                 .message("Get All Member In Each Workspace Successfully")
                 .payload(workspaceService.getWorkspaceById(workspaceId))
@@ -211,4 +212,27 @@ public class WorkspaceController {
         return ResponseEntity.ok().body(response);
     }
 
+    @PostMapping("workspaces/{workspaceId}/invite")
+    @Operation(summary = "Invite To Join Workspace By Email")
+    public ResponseEntity<?> inviteMemberByEmail(@PathVariable UUID workspaceId, @RequestParam String email) throws MessagingException {
+        Response<Workspace> response = Response.<Workspace>builder()
+                .message("Invite Successfully")
+                .payload(workspaceService.inviteMemberByEmail(workspaceId, email))
+                .status(HttpStatus.OK)
+                .dateTime(LocalDateTime.now())
+                .build();
+        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("workspaces/{workspaceId}/user/{userId}")
+    @Operation(summary = "Check Is Owner")
+    public ResponseEntity<?> checkIsOwnerWorkspace(@PathVariable UUID workspaceId, @PathVariable UUID userId){
+        Response<Boolean> response = Response.<Boolean>builder()
+                .message("Invite Successfully")
+                .payload(workspaceService.checkIsOwnerWorkspace(workspaceId, userId))
+                .status(HttpStatus.OK)
+                .dateTime(LocalDateTime.now())
+                .build();
+        return ResponseEntity.ok().body(response);
+    }
 }

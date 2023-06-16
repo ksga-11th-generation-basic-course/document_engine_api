@@ -14,6 +14,7 @@ import kh.com.kshrd.docengine.security.repository.UserAuthenticationRepository;
 import kh.com.kshrd.docengine.security.services.EmailService;
 import kh.com.kshrd.docengine.security.services.UserAuthenticationService;
 import lombok.AllArgsConstructor;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -186,6 +187,16 @@ public class UserAuthenticationServicesImpl implements UserAuthenticationService
     @Override
     public UserAuthentication resetPassword(UserAuthenticationResetPasswordRequest userAuthenticationResetPasswordRequest, String email) {
 
+        if(userAuthenticationResetPasswordRequest.getNewPassword() == null){
+            throw new BadRequestException("New password cannot be null");
+        } else if(userAuthenticationResetPasswordRequest.getNewConfirmPassword() == null){
+            throw new BadRequestException("Confirm new password cannot be null");
+        } else if (userAuthenticationResetPasswordRequest.getNewPassword().isBlank()) {
+            throw new BadRequestException("New password cannot be blank or empty");
+        } else if (userAuthenticationResetPasswordRequest.getNewConfirmPassword().isBlank()) {
+            throw new BadRequestException("Confirm new password cannot be blank or empty");
+        }
+
         UserAuthentication userAuthentication = getByEmail(email);
 
         if (!Objects.equals(userAuthenticationResetPasswordRequest.getNewPassword(), userAuthenticationResetPasswordRequest.getNewConfirmPassword())) {
@@ -266,6 +277,17 @@ public class UserAuthenticationServicesImpl implements UserAuthenticationService
         Random random = new Random();
         int digitCode = random.nextInt(999999);
         return String.format("%06d", digitCode);
+    }
+
+    @Scheduled(fixedDelay = 600000)
+    public void removeUserIfNotVerify() {
+        List<UserAuthentication> userAuthentications = userAuthenticationRepository.getAllUser();
+        for(UserAuthentication userAuthentication : userAuthentications){
+            Boolean isVerify = userAuthenticationRepository.checkIsVerify(userAuthentication.getEmail());
+            if(isVerify == null || !isVerify){
+                userAuthenticationRepository.removeUserIfNotVerify(userAuthentication.getEmail());
+            }
+        }
     }
 
 }

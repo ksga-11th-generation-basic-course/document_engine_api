@@ -187,7 +187,7 @@ public class UserAuthenticationController {
         Response<UserAuthenticationLoginResponse> response = Response.<UserAuthenticationLoginResponse>builder()
                 .message("Authentication successful")
                 .status(HttpStatus.OK)
-                .payload(new UserAuthenticationLoginResponse(authentication.getUserName(), authentication.getEmail(), token, authentication.getProfileImage(), authentication.getIsEnable()))
+                .payload(new UserAuthenticationLoginResponse(authentication.getUserId(), authentication.getUserName(), authentication.getEmail(), token, authentication.getProfileImage(), authentication.getIsEnable()))
                 .dateTime(LocalDateTime.now())
                 .build();
 
@@ -238,7 +238,7 @@ public class UserAuthenticationController {
 
     @PostMapping("authentications/signup/google/facebook")
     @Operation(summary = "Sign Up With Google And Facebook")
-    public ResponseEntity<?> signUpWithGoogleAndFacebook(@RequestBody UserAuthenticationRequestWithGoogleAndFacebook userAuthenticationRequestWithGoogleAndFacebook) {
+    public ResponseEntity<?> signUpWithGoogleAndFacebook(@Valid @RequestBody UserAuthenticationRequestWithGoogleAndFacebook userAuthenticationRequestWithGoogleAndFacebook) {
         UserAuthentication userAuthentication = userAuthenticationServices.signUpWithGoogleAndFacebook(userAuthenticationRequestWithGoogleAndFacebook);
         Response<UserAuthenticationRegisterResponse> response = Response.<UserAuthenticationRegisterResponse>builder()
                 .message("Sign up with Google and Facebook successful")

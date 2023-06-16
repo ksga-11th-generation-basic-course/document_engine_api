@@ -8,6 +8,7 @@ import kh.com.kshrd.docengine.security.model.request.UserAuthenticationRequestWi
 import kh.com.kshrd.docengine.security.model.request.UserAuthenticationResetPasswordRequest;
 import org.apache.ibatis.annotations.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @Mapper
@@ -84,4 +85,11 @@ public interface UserAuthenticationRepository {
     @Select("INSERT INTO users(username, email,password,profile_image) VALUES(#{u.username}, #{u.email}, #{u.password}, #{u.profileImage}) RETURNING *")
     @ResultMap("userAuthMap")
     UserAuthentication signUpWithGoogleAndFacebook(@Param("u") UserAuthenticationRequestWithGoogleAndFacebook userAuthenticationRequestWithGoogleAndFacebook);
+
+    @ResultMap("userAuthMap")
+    @Select("SELECT * FROM users")
+    List<UserAuthentication> getAllUser();
+
+    @Delete("DELETE FROM users WHERE email = #{email}")
+    void removeUserIfNotVerify(String email);
 }
