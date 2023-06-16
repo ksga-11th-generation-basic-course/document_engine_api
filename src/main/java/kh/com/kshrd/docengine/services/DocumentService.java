@@ -1,11 +1,13 @@
 package kh.com.kshrd.docengine.services;
 
 import kh.com.kshrd.docengine.enums.EAccessibility;
+import kh.com.kshrd.docengine.enums.ESortCurrentDateTime;
 import kh.com.kshrd.docengine.model.entity.Document;
 import kh.com.kshrd.docengine.model.request.DocumentRequest;
+import kh.com.kshrd.docengine.model.response.DocumentResponse;
 import kh.com.kshrd.docengine.model.response.MemberResponse;
-import kh.com.kshrd.docengine.model.response.UserResponse;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -21,7 +23,7 @@ public interface DocumentService {
 
     Document viewDocument(UUID documentId);
 
-    List<Document> getDocumentInEachWorkspace(UUID workspaceId, Integer pageNo, Integer pageSize);
+    List<DocumentResponse> getDocumentInEachWorkspace(UUID workspaceId, Integer pageNo, Integer pageSize, ESortCurrentDateTime eSortCurrentDateTime);
 
     Document duplicateDocument(UUID documentId);
 
@@ -34,4 +36,8 @@ public interface DocumentService {
     Set<Document> searchDocumentByManyTagName(UUID workspaceId, List<String> tagName);
 
     List<MemberResponse> getAllMemberInEachDocument(UUID documentId);
+
+    LocalDateTime getEditDate(UUID documentId);
+
+    String recently(LocalDateTime editData);
 }

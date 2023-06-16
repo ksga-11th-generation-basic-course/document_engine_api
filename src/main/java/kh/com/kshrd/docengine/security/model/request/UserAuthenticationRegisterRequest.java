@@ -15,7 +15,7 @@ public class UserAuthenticationRegisterRequest {
 
     @NotBlank(message = "Your username may not be empty")
     @NotNull(message = "Your username may not be null")
-    @Size(min = 4, max = 20, message = "Your username must be hava around 20 character")
+    @Size(min = 4, max = 20, message = "Your username must be have around 20 character")
     private String username;
 
     @NotBlank(message = "Your email may not be empty")

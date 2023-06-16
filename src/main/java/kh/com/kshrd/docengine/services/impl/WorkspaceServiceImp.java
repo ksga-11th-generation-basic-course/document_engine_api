@@ -1,5 +1,7 @@
 package kh.com.kshrd.docengine.services.impl;
 
+import jakarta.mail.MessagingException;
+import kh.com.kshrd.docengine.enums.ESortCurrentDateTime;
 import kh.com.kshrd.docengine.exceptions.BadRequestException;
 import kh.com.kshrd.docengine.exceptions.NotDuplicateException;
 import kh.com.kshrd.docengine.exceptions.NotFoundException;
@@ -10,17 +12,22 @@ import kh.com.kshrd.docengine.model.response.MemberResponse;
 import kh.com.kshrd.docengine.model.entity.Workspace;
 import kh.com.kshrd.docengine.model.request.WorkspaceRequest;
 import kh.com.kshrd.docengine.repository.DocumentRepository;
+import kh.com.kshrd.docengine.repository.UserRepository;
 import kh.com.kshrd.docengine.repository.WorkspaceRepository;
+import kh.com.kshrd.docengine.security.model.entity.UserAuthentication;
+import kh.com.kshrd.docengine.security.services.EmailService;
 import kh.com.kshrd.docengine.security.services.UserAuthenticationService;
 import kh.com.kshrd.docengine.services.WorkspaceService;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.time.Year;
+import java.time.YearMonth;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -28,6 +35,8 @@ public class WorkspaceServiceImp implements WorkspaceService {
     private final WorkspaceRepository workspaceRepository;
     private final UserAuthenticationService userAuthenticationService;
     private final DocumentRepository documentRepository;
+    private final EmailService emailService;
+    private final UserRepository userRepository;
 
     @Override
     public Workspace createWorkspace(WorkspaceRequest workspaceRequest) {
@@ -39,6 +48,8 @@ public class WorkspaceServiceImp implements WorkspaceService {
             throw new BadRequestException("Workspace name cannot be blank and empty");
         } else if (workspaceRequest.getWorkspaceImage().isBlank()) {
             throw new BadRequestException("Workspace image cannot be blank and empty");
+        } else if (workspaceRequest.getWorkspaceName().length() > 30) {
+            throw new BadRequestException("Workspace name cannot be long text");
         }
         String generatedCode = RandomStringUtils.randomAlphanumeric(10);
         Workspace workspace = workspaceRepository.createWorkspace(workspaceRequest, generatedCode, LocalDateTime.now());
@@ -102,8 +113,6 @@ public class WorkspaceServiceImp implements WorkspaceService {
         } else {
             throw new NotFoundException("You are not member in workspace");
         }
-
-
     }
 
     @Override
@@ -137,7 +146,9 @@ public class WorkspaceServiceImp implements WorkspaceService {
             throw new NotFoundException("Workspace doesn't exist");
         } else {
             if (isWorkspaceOwner) {
-                if (workspaceRepository.checkIsOwner(userId, workspaceId)) {
+                if (workspaceRepository.checkIsOwner(userId, workspaceId) == null) {
+                    throw new NotFoundException("This user is not a member in this workspace");
+                } else if (workspaceRepository.checkIsOwner(userId, workspaceId)) {
                     throw new BadRequestException("You are owner you cannot remove yourself");
                 }
                 workspaceRepository.removeMemberFromWorkspace(userId, workspaceId);
@@ -149,13 +160,19 @@ public class WorkspaceServiceImp implements WorkspaceService {
     }
 
     @Override
-    public void setAccessibilityToUser(UUID userId, UUID workspaceId, Boolean status) {
+    public MemberResponse setAccessibilityToUser(UUID userId, UUID workspaceId, Boolean status) {
         exceptionUserIdAndWorkspaceId(userId, workspaceId);
-        if (workspaceRepository.checkIsOwner(userAuthenticationService.getUserIdOfCurrentUser(), workspaceId) != null) {
-            workspaceRepository.setAccessibilityToUser(userId, workspaceId, status);
-        } else {
+
+        Boolean checkIsUserInWorkspace = workspaceRepository.checkIsUserInWorkspace(userId, workspaceId);
+        if (!checkIsUserInWorkspace) {
+            throw new NotFoundException("User is not in this workspace");
+        }
+
+        Boolean checkIsOwner = workspaceRepository.checkIsOwner(userAuthenticationService.getUserIdOfCurrentUser(), workspaceId);
+        if (checkIsOwner == null || !checkIsOwner) {
             throw new NotOwnerException("You are not the owner of this workspace");
         }
+        return workspaceRepository.setAccessibilityToUser(userId, workspaceId, status);
     }
 
     private void exceptionUserIdAndWorkspaceId(UUID userId, UUID workspaceId) {
@@ -171,19 +188,80 @@ public class WorkspaceServiceImp implements WorkspaceService {
     }
 
     @Override
-    public List<Workspace> getAllWorkspace(Integer pageNo, Integer pageSize) {
+    public List<Workspace> getAllWorkspace(Integer pageNo, Integer pageSize, Boolean asc, Boolean desc, ESortCurrentDateTime eSortWorkspace) {
         pageNo = (pageNo - 1) * pageSize;
-        return workspaceRepository.getAllWorkspaceByUserId(userAuthenticationService.getUserIdOfCurrentUser(), pageNo, pageSize);
+
+        List<Workspace> workspaces = workspaceRepository.getAllWorkspaceByUserId(userAuthenticationService.getUserIdOfCurrentUser(), pageNo, pageSize, asc, desc);
+
+        boolean isTrue = false;
+        for (ESortCurrentDateTime sortWorkspace : ESortCurrentDateTime.values()) {
+            if (eSortWorkspace.toString().equalsIgnoreCase(sortWorkspace.name())) {
+                isTrue = true;
+                break;
+            }
+        }
+        if (!isTrue) {
+            throw new BadRequestException("This sort by week, month and year are not correct : 'String' , " +
+                    "please input one of (THIS_WEEK, THIS_MONTH and THIS_YEAR)");
+        } else if (eSortWorkspace.toString().isBlank()) {
+            throw new BadRequestException("This field could not empty");
+        }
+
+        switch (eSortWorkspace) {
+            case THIS_WEEK -> {
+                LocalDate now = LocalDate.now();
+                LocalDate startOfWeek = now.with(java.time.DayOfWeek.MONDAY);
+                LocalDate endOfWeek = now.with(java.time.DayOfWeek.SUNDAY);
+
+                return workspaces.stream()
+                        .filter(workspace -> {
+                            LocalDate workspaceDate = workspace.getCreatedDate().toLocalDate();
+                            return !workspaceDate.isBefore(startOfWeek) && !workspaceDate.isAfter(endOfWeek);
+                        })
+                        .collect(Collectors.toList());
+            }
+            case THIS_MONTH -> {
+                YearMonth currentMonth = YearMonth.now();
+
+                return workspaces.stream()
+                        .filter(workspace -> {
+                            YearMonth workspaceMonth = YearMonth.from(workspace.getCreatedDate());
+                            return workspaceMonth.equals(currentMonth);
+                        })
+                        .collect(Collectors.toList());
+            }
+            case THIS_YEAR -> {
+                Year currentYear = Year.now();
+
+                return workspaces.stream()
+                        .filter(workspace -> {
+                            Year workspaceYear = Year.of(workspace.getCreatedDate().getYear());
+                            return workspaceYear.equals(currentYear);
+                        })
+                        .collect(Collectors.toList());
+            }
+            default -> {
+                return workspaces;
+            }
+        }
     }
 
     @Override
     public Integer getTotalOfDocument(UUID workspaceId) {
+        validateWorkspaceIdAndNotFoundWorkspace(workspaceId);
+        return workspaceRepository.getTotalDocumentOfWorkspace(workspaceId);
+    }
+
+    private void validateWorkspaceIdAndNotFoundWorkspace(UUID workspaceId) {
         if (workspaceId == null) {
             throw new BadRequestException("Workspace id cannot be null");
         } else if (workspaceId.toString().isBlank()) {
             throw new BadRequestException("Workspace id cannot be blank or empty");
         }
-        return workspaceRepository.getTotalDocumentOfWorkspace(workspaceId);
+        Workspace workspace = workspaceRepository.getWorkspaceById(workspaceId);
+        if (workspace == null) {
+            throw new NotFoundException("Workspace doesn't exist");
+        }
     }
 
     @Override
@@ -209,7 +287,7 @@ public class WorkspaceServiceImp implements WorkspaceService {
     }
 
     @Override
-    public void deleteWorkspaceImage(UUID workspaceId) {
+    public Workspace deleteWorkspaceImage(UUID workspaceId) {
         validateWorkspaceId(workspaceId);
 
         Workspace workspace = workspaceRepository.getWorkspaceById((workspaceId));
@@ -217,7 +295,7 @@ public class WorkspaceServiceImp implements WorkspaceService {
             throw new NotFoundException("Workspace doesn't exist");
         } else {
             if (workspaceRepository.checkIsOwner(userAuthenticationService.getUserIdOfCurrentUser(), workspaceId)) {
-                workspaceRepository.deleteWorkspaceImage(workspaceId);
+                return workspaceRepository.deleteWorkspaceImage(workspaceId);
             } else {
                 throw new NotOwnerException("You are not the owner of this workspace");
             }
@@ -229,12 +307,6 @@ public class WorkspaceServiceImp implements WorkspaceService {
             throw new BadRequestException("Workspace id cannot be null");
         } else if (workspaceId.toString().isBlank()) {
             throw new BadRequestException("Workspace id cannot be blank or empty");
-        }
-
-        Boolean isWorkspaceOwner = workspaceRepository.checkIsOwner(userAuthenticationService.getUserIdOfCurrentUser(), workspaceId);
-
-        if (isWorkspaceOwner == null) {
-            throw new NotFoundException("You are not member in workspace");
         }
     }
 
@@ -286,16 +358,75 @@ public class WorkspaceServiceImp implements WorkspaceService {
 
     @Override
     public Workspace getWorkspaceById(UUID workspaceId) {
+        validateWorkspaceIdAndNotFoundWorkspace(workspaceId);
+        return workspaceRepository.getWorkspaceById(workspaceId);
+    }
+
+    @Override
+    public Workspace inviteMemberByEmail(UUID workspaceId, String email) throws MessagingException {
         if (workspaceId == null) {
             throw new BadRequestException("Workspace id cannot be null");
+        } else if (email == null) {
+            throw new BadRequestException("Email cannot be null");
+        } else if (email.isBlank()) {
+            throw new BadRequestException("Email cannot be blank or empty");
         } else if (workspaceId.toString().isBlank()) {
             throw new BadRequestException("Workspace id cannot be blank or empty");
         }
+
+        Boolean isWorkspaceOwner = workspaceRepository.checkIsOwner(userAuthenticationService.getUserIdOfCurrentUser(), workspaceId);
+
+        if (isWorkspaceOwner == null) {
+            throw new NotFoundException("You are not member in workspace");
+        }
+
         Workspace workspace = workspaceRepository.getWorkspaceById(workspaceId);
         if (workspace == null) {
             throw new NotFoundException("Workspace doesn't exist");
+        } else {
+            if (isWorkspaceOwner) {
+                UserAuthentication userAuthentication = userAuthenticationService.getByEmail(email);
+                List<UUID> usersId = workspaceRepository.getUserIdByWorkspaceId(workspace.getWorkspaceId());
+                for (UUID userId : usersId) {
+                    if (userId.equals(userAuthentication.getUserId())) {
+                        throw new NotDuplicateException("You already invite this user");
+                    }
+                }
+                workspaceRepository.addUserIdAndWorkspaceIdToUserWorkspaceForMember(userAuthentication.getUserId(), workspace.getWorkspaceId());
+                emailService.inviteMemberByEmail(workspace, userAuthentication);
+                List<Document> documents = documentRepository.getDocumentByWorkspaceId(workspace.getWorkspaceId());
+                for (Document document : documents) {
+                    documentRepository.addUserIdDocumentIdToUserDocument(userAuthenticationService.getUserIdOfCurrentUser(), document.getDocumentId(), "NO_ACCESS");
+                }
+            } else {
+                throw new NotOwnerException("You are not the owner of this workspace");
+            }
+            return workspace;
         }
-        return workspace;
+    }
+
+    @Override
+    public Boolean checkIsOwnerWorkspace(UUID workspaceId, UUID userId) {
+        if (workspaceId == null) {
+            throw new BadRequestException("Workspace id cannot be null");
+        } else if (userId == null) {
+            throw new BadRequestException("User id cannot be blank or empty");
+        } else if (userId.toString().isBlank()) {
+            throw new BadRequestException("User id cannot be blank or empty");
+        } else if (workspaceId.toString().isBlank()) {
+            throw new BadRequestException("Workspace id cannot be blank or empty");
+        }
+
+        Workspace workspace = workspaceRepository.getWorkspaceById(workspaceId);
+        User user = userRepository.getUserByUserId(userId);
+        if (workspace == null) {
+            throw new NotFoundException("Workspace doesn't exist");
+        }
+        if (user == null) {
+            throw new NotFoundException("User doesn't exist");
+        }
+        System.out.println(workspaceRepository.checkIsOwner(workspaceId, userId));
+        return workspaceRepository.checkIsOwner(workspaceId, userId);
     }
 
 

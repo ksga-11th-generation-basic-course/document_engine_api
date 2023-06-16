@@ -2,6 +2,7 @@ package kh.com.kshrd.docengine.security.services.impl;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import kh.com.kshrd.docengine.model.entity.Workspace;
 import kh.com.kshrd.docengine.model.request.ContactRequest;
 import kh.com.kshrd.docengine.security.model.entity.UserAuthentication;
 import kh.com.kshrd.docengine.security.services.EmailService;
@@ -40,7 +41,6 @@ public class EmailServicesImpl implements EmailService {
 
     @Override
     public void contactUs(ContactRequest contactRequest) throws MessagingException {
-        System.out.println(contactRequest.getEmail());
         MimeMessage message = emailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, StandardCharsets.UTF_8.name());
         Context context = new Context();
@@ -49,6 +49,21 @@ public class EmailServicesImpl implements EmailService {
         helper.setTo("sovannak.kheng0309@gmail.com");
         helper.setSubject(contactRequest.getMessage());
         String html = templateEngine.process("contactUs", context);
+        helper.setText(html, true);
+        emailSender.send(message);
+    }
+
+    @Async
+    @Override
+    public void inviteMemberByEmail(Workspace workspace, UserAuthentication userAuthentication) throws MessagingException {
+        MimeMessage message = emailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, StandardCharsets.UTF_8.name());
+        Context context = new Context();
+        context.setVariable("workspace", workspace);
+        context.setVariable("userAuthentication", userAuthentication);
+        helper.setTo(userAuthentication.getEmail());
+        helper.setSubject(workspace.getWorkspaceName());
+        String html = templateEngine.process("inviteMemberByEmail", context);
         helper.setText(html, true);
         emailSender.send(message);
     }

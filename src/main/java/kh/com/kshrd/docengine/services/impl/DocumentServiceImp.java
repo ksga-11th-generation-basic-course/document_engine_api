@@ -1,5 +1,6 @@
 package kh.com.kshrd.docengine.services.impl;
 
+import kh.com.kshrd.docengine.enums.ESortCurrentDateTime;
 import kh.com.kshrd.docengine.exceptions.BadRequestException;
 import kh.com.kshrd.docengine.exceptions.NotEditorException;
 import kh.com.kshrd.docengine.exceptions.NotFoundException;
@@ -7,6 +8,7 @@ import kh.com.kshrd.docengine.exceptions.NotOwnerException;
 import kh.com.kshrd.docengine.model.entity.*;
 import kh.com.kshrd.docengine.enums.EAccessibility;
 import kh.com.kshrd.docengine.model.request.DocumentRequest;
+import kh.com.kshrd.docengine.model.response.DocumentResponse;
 import kh.com.kshrd.docengine.model.response.MemberResponse;
 import kh.com.kshrd.docengine.repository.*;
 import kh.com.kshrd.docengine.security.services.UserAuthenticationService;
@@ -14,11 +16,9 @@ import kh.com.kshrd.docengine.services.DocumentService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+import java.time.*;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @Service
@@ -41,9 +41,15 @@ public class DocumentServiceImp implements DocumentService {
         } else if (documentRequest.getTitle().isBlank()) {
             throw new BadRequestException("Title cannot be blank or empty");
         }
+//        Boolean page = documentRepository.checkPageIsExits(documentRequest.getPageId());
+//        if(!page){
+//            throw new NotFoundException("Page doesn't exist");
+//        }
 
         Boolean isCheckAccessibility = workspaceRepository.checkAccessibility(userAuthenticationService.getUserIdOfCurrentUser(), documentRequest.getWorkspaceId());
-        if (isCheckAccessibility) {
+        if (isCheckAccessibility == null) {
+            throw new NotFoundException("You are not a member in this workspace");
+        } else if (isCheckAccessibility) {
             Document document = documentRepository.createDocument(documentRequest);
             documentRepository.addDataToUserDocument(userAuthenticationService.getUserIdOfCurrentUser(), document.getDocumentId());
             List<UUID> usersId = workspaceRepository.getUserIdByWorkspaceId(document.getWorkspaceId());
@@ -129,7 +135,7 @@ public class DocumentServiceImp implements DocumentService {
 
         User user = userRepository.getUserByUserIdAndDocumentId(userId, documentId);
 
-        if(user == null){
+        if (user == null) {
             throw new NotFoundException("User not found for this document");
         } else {
             Document document = documentRepository.getDocumentByDocumentId(documentId);
@@ -176,14 +182,83 @@ public class DocumentServiceImp implements DocumentService {
     }
 
     @Override
-    public List<Document> getDocumentInEachWorkspace(UUID workspaceId, Integer pageNo, Integer pageSize) {
+    public List<DocumentResponse> getDocumentInEachWorkspace(UUID workspaceId, Integer pageNo, Integer pageSize, ESortCurrentDateTime eSortCurrentDateTime) {
         if (workspaceId == null) {
             throw new BadRequestException("Workspace id cannot be null");
         } else if (workspaceId.toString().isBlank()) {
             throw new BadRequestException("Workspace id cannot be blank or empty");
         }
         pageNo = (pageNo - 1) * pageSize;
-        return documentRepository.getDocumentInEachWorkspace(workspaceId, pageNo, pageSize);
+        List<Document> documents = documentRepository.getDocumentInEachWorkspace(workspaceId, pageNo, pageSize);
+
+        List<DocumentResponse> documentResponses = new ArrayList<>();
+        for (Document document : documents) {
+            DocumentResponse documentResponse = new DocumentResponse();
+            LocalDateTime editDate = getEditDate(document.getDocumentId());
+            documentResponse.setDocumentId(document.getDocumentId());
+            documentResponse.setTitle(document.getTitle());
+            documentResponse.setStatus(document.getStatus());
+            documentResponse.setCreatedDate(document.getCreatedDate());
+            documentResponse.setPages(document.getPages());
+            documentResponse.setWorkspaceId(document.getWorkspaceId());
+            documentResponse.setTags(document.getTags());
+            documentResponse.setBlocks(document.getBlocks());
+            documentResponse.setEditDate(recently(editDate));
+
+            documentResponses.add(documentResponse);
+        }
+
+        boolean isSortTrue = false;
+        for (ESortCurrentDateTime sortCurrentDateTime : ESortCurrentDateTime.values()) {
+            if (eSortCurrentDateTime.toString().equalsIgnoreCase(sortCurrentDateTime.name())) {
+                isSortTrue = true;
+                break;
+            }
+        }
+        if (!isSortTrue) {
+            throw new BadRequestException("This sort by week, month and year are not correct : 'String' , " +
+                    "please input one of (THIS_WEEK, THIS_MONTH and THIS_YEAR)");
+        } else if (eSortCurrentDateTime.toString().isBlank()) {
+            throw new BadRequestException("This field could not empty");
+        }
+
+        switch (eSortCurrentDateTime) {
+            case THIS_WEEK -> {
+                LocalDate now = LocalDate.now();
+                LocalDate startOfWeek = now.with(java.time.DayOfWeek.MONDAY);
+                LocalDate endOfWeek = now.with(java.time.DayOfWeek.SUNDAY);
+
+                return documentResponses.stream()
+                        .filter(documentResponse -> {
+                            LocalDate documentDate = documentResponse.getCreatedDate().toLocalDate();
+                            return !documentDate.isBefore(startOfWeek) && !documentDate.isAfter(endOfWeek);
+                        })
+                        .collect(Collectors.toList());
+            }
+            case THIS_MONTH -> {
+                YearMonth currentMonth = YearMonth.now();
+
+                return documentResponses.stream()
+                        .filter(documentResponse -> {
+                            YearMonth documentMonth = YearMonth.from(documentResponse.getCreatedDate());
+                            return documentMonth.equals(currentMonth);
+                        })
+                        .collect(Collectors.toList());
+            }
+            case THIS_YEAR -> {
+                Year currentYear = Year.now();
+
+                return documentResponses.stream()
+                        .filter(documentResponse -> {
+                            Year documentYear = Year.of(documentResponse.getCreatedDate().getYear());
+                            return documentYear.equals(currentYear);
+                        })
+                        .collect(Collectors.toList());
+            }
+            default -> {
+                return documentResponses;
+            }
+        }
     }
 
     @Override
@@ -283,6 +358,29 @@ public class DocumentServiceImp implements DocumentService {
     @Override
     public List<MemberResponse> getAllMemberInEachDocument(UUID documentId) {
         return documentRepository.getAllMemberInEachDocument(documentId);
+    }
+
+    @Override
+    public LocalDateTime getEditDate(UUID documentId) {
+        return documentRepository.getEditDate(documentId);
+    }
+
+    public String recently(LocalDateTime editData) {
+        LocalDateTime now = LocalDateTime.now();
+        Duration duration = Duration.between(editData, now);
+
+        long minutes = duration.toMinutes();
+        if (minutes < 60) {
+            return minutes + " minutes ago";
+        } else {
+            long hours = duration.toHours();
+            if (hours < 24) {
+                return hours + " hours ago";
+            } else {
+                long days = duration.toDays();
+                return days + " days ago";
+            }
+        }
     }
 
 }

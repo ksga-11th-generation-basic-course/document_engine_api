@@ -9,6 +9,7 @@ import kh.com.kshrd.docengine.model.response.UserResponse;
 import kh.com.kshrd.docengine.repository.provider.DocumentSqlProvider;
 import org.apache.ibatis.annotations.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -97,13 +98,7 @@ public interface DocumentRepository {
     List<Document> getPageByPageId(UUID documentId);
 
     @Delete("""
-            DELETE FROM documents
-            WHERE documents.document_id IN (
-                SELECT documents.document_id
-                FROM documents
-                         INNER JOIN user_document ud ON documents.document_id = ud.document_id
-                WHERE user_id = #{userId}
-            );
+            DELETE FROM user_document WHERE user_id = '96b4d46d-8515-4a9e-b13b-799165e20aa1';
             """)
     void deleteDocumentFromUserDocument(UUID userId);
 
@@ -120,5 +115,14 @@ public interface DocumentRepository {
     @ResultMap("documentMap")
     @Select("SELECT * FROM documents WHERE document_id = #{documentId} AND workspace_id = #{workspaceId};")
     Document getDocumentByDocumentIdAndWorkspaceId(UUID documentId, UUID workspaceId);
+
+    @Select("SELECT EXISTS(SELECT * FROM documents WHERE document_id = #{pageId});")
+    Boolean checkPageIsExits(UUID pageId);
+
+    @Select("SELECT EXISTS(SELECT * FROM users INNER JOIN user_document ud on users.user_id = ud.user_id WHERE ud.user_id = #{userIdOfCurrentUser} AND document_id = #{documentId});")
+    Boolean checkUserIsMemberOfTheDocument(UUID userIdOfCurrentUser, UUID documentId);
+
+    @Select("SELECT edited_date FROM documents INNER JOIN histories h on documents.document_id = h.document_id WHERE h.document_id = #{documentId} ORDER BY edited_date DESC LIMIT 1;")
+    LocalDateTime getEditDate(UUID documentId);
 }
 

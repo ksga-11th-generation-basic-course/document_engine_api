@@ -36,16 +36,25 @@ public class BlockServiceImp implements BlockService {
         } else if (blockRequest.getBlockType().isBlank()) {
             throw new BadRequestException("Block type cannot be blank or empty");
         }
+
         Document document = documentRepository.getDocumentByDocumentId(blockRequest.getDocumentId());
         if (document == null) {
             throw new NotFoundException("Document doesn't exist");
         } else {
-            String checkAccessibility = documentRepository.checkAccessibility(userAuthenticationService.getUserIdOfCurrentUser(), document.getDocumentId());
-            if (Objects.equals(checkAccessibility, "VIEWER") || Objects.equals(checkAccessibility, "NO_ACCESS")) {
-                throw new NotEditorException("Your accessibility cannot create block for this document");
+
+            Boolean checkUserIsMemberOfTheDocument = documentRepository.checkUserIsMemberOfTheDocument(userAuthenticationService.getUserIdOfCurrentUser(), document.getDocumentId());
+
+            if (!checkUserIsMemberOfTheDocument) {
+                throw new NotFoundException("You are not member of this document");
             } else {
-                return blockRepository.createBlock(blockRequest, blockRepository.order(blockRequest.getDocumentId()));
+                String checkAccessibility = documentRepository.checkAccessibility(userAuthenticationService.getUserIdOfCurrentUser(), document.getDocumentId());
+                if (Objects.equals(checkAccessibility, "VIEWER") || Objects.equals(checkAccessibility, "NO_ACCESS")) {
+                    throw new NotEditorException("Your accessibility cannot create block for this document");
+                } else {
+                    return blockRepository.createBlock(blockRequest, blockRepository.order(blockRequest.getDocumentId()));
+                }
             }
+
         }
     }
 
@@ -59,16 +68,22 @@ public class BlockServiceImp implements BlockService {
             throw new NotFoundException("Document doesn't exist");
         } else {
 
-            String checkAccessibility = documentRepository.checkAccessibility(userAuthenticationService.getUserIdOfCurrentUser(), document.getDocumentId());
+            Boolean checkUserIsMemberOfTheDocument = documentRepository.checkUserIsMemberOfTheDocument(userAuthenticationService.getUserIdOfCurrentUser(), document.getDocumentId());
 
-            if (Objects.equals(checkAccessibility, "VIEWER") || Objects.equals(checkAccessibility, "NO_ACCESS")) {
-                throw new NotEditorException("Your accessibility cannot edit block for this document");
+            if (!checkUserIsMemberOfTheDocument) {
+                throw new NotFoundException("You are not member of this document");
             } else {
-                Block block = blockRepository.getBlockByBlockId(blockId);
-                if (block == null) {
-                    throw new NotFoundException("Block doesn't exist");
+                String checkAccessibility = documentRepository.checkAccessibility(userAuthenticationService.getUserIdOfCurrentUser(), document.getDocumentId());
+
+                if (Objects.equals(checkAccessibility, "VIEWER") || Objects.equals(checkAccessibility, "NO_ACCESS")) {
+                    throw new NotEditorException("Your accessibility cannot edit block for this document");
                 } else {
-                    return blockRepository.editBlock(blockId, documentId, content);
+                    Block block = blockRepository.getBlockByBlockId(blockId);
+                    if (block == null) {
+                        throw new NotFoundException("Block doesn't exist");
+                    } else {
+                        return blockRepository.editBlock(blockId, documentId, content);
+                    }
                 }
             }
         }
@@ -84,16 +99,22 @@ public class BlockServiceImp implements BlockService {
             throw new NotFoundException("Document doesn't exist");
         } else {
 
-            String checkAccessibility = documentRepository.checkAccessibility(userAuthenticationService.getUserIdOfCurrentUser(), document.getDocumentId());
+            Boolean checkUserIsMemberOfTheDocument = documentRepository.checkUserIsMemberOfTheDocument(userAuthenticationService.getUserIdOfCurrentUser(), document.getDocumentId());
 
-            if (Objects.equals(checkAccessibility, "VIEWER") || Objects.equals(checkAccessibility, "NO_ACCESS")) {
-                throw new NotEditorException("Your accessibility cannot delete block for this document");
+            if (!checkUserIsMemberOfTheDocument) {
+                throw new NotFoundException("You are not member of this document");
             } else {
-                Block block = blockRepository.getBlockByBlockId(blockId);
-                if (block == null) {
-                    throw new NotFoundException("Block doesn't exist");
+                String checkAccessibility = documentRepository.checkAccessibility(userAuthenticationService.getUserIdOfCurrentUser(), document.getDocumentId());
+
+                if (Objects.equals(checkAccessibility, "VIEWER") || Objects.equals(checkAccessibility, "NO_ACCESS")) {
+                    throw new NotEditorException("Your accessibility cannot delete block for this document");
                 } else {
-                    blockRepository.deleteBlock(blockId, documentId);
+                    Block block = blockRepository.getBlockByBlockId(blockId);
+                    if (block == null) {
+                        throw new NotFoundException("Block doesn't exist");
+                    } else {
+                        blockRepository.deleteBlock(blockId, documentId);
+                    }
                 }
             }
         }

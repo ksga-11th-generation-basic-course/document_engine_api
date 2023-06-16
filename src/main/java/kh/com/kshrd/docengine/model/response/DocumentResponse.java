@@ -1,6 +1,9 @@
-package kh.com.kshrd.docengine.model.entity;
+package kh.com.kshrd.docengine.model.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import kh.com.kshrd.docengine.model.entity.Block;
+import kh.com.kshrd.docengine.model.entity.Document;
+import kh.com.kshrd.docengine.model.entity.Tag;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,7 +15,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class Document {
+public class DocumentResponse {
     private UUID documentId;
     private String title;
     private Boolean status;
@@ -22,4 +25,5 @@ public class Document {
     private UUID workspaceId;
     private List<Tag> tags;
     private List<Block> blocks;
+    private String editDate;
 }

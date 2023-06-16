@@ -1,5 +1,7 @@
 package kh.com.kshrd.docengine.services;
 
+import jakarta.mail.MessagingException;
+import kh.com.kshrd.docengine.enums.ESortCurrentDateTime;
 import kh.com.kshrd.docengine.model.response.MemberResponse;
 import kh.com.kshrd.docengine.model.entity.Workspace;
 import kh.com.kshrd.docengine.model.request.WorkspaceRequest;
@@ -13,15 +15,16 @@ public interface WorkspaceService {
     void leaveWorkspace(UUID workspaceId);
     void removeWorkspace(UUID workspaceId);
     void removeMemberFromWorkspace(UUID userId,UUID workspaceId);
-    void setAccessibilityToUser(UUID userId, UUID workspaceId,Boolean status);
-    List<Workspace> getAllWorkspace(Integer pageNo, Integer pageSize);
+    MemberResponse setAccessibilityToUser(UUID userId, UUID workspaceId,Boolean status);
+    List<Workspace> getAllWorkspace(Integer pageNo, Integer pageSize, Boolean asc, Boolean desc, ESortCurrentDateTime eSortWorkspace);
     Integer getTotalOfDocument(UUID workspaceId);
     List<Workspace> filterWorkspace(Boolean filter);
     List<Workspace> searchWorkspace(String workspaceName);
-    void deleteWorkspaceImage(UUID workspaceId);
+    Workspace deleteWorkspaceImage(UUID workspaceId);
     void editWorkspace(UUID workspaceId, WorkspaceRequest workspaceRequest);
     Workspace getWorkspaceByWorkspaceId(UUID workspaceId);
     List<MemberResponse> getAllMemberInEachWorkspace(UUID workspaceId);
-
     Workspace getWorkspaceById(UUID workspaceId);
+    Workspace inviteMemberByEmail(UUID workspaceId, String email) throws MessagingException;
+    Boolean checkIsOwnerWorkspace(UUID workspaceId, UUID userId);
 }

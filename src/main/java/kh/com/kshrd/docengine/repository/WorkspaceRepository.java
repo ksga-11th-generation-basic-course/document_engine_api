@@ -39,7 +39,6 @@ public interface WorkspaceRepository {
             """)
     Workspace getWorkspaceByCode(String workspaceCode);
 
-    @ResultMap("workspaceMap")
     @Insert("""
             INSERT INTO user_workspace(user_id,workspace_id,is_owner,accessibility_status)
             VALUES(#{userId},#{workspaceId},false,false)
@@ -64,11 +63,11 @@ public interface WorkspaceRepository {
             """)
     void removeMemberFromWorkspace(UUID userId, UUID workspaceId);
 
-    @Update("""
-            UPDATE user_workspace SET accessibility_status=#{status}
-            WHERE user_id=#{userId} AND workspace_id=#{workspaceId}
+    @ResultMap("userWorkspaceMap")
+    @Select("""
+            UPDATE user_workspace SET accessibility_status = #{status} FROM users WHERE users.user_id = user_workspace.user_id AND users.user_id = #{userId} AND workspace_id = #{workspaceId} RETURNING users.user_id, username, email, profile_image ,is_owner, accessibility_status;
             """)
-    void setAccessibilityToUser(UUID userId, UUID workspaceId, Boolean status);
+    MemberResponse setAccessibilityToUser(UUID userId, UUID workspaceId, Boolean status);
 
 
     @ResultMap("workspaceMap")
@@ -76,9 +75,9 @@ public interface WorkspaceRepository {
             SELECT uw.workspace_id,workspace_name, is_owner, workspace_image,workspace_code,created_date
             FROM workspaces
             INNER JOIN user_workspace uw on workspaces.workspace_id = uw.workspace_id
-            WHERE user_id=#{currentUserId} LIMIT #{pageSize} OFFSET #{pageNo};
+            WHERE user_id=#{currentUserId} ORDER BY CASE WHEN #{asc} THEN workspace_name END ASC ,CASE WHEN #{desc} THEN workspace_name END DESC LIMIT #{pageSize} OFFSET #{pageNo};
             """)
-    List<Workspace> getAllWorkspaceByUserId(UUID currentUserId, Integer pageNo, Integer pageSize);
+    List<Workspace> getAllWorkspaceByUserId(UUID currentUserId, Integer pageNo, Integer pageSize, Boolean asc, Boolean desc);
 
     @Select("""
             SELECT count(*) FROM documents inner join workspaces w on documents.workspace_id = w.workspace_id
@@ -104,11 +103,12 @@ public interface WorkspaceRepository {
             """)
     List<Workspace> searchWorkspace(UUID userIdOfCurrentUser, String workspaceName);
 
-    @Update("""
+    @ResultMap("workspaceMap")
+    @Select("""
             UPDATE workspaces SET workspace_image=null
-            WHERE workspace_id=#{workspaceId}
+            WHERE workspace_id=#{workspaceId} RETURNING *
             """)
-    void deleteWorkspaceImage(UUID workspaceId);
+    Workspace deleteWorkspaceImage(UUID workspaceId);
 
     @ResultMap("workspaceMap")
     @Update("""
@@ -146,4 +146,7 @@ public interface WorkspaceRepository {
     @ResultMap("workspaceMap")
     @Select("SELECT uw.workspace_id, workspace_name, workspace_image, workspace_code, created_date, is_owner FROM workspaces INNER JOIN user_workspace uw on workspaces.workspace_id = uw.workspace_id WHERE uw.workspace_id = #{workspaceId} AND is_owner = TRUE")
     Workspace getWorkspaceById(UUID workspaceId);
+
+    @Select("SELECT EXISTS(SELECT * FROM user_workspace WHERE user_id = #{userId} AND workspace_id = #{workspaceId})")
+    Boolean checkIsUserInWorkspace(UUID userId, UUID workspaceId);
 }
