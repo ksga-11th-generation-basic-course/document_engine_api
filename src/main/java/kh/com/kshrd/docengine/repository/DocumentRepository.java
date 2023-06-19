@@ -130,10 +130,6 @@ public interface DocumentRepository {
 
     @Select("SELECT workspace_name from documents inner join workspaces w on w.workspace_id = documents.workspace_id where document_id=#{documentId}")
     String getWorkspaceNameByDocumentId(UUID documentId);
-
-    @ResultMap("documentMap")
-    @Select("SELECT * FROM users INNER JOIN user_document ud on users.user_id = ud.user_id WHERE ud.user_id = {userIdOfCurrentUser};")
-    List<Document> getAllDocument(UUID userIdOfCurrentUser);
 }
 
 

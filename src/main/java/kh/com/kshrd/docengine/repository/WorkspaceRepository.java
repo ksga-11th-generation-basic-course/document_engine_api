@@ -1,5 +1,6 @@
 package kh.com.kshrd.docengine.repository;
 
+import kh.com.kshrd.docengine.enums.ESortCurrentDateTime;
 import kh.com.kshrd.docengine.model.response.MemberResponse;
 import kh.com.kshrd.docengine.model.entity.Workspace;
 import kh.com.kshrd.docengine.model.request.WorkspaceRequest;
@@ -90,9 +91,9 @@ public interface WorkspaceRepository {
             SELECT uw.workspace_id,workspace_name,workspace_image,workspace_code,created_date,is_owner
             FROM workspaces
             INNER JOIN user_workspace uw on workspaces.workspace_id = uw.workspace_id
-            WHERE user_id=#{userIdOfCurrentUser} AND is_owner=#{filter}
+            WHERE user_id=#{userIdOfCurrentUser} AND is_owner=#{filter} ORDER BY CASE WHEN #{asc} THEN workspace_name END ASC ,CASE WHEN #{desc} THEN workspace_name END DESC LIMIT #{pageSize} OFFSET #{pageNo};
             """)
-    List<Workspace> filterWorkspace(UUID userIdOfCurrentUser, boolean filter);
+    List<Workspace> filterWorkspace(UUID userIdOfCurrentUser, Boolean filter, Integer pageNo, Integer pageSize, Boolean asc, Boolean desc);
 
     @ResultMap("workspaceMap")
     @Select("""
@@ -149,4 +150,7 @@ public interface WorkspaceRepository {
 
     @Select("SELECT EXISTS(SELECT * FROM user_workspace WHERE user_id = #{userId} AND workspace_id = #{workspaceId})")
     Boolean checkIsUserInWorkspace(UUID userId, UUID workspaceId);
+
+    @Select("SELECT COUNT(*) FROM users INNER JOIN user_workspace uw on users.user_id = uw.user_id WHERE uw.user_id = #{userIdOfCurrentUser};")
+    Integer countWorkspace(UUID userIdOfCurrentUser);
 }

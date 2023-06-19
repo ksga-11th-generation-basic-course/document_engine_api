@@ -27,8 +27,8 @@ public interface TagRepository {
     Tag editTag(UUID tagId, String tagName);
 
     @ResultMap("tagMap")
-    @Delete("DELETE FROM tags WHERE tag_id = #{tagId};")
-    void deleteTag(UUID tagId);
+    @Delete("DELETE FROM tag_document WHERE tag_id = #{tagId} AND document_id = #{documentId};")
+    void deleteTag(UUID tagId, UUID documentId);
 
     @ResultMap("tagMap")
     @Select("SELECT * FROM tags;")

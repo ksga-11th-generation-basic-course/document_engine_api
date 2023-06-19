@@ -265,15 +265,62 @@ public class WorkspaceServiceImp implements WorkspaceService {
     }
 
     @Override
-    public List<Workspace> filterWorkspace(Boolean filter) {
-        List<Workspace> workspace = null;
-        if (!filter) {
-            workspace = workspaceRepository.filterWorkspace(userAuthenticationService.getUserIdOfCurrentUser(), false);
+    public List<Workspace> filterWorkspace(Boolean filter, Integer pageNo, Integer pageSize, Boolean asc, Boolean desc, ESortCurrentDateTime eSortWorkspace) {
+        pageNo = (pageNo - 1) * pageSize;
+
+        List<Workspace> workspaces = workspaceRepository.filterWorkspace(userAuthenticationService.getUserIdOfCurrentUser(), filter, pageNo, pageSize, asc, desc);
+
+        boolean isTrue = false;
+        for (ESortCurrentDateTime sortWorkspace : ESortCurrentDateTime.values()) {
+            if (eSortWorkspace.toString().equalsIgnoreCase(sortWorkspace.name())) {
+                isTrue = true;
+                break;
+            }
         }
-        if (filter) {
-            workspace = workspaceRepository.filterWorkspace(userAuthenticationService.getUserIdOfCurrentUser(), true);
+        if (!isTrue) {
+            throw new BadRequestException("This sort by week, month and year are not correct : 'String' , " +
+                    "please input one of (THIS_WEEK, THIS_MONTH and THIS_YEAR)");
+        } else if (eSortWorkspace.toString().isBlank()) {
+            throw new BadRequestException("This field could not empty");
         }
-        return workspace;
+
+        switch (eSortWorkspace) {
+            case THIS_WEEK -> {
+                LocalDate now = LocalDate.now();
+                LocalDate startOfWeek = now.with(java.time.DayOfWeek.MONDAY);
+                LocalDate endOfWeek = now.with(java.time.DayOfWeek.SUNDAY);
+
+                return workspaces.stream()
+                        .filter(workspace -> {
+                            LocalDate workspaceDate = workspace.getCreatedDate().toLocalDate();
+                            return !workspaceDate.isBefore(startOfWeek) && !workspaceDate.isAfter(endOfWeek);
+                        })
+                        .collect(Collectors.toList());
+            }
+            case THIS_MONTH -> {
+                YearMonth currentMonth = YearMonth.now();
+
+                return workspaces.stream()
+                        .filter(workspace -> {
+                            YearMonth workspaceMonth = YearMonth.from(workspace.getCreatedDate());
+                            return workspaceMonth.equals(currentMonth);
+                        })
+                        .collect(Collectors.toList());
+            }
+            case THIS_YEAR -> {
+                Year currentYear = Year.now();
+
+                return workspaces.stream()
+                        .filter(workspace -> {
+                            Year workspaceYear = Year.of(workspace.getCreatedDate().getYear());
+                            return workspaceYear.equals(currentYear);
+                        })
+                        .collect(Collectors.toList());
+            }
+            default -> {
+                return workspaces;
+            }
+        }
     }
 
     @Override
@@ -427,6 +474,26 @@ public class WorkspaceServiceImp implements WorkspaceService {
         }
         System.out.println(workspaceRepository.checkIsOwner(workspaceId, userId));
         return workspaceRepository.checkIsOwner(workspaceId, userId);
+    }
+
+    @Override
+    public Boolean checkAccessibility(UUID workspaceId) {
+        if (workspaceId == null) {
+            throw new BadRequestException("Workspace id cannot be null");
+        } else if (workspaceId.toString().isBlank()) {
+            throw new BadRequestException("Workspace id cannot be blank or empty");
+        }
+        Workspace workspace = workspaceRepository.getWorkspaceById(workspaceId);
+        if (workspace == null) {
+            throw new NotFoundException("Workspace doesn't exist");
+        }
+        return workspaceRepository.checkAccessibility(userAuthenticationService.getUserIdOfCurrentUser(), workspace.getWorkspaceId());
+    }
+
+    @Override
+    public Integer getTotalPage(Integer pageSize) {
+        Integer count = workspaceRepository.countWorkspace(userAuthenticationService.getUserIdOfCurrentUser());
+        return (Integer) (int) Math.ceil((double) count / pageSize);
     }
 
 

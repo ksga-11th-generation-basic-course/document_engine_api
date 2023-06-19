@@ -128,10 +128,10 @@ public class WorkspaceController {
 
     @GetMapping("workspaces/filter")
     @Operation(summary = "Filter Owner Workspace Or Another Workspace")
-    public ResponseEntity<?> filterWorkspace(@RequestParam Boolean filter) {
+    public ResponseEntity<?> filterWorkspace(@RequestParam Boolean filter, @RequestParam(defaultValue = "1") Integer pageNo, @RequestParam(defaultValue = "5") Integer pageSize, @RequestParam(defaultValue = "false") Boolean asc, @RequestParam(defaultValue = "false") Boolean desc, @RequestParam ESortCurrentDateTime eSortWorkspace) {
         Response<List<Workspace>> response = Response.<List<Workspace>>builder()
                 .message("Get Total Document Successfully")
-                .payload(workspaceService.filterWorkspace(filter))
+                .payload(workspaceService.filterWorkspace(filter, pageNo, pageSize, asc, desc, eSortWorkspace))
                 .status(HttpStatus.OK)
                 .dateTime(LocalDateTime.now())
                 .build();
@@ -230,6 +230,30 @@ public class WorkspaceController {
         Response<Boolean> response = Response.<Boolean>builder()
                 .message("Invite Successfully")
                 .payload(workspaceService.checkIsOwnerWorkspace(workspaceId, userId))
+                .status(HttpStatus.OK)
+                .dateTime(LocalDateTime.now())
+                .build();
+        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("workspaces/{workspaceId}/check/accessibility")
+    @Operation(summary = "Check Accessibility")
+    public ResponseEntity<?> checkAccessibility(@PathVariable UUID workspaceId){
+        Response<Boolean> response = Response.<Boolean>builder()
+                .message("Check Accessibility Successfully")
+                .payload(workspaceService.checkAccessibility(workspaceId))
+                .status(HttpStatus.OK)
+                .dateTime(LocalDateTime.now())
+                .build();
+        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("workspaces/totalPage")
+    @Operation(summary = "Get Total page")
+    public ResponseEntity<?> getTotalPage(@RequestParam Integer pageSize){
+        Response<Integer> response = Response.<Integer>builder()
+                .message("Check Accessibility Successfully")
+                .payload(workspaceService.getTotalPage(pageSize))
                 .status(HttpStatus.OK)
                 .dateTime(LocalDateTime.now())
                 .build();

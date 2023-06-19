@@ -204,17 +204,5 @@ public class DocumentController {
                 .build();
         return ResponseEntity.ok().body(response);
     }
-
-    @GetMapping("documents/workspaces/{workspaceId}")
-    @Operation(summary = "Get Document In Each Workspace")
-    public ResponseEntity<?> getRecentlyDocumentEdting() {
-        Response<List<DocumentResponse>> response = Response.<List<DocumentResponse>>builder()
-                .message("Get Recently Document Editing Successful")
-                .payload(documentService.getRecentlyDocumentEditing())
-                .dateTime(LocalDateTime.now())
-                .status(HttpStatus.OK)
-                .build();
-        return ResponseEntity.ok().body(response);
-    }
 }
 

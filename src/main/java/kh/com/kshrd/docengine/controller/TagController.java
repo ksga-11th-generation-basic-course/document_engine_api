@@ -48,10 +48,10 @@ public class TagController {
         return ResponseEntity.ok().body(response);
     }
 
-    @DeleteMapping("tags/{tagId}")
+    @DeleteMapping("tags/{tagId}/document/{documentId}")
     @Operation(summary = "Delete Tag")
-    public ResponseEntity<?> deleteTag(@PathVariable UUID tagId){
-        tagService.deleteTag(tagId);
+    public ResponseEntity<?> deleteTag(@PathVariable UUID tagId, @PathVariable UUID documentId){
+        tagService.deleteTag(tagId, documentId);
         Response<Tag> response = Response.<Tag>builder()
                 .message("Delete Tag Successful")
                 .payload(null)
@@ -73,7 +73,7 @@ public class TagController {
         return ResponseEntity.ok().body(response);
     }
 
-    @GetMapping("tags/{workspaceId}")
+    @GetMapping("tags/workspace/{workspaceId}")
     @Operation(summary = "Get Tag In Each Workspace")
     public ResponseEntity<?> getTagInEachWorkspace(@PathVariable UUID workspaceId){
         Response<List<Tag>> response = Response.<List<Tag>>builder()
@@ -90,5 +90,17 @@ public class TagController {
     public ResponseEntity<?> addTagsForDocument(@RequestParam UUID tagId, @RequestParam UUID documentId, @RequestParam UUID workspaceId){
         tagService.addTagsForDocument(tagId, documentId, workspaceId);
         return ResponseEntity.ok().body("Add Tag Successful");
+    }
+
+    @GetMapping("tags/document/{documentId}")
+    @Operation(summary = "Get Tag By Document Id")
+    public ResponseEntity<?> getTagFromTagDocument(@PathVariable UUID documentId){
+        Response<List<Tag>> response = Response.<List<Tag>>builder()
+                .message("Get Tag By Document Id Successful")
+                .payload(tagService.getTagFromTagDocument(documentId))
+                .dateTime(LocalDateTime.now())
+                .status(HttpStatus.OK)
+                .build();
+        return ResponseEntity.ok().body(response);
     }
 }

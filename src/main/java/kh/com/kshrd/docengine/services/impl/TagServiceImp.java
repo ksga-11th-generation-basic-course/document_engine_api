@@ -70,7 +70,7 @@ public class TagServiceImp implements TagService {
     }
 
     @Override
-    public void deleteTag(UUID tagId) {
+    public void deleteTag(UUID tagId, UUID documentId) {
         if (tagId == null) {
             throw new BadRequestException("Tag id cannot be null");
         } else if (tagId.toString().isBlank()) {
@@ -80,7 +80,7 @@ public class TagServiceImp implements TagService {
         if (tag == null) {
             throw new NotFoundException("Tag doesn't exist");
         } else {
-            tagRepository.deleteTag(tagId);
+            tagRepository.deleteTag(tagId, documentId);
         }
     }
 
@@ -134,6 +134,12 @@ public class TagServiceImp implements TagService {
             tagRepository.insertTagIdAndDocumentIdIntoTagDocument(tag.getTagId(), document.getDocumentId());
         }
 
+    }
+
+    @Override
+    public List<Tag> getTagFromTagDocument(UUID documentId) {
+        System.out.println(documentId);
+        return tagRepository.getTagFromTagDocument(documentId);
     }
 
     private void exception(TagRequest tagRequest) {

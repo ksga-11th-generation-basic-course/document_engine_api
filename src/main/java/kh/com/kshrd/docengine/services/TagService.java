@@ -11,11 +11,13 @@ public interface TagService {
 
     Tag editTag(UUID tagId, String tagName);
 
-    void deleteTag(UUID tagId);
+    void deleteTag(UUID tagId, UUID documentId);
 
     List<Tag> getAllTag();
 
     List<Tag> getTagInEachWorkspace(UUID workspaceId);
 
     void addTagsForDocument(UUID tagId, UUID documentId, UUID workspaceId);
+
+    List<Tag> getTagFromTagDocument(UUID documentId);
 }

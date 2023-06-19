@@ -44,6 +44,4 @@ public interface DocumentService {
     String getUserByDocumentId(UUID documentId);
 
     String getWorkspaceNameByDocumentId(UUID documentId);
-
-    List<DocumentResponse> getRecentlyDocumentEditing();
 }
