@@ -23,7 +23,7 @@ public class HistoryController {
 
     private final HistoryService historyService;
 
-    @GetMapping("histories/{documentId}")
+    @GetMapping("histories/documents/{documentId}")
     @Operation(summary = "Get History In Each Document")
     public ResponseEntity<Response<List<History>>> getHistoryInEachDocument(@PathVariable UUID documentId){
         Response<List<History>> response = Response.<List<History>>builder()
