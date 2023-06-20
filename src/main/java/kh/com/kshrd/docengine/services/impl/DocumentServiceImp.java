@@ -394,28 +394,9 @@ public class DocumentServiceImp implements DocumentService {
     }
 
     @Override
-    public List<DocumentResponse> getRecentlyDocumentEditing() {
-
-        List<Document> documents = documentRepository.getAllDocument(userAuthenticationService.getUserIdOfCurrentUser());
-
-        List<DocumentResponse> documentResponses = new ArrayList<>();
-        for (Document document : documents) {
-            DocumentResponse documentResponse = new DocumentResponse();
-            LocalDateTime editDate = getEditDate(document.getDocumentId());
-            documentResponse.setDocumentId(document.getDocumentId());
-            documentResponse.setTitle(document.getTitle());
-            documentResponse.setStatus(document.getStatus());
-            documentResponse.setCreatedDate(document.getCreatedDate());
-            documentResponse.setPages(document.getPages());
-            documentResponse.setWorkspaceId(document.getWorkspaceId());
-            documentResponse.setTags(document.getTags());
-            documentResponse.setBlocks(document.getBlocks());
-            documentResponse.setEditDate(recently(editDate));
-
-            documentResponses.add(documentResponse);
-        }
-
-        return null;
+    public MemberResponse getUserByDocument(UUID userId) {
+        return documentRepository.getUserByUserDocument(userId);
     }
+
 
 }

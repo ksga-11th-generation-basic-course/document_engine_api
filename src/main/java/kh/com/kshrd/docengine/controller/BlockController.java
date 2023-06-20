@@ -26,7 +26,7 @@ public class BlockController {
     private final BlockService blockService;
 
     @PostMapping("blocks")
-    @Operation(summary = "Creat Block")
+    @Operation(summary = "Create Block")
     public ResponseEntity<?> createBlock(@RequestBody BlockRequest blockRequest){
         Response<Block> response = Response.<Block>builder()
                 .message("Create Block Successful")
@@ -62,7 +62,7 @@ public class BlockController {
         return ResponseEntity.ok().body(response);
     }
 
-    @GetMapping("blocks/{documentId}")
+    @GetMapping("blocks/document/{documentId}")
     @Operation(summary = "Get Block For Each Document")
     public ResponseEntity<Response<List<Block>>> getBlockForEachDocument(@PathVariable UUID documentId){
         Response<List<Block>> response = Response.<List<Block>>builder()
@@ -73,4 +73,5 @@ public class BlockController {
                 .build();
         return ResponseEntity.ok().body(response);
     }
+
 }

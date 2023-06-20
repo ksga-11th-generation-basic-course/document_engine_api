@@ -15,4 +15,5 @@ public interface BlockService {
     void deleteBlock(UUID blockId, UUID documentId);
 
     List<Block> getBlockForEachDocument(UUID documentId);
+
 }

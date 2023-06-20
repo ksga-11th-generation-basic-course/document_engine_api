@@ -19,6 +19,22 @@ public interface BlockRepository {
             @Result(property = "order", column = "block_order"),
             @Result(property = "documentId", column = "document_id")
     })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     @Select("INSERT INTO blocks(block_type, block_content, block_order, document_id) VALUES (#{d.blockType}, #{d.content, typeHandler = kh.com.kshrd.docengine.configuration.JsonTypeHandler}::JSON , #{order}, #{d.documentId}) RETURNING *;")
     Block createBlock(@Param("d") BlockRequest blockRequest, Integer order);
 
@@ -58,5 +74,6 @@ public interface BlockRepository {
 
     @Select("SELECT COUNT(*) FROM blocks WHERE document_id = #{documentId};")
     Integer order(UUID documentId);
+
 }
 
