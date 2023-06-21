@@ -141,6 +141,10 @@ public interface DocumentRepository {
     @Select("SELECT ud.user_id,username,email,profile_image,is_owner,accessibility_status FROM users INNER JOIN user_document ud on users.user_id = ud.user_id WHERE ud.user_id=#{userId};")
     MemberResponse getUserByUserDocument(UUID userId);
 
+    @ResultMap("documentMap")
+    @Select("SELECT DISTINCT d.document_id,d.title,d.status,d.created_date,d.page_id,d.workspace_id from documents d INNER JOIN histories h on d.document_id = h.document_id where edited_by=#{userId} ORDER BY d.created_date DESC LIMIT 3")
+    List<Document> getDocumentRecently(UUID userId);
+
 }
 
 

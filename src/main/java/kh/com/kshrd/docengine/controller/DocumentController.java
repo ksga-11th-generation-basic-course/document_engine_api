@@ -205,6 +205,18 @@ public class DocumentController {
         return ResponseEntity.ok().body(response);
     }
 
+    @GetMapping("documents/recently")
+    @Operation(summary = "Get Document Recently")
+    public ResponseEntity<?> getDocumentRecently() {
+        Response<List<Document>> response = Response.<List<Document>>builder()
+                .message("Get Document Recently")
+                .payload(documentService.getDocumentRecently())
+                .dateTime(LocalDateTime.now())
+                .status(HttpStatus.OK)
+                .build();
+        return ResponseEntity.ok().body(response);
+    }
+
 
 }
 

@@ -398,5 +398,10 @@ public class DocumentServiceImp implements DocumentService {
         return documentRepository.getUserByUserDocument(userId);
     }
 
+    @Override
+    public List<Document> getDocumentRecently() {
+       return documentRepository.getDocumentRecently(userAuthenticationService.getUserIdOfCurrentUser());
+    }
+
 
 }
