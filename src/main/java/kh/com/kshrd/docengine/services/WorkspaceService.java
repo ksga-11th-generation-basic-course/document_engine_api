@@ -30,4 +30,6 @@ public interface WorkspaceService {
     Boolean checkAccessibility(UUID workspaceId);
 
     Integer getTotalPage(Integer pageSize);
+
+    Boolean checkIsOwnerWorkspaceCurrenUser(UUID workspaceId);
 }

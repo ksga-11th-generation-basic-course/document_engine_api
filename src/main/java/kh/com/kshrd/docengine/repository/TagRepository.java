@@ -52,4 +52,7 @@ public interface TagRepository {
 
     @Insert("INSERT INTO tag_document(tag_id, document_id) VALUES(#{tagId}, #{documentId});")
     void insertTagIdAndDocumentIdIntoTagDocument(UUID tagId, UUID documentId);
+
+    @Select("INSERT INTO tag_document(tag_id, document_id) VALUES(#{tagId}, #{documentId}) RETURNING tag_id;")
+    UUID addTagsForDocument(UUID tagId, UUID documentId);
 }

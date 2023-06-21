@@ -17,7 +17,9 @@ public interface TagService {
 
     List<Tag> getTagInEachWorkspace(UUID workspaceId);
 
-    void addTagsForDocument(UUID tagId, UUID documentId, UUID workspaceId);
+    UUID addTagsForDocument(UUID tagId, UUID documentId, UUID workspaceId);
 
     List<Tag> getTagFromTagDocument(UUID documentId);
+
+    Tag getTagByTagId(UUID tag, UUID workspaceId);
 }

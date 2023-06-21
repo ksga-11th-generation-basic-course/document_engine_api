@@ -104,7 +104,7 @@ public class TagServiceImp implements TagService {
     }
 
     @Override
-    public void addTagsForDocument(UUID tagId, UUID documentId, UUID workspaceId) {
+    public UUID addTagsForDocument(UUID tagId, UUID documentId, UUID workspaceId) {
         if (tagId == null) {
             throw new BadRequestException("Tag id cannot be null");
         } else if (documentId == null) {
@@ -131,15 +131,40 @@ public class TagServiceImp implements TagService {
                 throw new NotFoundException("Document not found in this workspace");
             }
 
-            tagRepository.insertTagIdAndDocumentIdIntoTagDocument(tag.getTagId(), document.getDocumentId());
+            List<Tag> tags = tagRepository.getTagFromTagDocument(documentId);
+            for (Tag tagData : tags) {
+                if (tagData.getTagId().equals(tagId)) {
+                    throw new NotDuplicateException("This tag has already");
+                }
+            }
+
+            return tagRepository.addTagsForDocument(tag.getTagId(), document.getDocumentId());
         }
 
     }
 
     @Override
     public List<Tag> getTagFromTagDocument(UUID documentId) {
-        System.out.println(documentId);
         return tagRepository.getTagFromTagDocument(documentId);
+    }
+
+    @Override
+    public Tag getTagByTagId(UUID tag, UUID workspaceId) {
+        if (workspaceId == null) {
+            throw new BadRequestException("Workspace id cannot be null");
+        } else if (tag == null) {
+            throw new BadRequestException("Tag id cannot be null");
+        } else if (workspaceId.toString().isBlank()) {
+            throw new BadRequestException("Workspace id cannot be blank or empty");
+        } else if (tag.toString().isBlank()) {
+            throw new BadRequestException("Tag id cannot be blank or empty");
+        }
+
+        Tag tagData = tagRepository.getTagByTagIdAndWorkspaceId(tag, workspaceId);
+        if (tagData == null) {
+            throw new NotFoundException("Tag not found in this workspace");
+        }
+        return tagData;
     }
 
     private void exception(TagRequest tagRequest) {

@@ -88,8 +88,14 @@ public class TagController {
     @PostMapping("tags/add")
     @Operation(summary = "Add Tag For Document")
     public ResponseEntity<?> addTagsForDocument(@RequestParam UUID tagId, @RequestParam UUID documentId, @RequestParam UUID workspaceId){
-        tagService.addTagsForDocument(tagId, documentId, workspaceId);
-        return ResponseEntity.ok().body("Add Tag Successful");
+        UUID tag = tagService.addTagsForDocument(tagId, documentId, workspaceId);
+        Response<Tag> response = Response.<Tag>builder()
+                .message("Add Tag Successful")
+                .payload(tagService.getTagByTagId(tag, workspaceId))
+                .dateTime(LocalDateTime.now())
+                .status(HttpStatus.OK)
+                .build();
+        return ResponseEntity.ok().body(response);
     }
 
     @GetMapping("tags/document/{documentId}")

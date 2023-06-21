@@ -496,5 +496,10 @@ public class WorkspaceServiceImp implements WorkspaceService {
         return (Integer) (int) Math.ceil((double) count / pageSize);
     }
 
+    @Override
+    public Boolean checkIsOwnerWorkspaceCurrenUser(UUID workspaceId) {
+        return workspaceRepository.checkIsOwner(userAuthenticationService.getUserIdOfCurrentUser(), workspaceId);
+    }
+
 
 }

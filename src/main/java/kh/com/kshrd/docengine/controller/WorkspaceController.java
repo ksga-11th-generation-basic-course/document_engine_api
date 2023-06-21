@@ -259,4 +259,16 @@ public class WorkspaceController {
                 .build();
         return ResponseEntity.ok().body(response);
     }
+
+    @GetMapping("workspaces/{workspaceId}/current/user")
+    @Operation(summary = "Check Is Owner")
+    public ResponseEntity<?> checkIsOwnerWorkspaceCurrenUser(@PathVariable UUID workspaceId){
+        Response<Boolean> response = Response.<Boolean>builder()
+                .message("Invite Successfully")
+                .payload(workspaceService.checkIsOwnerWorkspaceCurrenUser(workspaceId))
+                .status(HttpStatus.OK)
+                .dateTime(LocalDateTime.now())
+                .build();
+        return ResponseEntity.ok().body(response);
+    }
 }

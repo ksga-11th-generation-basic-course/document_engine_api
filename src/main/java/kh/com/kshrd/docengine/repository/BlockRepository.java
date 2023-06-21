@@ -27,7 +27,7 @@ public interface BlockRepository {
     Block editBlock(UUID blockId, UUID documentId , Map<String, Object> content);
 
     @ResultMap("blockMap")
-    @Delete("DELETE FROM blocks WHERE block_id = #{blockId} AMD document_id = #{documentId};")
+    @Delete("DELETE FROM blocks WHERE block_id = #{blockId} AND document_id = #{documentId};")
     void deleteBlock(UUID blockId, UUID documentId);
 
     @ResultMap("blockMap")

@@ -1,6 +1,7 @@
 package kh.com.kshrd.docengine.services.impl;
 
 import kh.com.kshrd.docengine.exceptions.BadRequestException;
+import kh.com.kshrd.docengine.exceptions.NotDuplicateException;
 import kh.com.kshrd.docengine.exceptions.NotEditorException;
 import kh.com.kshrd.docengine.exceptions.NotFoundException;
 import kh.com.kshrd.docengine.model.entity.Block;
