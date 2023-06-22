@@ -49,7 +49,7 @@ public class DocumentController {
         LocalDateTime editDate = documentService.getEditDate(documentId);
         Response<DocumentResponse> response = Response.<DocumentResponse>builder()
                 .message("Edit Document Successful")
-                .payload(new DocumentResponse(document.getDocumentId(), document.getTitle(), document.getStatus(), document.getCreatedDate(), document.getPages(), document.getWorkspaceId(), document.getTags(), document.getBlocks(), documentService.recently(editDate)))
+                .payload(new DocumentResponse(document.getDocumentId(), document.getTitle(), document.getStatus(), document.getCreatedDate(), document.getPages(), document.getWorkspaceId(), document.getTags(), documentService.recently(editDate)))
                 .dateTime(LocalDateTime.now())
                 .status(HttpStatus.OK)
                 .build();
@@ -58,20 +58,18 @@ public class DocumentController {
 
 
     @PutMapping("documents/{documentId}/editing")
-
     @Operation(summary = "Current Editing Document")
-    public ResponseEntity<?> editDocument(@PathVariable UUID documentId) {
-        documentService.currentEditing(documentId);
+    public ResponseEntity<?> editDocument(@PathVariable UUID documentId, @RequestParam Boolean status) {
         Response<Document> response = Response.<Document>builder()
                 .message("Set Successful")
-                .payload(null)
+                .payload(documentService.currentEditing(documentId, status))
                 .dateTime(LocalDateTime.now())
                 .status(HttpStatus.OK)
                 .build();
         return ResponseEntity.ok().body(response);
     }
 
-    @PutMapping("documents/{documentId}/users/{userId}/accessibility")
+    @PutMapping("documents/{documentId}/users/{userId}/workspace/{workspaceId}accessibility")
     @Operation(summary = "Set Accessibility")
     public ResponseEntity<?> setAccessibility(@PathVariable UUID documentId, @PathVariable UUID userId, @PathVariable UUID workspaceId, @RequestParam EAccessibility accessibility) {
         documentService.setAccessibility(documentId, userId, workspaceId, accessibility);
@@ -199,6 +197,18 @@ public class DocumentController {
         Response<String> response = Response.<String>builder()
                 .message("Get Username By Document By Id")
                 .payload(documentService.getWorkspaceNameByDocumentId(documentId))
+                .dateTime(LocalDateTime.now())
+                .status(HttpStatus.OK)
+                .build();
+        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("documents/{documentId}/check/accessibility")
+    @Operation(summary = "Check Accessibility")
+    public ResponseEntity<?> checkAccessibility(@PathVariable UUID documentId){
+        Response<String> response = Response.<String>builder()
+                .message("Get Username By Document By Id")
+                .payload(documentService.checkAccessibility(documentId))
                 .dateTime(LocalDateTime.now())
                 .status(HttpStatus.OK)
                 .build();

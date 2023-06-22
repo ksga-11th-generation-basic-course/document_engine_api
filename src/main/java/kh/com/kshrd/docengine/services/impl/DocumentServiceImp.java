@@ -101,7 +101,7 @@ public class DocumentServiceImp implements DocumentService {
     }
 
     @Override
-    public void currentEditing(UUID documentId) {
+    public Document currentEditing(UUID documentId, Boolean status) {
         if (documentId == null) {
             throw new BadRequestException("Document id cannot be null");
         } else if (documentId.toString().isBlank()) {
@@ -112,10 +112,14 @@ public class DocumentServiceImp implements DocumentService {
             throw new NotFoundException("Document doesn't exist");
         } else {
             String checkAccessibility = documentRepository.checkAccessibility(userAuthenticationService.getUserIdOfCurrentUser(), document.getDocumentId());
-            if (Objects.equals(checkAccessibility, "VIEWER") || Objects.equals(checkAccessibility, "NO_ACCESS")) {
-                throw new NotEditorException("Your accessibility cannot set current editing on this document");
+            if(checkAccessibility == null){
+                throw new NotFoundException("You are not a member in document");
             } else {
-                documentRepository.currentEditing(documentId);
+                if (Objects.equals(checkAccessibility, "VIEWER") || Objects.equals(checkAccessibility, "NO_ACCESS")) {
+                    throw new NotEditorException("Your accessibility cannot set current editing on this document");
+                } else {
+                    return documentRepository.currentEditing(documentId, status);
+                }
             }
         }
     }
@@ -193,19 +197,25 @@ public class DocumentServiceImp implements DocumentService {
 
         List<DocumentResponse> documentResponses = new ArrayList<>();
         for (Document document : documents) {
-            DocumentResponse documentResponse = new DocumentResponse();
-            LocalDateTime editDate = getEditDate(document.getDocumentId());
-            documentResponse.setDocumentId(document.getDocumentId());
-            documentResponse.setTitle(document.getTitle());
-            documentResponse.setStatus(document.getStatus());
-            documentResponse.setCreatedDate(document.getCreatedDate());
-            documentResponse.setPages(document.getPages());
-            documentResponse.setWorkspaceId(document.getWorkspaceId());
-            documentResponse.setTags(document.getTags());
-            documentResponse.setBlocks(document.getBlocks());
-            documentResponse.setEditDate(recently(editDate));
-
-            documentResponses.add(documentResponse);
+            String checkAccessibility = documentRepository.checkAccessibility(userAuthenticationService.getUserIdOfCurrentUser(), document.getDocumentId());
+            if(!Objects.equals(checkAccessibility, "NO_ACCESS")) {
+                DocumentResponse documentResponse = new DocumentResponse();
+                LocalDateTime editDate = getEditDate(document.getDocumentId());
+                System.out.println(editDate);
+                documentResponse.setDocumentId(document.getDocumentId());
+                documentResponse.setTitle(document.getTitle());
+                documentResponse.setStatus(document.getStatus());
+                documentResponse.setCreatedDate(document.getCreatedDate());
+                documentResponse.setPages(document.getPages());
+                documentResponse.setWorkspaceId(document.getWorkspaceId());
+                documentResponse.setTags(document.getTags());
+                if (editDate == null) {
+                    documentResponse.setEditDate(documentResponse.getCreatedDate().toString());
+                } else {
+                    documentResponse.setEditDate(recently(editDate));
+                }
+                documentResponses.add(documentResponse);
+            }
         }
 
         boolean isSortTrue = false;
@@ -391,6 +401,20 @@ public class DocumentServiceImp implements DocumentService {
     @Override
     public String getWorkspaceNameByDocumentId(UUID documentId) {
         return documentRepository.getWorkspaceNameByDocumentId(documentId);
+    }
+
+    @Override
+    public String checkAccessibility(UUID documentId) {
+        if (documentId == null) {
+            throw new BadRequestException("Document id cannot be null");
+        } else if (documentId.toString().isBlank()) {
+            throw new BadRequestException("Document id cannot be blank or empty");
+        }
+        Document document = documentRepository.getDocumentByDocumentId(documentId);
+        if (document == null) {
+            throw new NotFoundException("Document doesn't exist");
+        }
+        return documentRepository.checkAccessibility(userAuthenticationService.getUserIdOfCurrentUser(), documentId);
     }
 
 }

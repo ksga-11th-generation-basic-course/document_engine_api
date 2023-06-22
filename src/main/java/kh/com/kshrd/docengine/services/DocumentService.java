@@ -17,7 +17,7 @@ public interface DocumentService {
 
     Document editDocument(UUID documentId, String title);
 
-    void currentEditing(UUID documentId);
+    Document currentEditing(UUID documentId, Boolean status);
 
     void setAccessibility(UUID documentId, UUID userId, UUID workspaceId, EAccessibility accessibility);
 
@@ -44,4 +44,6 @@ public interface DocumentService {
     String getUserByDocumentId(UUID documentId);
 
     String getWorkspaceNameByDocumentId(UUID documentId);
+
+    String checkAccessibility(UUID documentId);
 }

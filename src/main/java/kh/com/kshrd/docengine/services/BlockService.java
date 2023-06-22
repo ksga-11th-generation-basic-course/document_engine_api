@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public interface BlockService {
-    Block createBlock(BlockRequest blockRequest);
+    Block createBlock(Block block);
 
     Block editBlock(UUID blockId, UUID documentId, Map<String, Object> content);
 

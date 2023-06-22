@@ -27,10 +27,10 @@ public class BlockController {
 
     @PostMapping("blocks")
     @Operation(summary = "Creat Block")
-    public ResponseEntity<?> createBlock(@RequestBody BlockRequest blockRequest){
+    public ResponseEntity<?> createBlock(@RequestBody Block block){
         Response<Block> response = Response.<Block>builder()
                 .message("Create Block Successful")
-                .payload(blockService.createBlock(blockRequest))
+                .payload(blockService.createBlock(block))
                 .dateTime(LocalDateTime.now())
                 .status(HttpStatus.CREATED)
                 .build();

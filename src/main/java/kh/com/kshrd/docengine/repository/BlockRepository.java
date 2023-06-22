@@ -19,8 +19,8 @@ public interface BlockRepository {
             @Result(property = "order", column = "block_order"),
             @Result(property = "documentId", column = "document_id")
     })
-    @Select("INSERT INTO blocks(block_type, block_content, block_order, document_id) VALUES (#{d.blockType}, #{d.content, typeHandler = kh.com.kshrd.docengine.configuration.JsonTypeHandler}::JSON , #{order}, #{d.documentId}) RETURNING *;")
-    Block createBlock(@Param("d") BlockRequest blockRequest, Integer order);
+    @Select("INSERT INTO blocks(block_id, block_type, block_content, block_order, document_id) VALUES (#{d.blockId}, #{d.blockType}, #{d.content, typeHandler = kh.com.kshrd.docengine.configuration.JsonTypeHandler}::JSON , #{order}, #{d.documentId}) RETURNING *;")
+    Block createBlock(@Param("d") Block block, Integer order);
 
     @ResultMap("blockMap")
     @Select("UPDATE blocks SET block_content = #{content, typeHandler = kh.com.kshrd.docengine.configuration.JsonTypeHandler}::JSON WHERE block_id = #{blockId} AND document_id = #{documentId} RETURNING *;")

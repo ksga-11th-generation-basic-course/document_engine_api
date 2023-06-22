@@ -27,18 +27,18 @@ public class BlockServiceImp implements BlockService {
     private final UserAuthenticationService userAuthenticationService;
 
     @Override
-    public Block createBlock(BlockRequest blockRequest) {
-        if (blockRequest.getBlockType() == null) {
+    public Block createBlock(Block block) {
+        if (block.getBlockType() == null) {
             throw new BadRequestException("Block type cannot be null");
-        } else if (blockRequest.getDocumentId() == null) {
+        } else if (block.getDocumentId() == null) {
             throw new BadRequestException("Document id cannot be blank or empty");
-        } else if (blockRequest.getDocumentId().toString().isBlank()) {
+        } else if (block.getDocumentId().toString().isBlank()) {
             throw new BadRequestException("Document id cannot be blank or empty");
-        } else if (blockRequest.getBlockType().isBlank()) {
+        } else if (block.getBlockType().isBlank()) {
             throw new BadRequestException("Block type cannot be blank or empty");
         }
 
-        Document document = documentRepository.getDocumentByDocumentId(blockRequest.getDocumentId());
+        Document document = documentRepository.getDocumentByDocumentId(block.getDocumentId());
         if (document == null) {
             throw new NotFoundException("Document doesn't exist");
         } else {
@@ -52,7 +52,7 @@ public class BlockServiceImp implements BlockService {
                 if (Objects.equals(checkAccessibility, "VIEWER") || Objects.equals(checkAccessibility, "NO_ACCESS")) {
                     throw new NotEditorException("Your accessibility cannot create block for this document");
                 } else {
-                    return blockRepository.createBlock(blockRequest, blockRepository.order(blockRequest.getDocumentId()));
+                    return blockRepository.createBlock(block, blockRepository.order(block.getDocumentId()));
                 }
             }
 

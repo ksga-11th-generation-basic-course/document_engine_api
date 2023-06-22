@@ -21,5 +21,4 @@ public class Document {
     private List<Document> pages;
     private UUID workspaceId;
     private List<Tag> tags;
-    private List<Block> blocks;
 }

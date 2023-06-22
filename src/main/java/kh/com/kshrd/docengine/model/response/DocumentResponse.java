@@ -24,6 +24,5 @@ public class DocumentResponse {
     private List<Document> pages;
     private UUID workspaceId;
     private List<Tag> tags;
-    private List<Block> blocks;
     private String editDate;
 }

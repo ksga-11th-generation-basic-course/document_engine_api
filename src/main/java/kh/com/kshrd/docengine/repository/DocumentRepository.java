@@ -22,7 +22,6 @@ public interface DocumentRepository {
             @Result(property = "pages", column = "document_id", many = @Many(select = "getPageByPageId")),
             @Result(property = "workspaceId", column = "workspace_id"),
             @Result(property = "tags", column = "document_id", many = @Many(select = "kh.com.kshrd.docengine.repository.TagRepository.getTagFromTagDocument")),
-            @Result(property = "blocks", column = "document_id", many = @Many(select = "kh.com.kshrd.docengine.repository.BlockRepository.getBlockByDocumentId"))
     })
     @Select("INSERT INTO documents(title, created_date, page_id, workspace_id) VALUES (#{d.title}, #{d.createdDate}, #{d.pageId}, #{d.workspaceId}) RETURNING *;")
     Document createDocument(@Param("d") DocumentRequest documentRequest);
@@ -35,8 +34,8 @@ public interface DocumentRepository {
     Document editDocument(UUID documentId, String title);
 
     @ResultMap("documentMap")
-    @Update("UPDATE documents SET status = true WHERE document_id = #{documentId};")
-    void currentEditing(UUID documentId);
+    @Select("UPDATE documents SET status = #{status} WHERE document_id = #{documentId} RETURNING *;")
+    Document currentEditing(UUID documentId, Boolean status);
 
     @Select("SELECT accessibility_status FROM user_document WHERE user_id = #{userIdOfCurrentUser} AND document_id = #{documentId};")
     String checkAccessibility(UUID userIdOfCurrentUser, UUID documentId);
