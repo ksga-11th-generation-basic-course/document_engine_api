@@ -210,6 +210,7 @@ public class DocumentServiceImp implements DocumentService {
                 documentResponse.setStatus(document.getStatus());
                 documentResponse.setCreatedDate(document.getCreatedDate());
                 documentResponse.setPages(document.getPages());
+                documentResponse.setPageId(document.getPageId());
                 documentResponse.setWorkspaceId(document.getWorkspaceId());
                 documentResponse.setTags(document.getTags());
                 if (editDate == null) {
@@ -440,6 +441,36 @@ public class DocumentServiceImp implements DocumentService {
                 documentResponse.setStatus(document.getStatus());
                 documentResponse.setCreatedDate(document.getCreatedDate());
                 documentResponse.setPages(document.getPages());
+                documentResponse.setPageId(document.getPageId());
+                documentResponse.setWorkspaceId(document.getWorkspaceId());
+                documentResponse.setTags(document.getTags());
+                if (editDate == null) {
+                    documentResponse.setEditDate(documentResponse.getCreatedDate().toString());
+                } else {
+                    documentResponse.setEditDate(recently(editDate));
+                }
+                documentResponses.add(documentResponse);
+            }
+        }
+        return documentResponses;
+    }
+
+    @Override
+    public List<DocumentResponse> getPageInEachDocument(UUID pageId) {
+        List<Document> documents = documentRepository.getPageInEachDocument(pageId);
+        List<DocumentResponse> documentResponses = new ArrayList<>();
+        for (Document document : documents) {
+            String checkAccessibility = documentRepository.checkAccessibility(userAuthenticationService.getUserIdOfCurrentUser(), document.getDocumentId());
+            if(!Objects.equals(checkAccessibility, "NO_ACCESS")) {
+                DocumentResponse documentResponse = new DocumentResponse();
+                LocalDateTime editDate = getEditDate(document.getDocumentId());
+                System.out.println(editDate);
+                documentResponse.setDocumentId(document.getDocumentId());
+                documentResponse.setTitle(document.getTitle());
+                documentResponse.setStatus(document.getStatus());
+                documentResponse.setCreatedDate(document.getCreatedDate());
+                documentResponse.setPages(document.getPages());
+                documentResponse.setPageId(document.getPageId());
                 documentResponse.setWorkspaceId(document.getWorkspaceId());
                 documentResponse.setTags(document.getTags());
                 if (editDate == null) {

@@ -20,6 +20,7 @@ public interface DocumentRepository {
             @Result(property = "documentId", column = "document_id"),
             @Result(property = "createdDate", column = "created_date"),
             @Result(property = "pages", column = "document_id", many = @Many(select = "getPageByPageId")),
+            @Result(property = "pageId", column = "page_id"),
             @Result(property = "workspaceId", column = "workspace_id"),
             @Result(property = "tags", column = "document_id", many = @Many(select = "kh.com.kshrd.docengine.repository.TagRepository.getTagFromTagDocument")),
     })
@@ -142,6 +143,10 @@ public interface DocumentRepository {
     @ResultMap("documentMap")
     @Select("SELECT DISTINCT d.document_id,d.title,d.status,d.created_date,d.page_id,d.workspace_id from documents d INNER JOIN histories h on d.document_id = h.document_id where edited_by=#{userIdOfCurrentUser} ORDER BY d.created_date DESC LIMIT 3")
     List<Document> getDocumentRecently(UUID userIdOfCurrentUser);
+
+    @ResultMap("documentMap")
+    @Select("SELECT * FROM documents WHERE page_id = #{pageId};")
+    List<Document> getPageInEachDocument(UUID pageId);
 }
 
 

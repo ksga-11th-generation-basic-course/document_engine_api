@@ -49,7 +49,7 @@ public class DocumentController {
         LocalDateTime editDate = documentService.getEditDate(documentId);
         Response<DocumentResponse> response = Response.<DocumentResponse>builder()
                 .message("Edit Document Successful")
-                .payload(new DocumentResponse(document.getDocumentId(), document.getTitle(), document.getStatus(), document.getCreatedDate(), document.getPages(), document.getWorkspaceId(), document.getTags(), documentService.recently(editDate)))
+                .payload(new DocumentResponse(document.getDocumentId(), document.getTitle(), document.getStatus(), document.getCreatedDate(), document.getPages() ,document.getPageId(), document.getWorkspaceId(), document.getTags(), documentService.recently(editDate)))
                 .dateTime(LocalDateTime.now())
                 .status(HttpStatus.OK)
                 .build();
@@ -221,6 +221,18 @@ public class DocumentController {
         Response<List<DocumentResponse>> response = Response.<List<DocumentResponse>>builder()
                 .message("Get Document Recently")
                 .payload(documentService.getDocumentRecently())
+                .dateTime(LocalDateTime.now())
+                .status(HttpStatus.OK)
+                .build();
+        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("documents/get/page/{pageId}")
+    @Operation(summary = "Get Page In Each Document")
+    public ResponseEntity<?> getPageInEachDocument(@PathVariable UUID pageId){
+        Response<List<DocumentResponse>> response = Response.<List<DocumentResponse>>builder()
+                .message("Get Page In Each Document Successful")
+                .payload(documentService.getPageInEachDocument(pageId))
                 .dateTime(LocalDateTime.now())
                 .status(HttpStatus.OK)
                 .build();

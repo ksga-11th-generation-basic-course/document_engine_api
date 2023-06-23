@@ -19,6 +19,7 @@ public class Document {
     @JsonFormat(pattern = "dd-MM-yyyy")
     private LocalDateTime createdDate;
     private List<Document> pages;
+    private UUID pageId;
     private UUID workspaceId;
     private List<Tag> tags;
 }

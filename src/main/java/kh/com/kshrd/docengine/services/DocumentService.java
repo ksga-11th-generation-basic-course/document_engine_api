@@ -50,4 +50,6 @@ public interface DocumentService {
     MemberResponse getUserByDocument(UUID userId, UUID documentId);
 
     List<DocumentResponse> getDocumentRecently();
+
+    List<DocumentResponse> getPageInEachDocument(UUID pageId);
 }
