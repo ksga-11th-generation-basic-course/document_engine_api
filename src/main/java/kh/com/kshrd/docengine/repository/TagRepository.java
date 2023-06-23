@@ -55,4 +55,17 @@ public interface TagRepository {
 
     @Select("INSERT INTO tag_document(tag_id, document_id) VALUES(#{tagId}, #{documentId}) RETURNING tag_id;")
     UUID addTagsForDocument(UUID tagId, UUID documentId);
+
+    @ResultMap("tagMap")
+    @Select("SELECT td.tag_id, document_id FROM tags INNER JOIN tag_document td on tags.tag_id = td.tag_id WHERE document_id = #{documentId};")
+    List<Tag> getTagByDocument(UUID documentId);
+
+    @Insert("INSERT INTO history_tag(tag_id, history_id) VALUES (#{tagId}, #{historyId});")
+    void backUpTag(UUID tagId, UUID historyId);
+
+    @Delete("DELETE FROM tag_document WHERE document_id = #{documentId};")
+    void deleteTagByDocumentId(UUID documentId);
+
+    @Insert("INSERT INTO tag_document(tag_id, document_id) SELECT tag_id, document_id FROM history_tag INNER JOIN histories h on h.history_id = history_tag.history_id WHERE h.history_id = #{historyId};")
+    void restoreTagDocument(UUID historyId);
 }

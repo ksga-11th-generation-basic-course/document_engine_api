@@ -40,7 +40,7 @@ public interface DocumentRepository {
     @Select("SELECT accessibility_status FROM user_document WHERE user_id = #{userIdOfCurrentUser} AND document_id = #{documentId};")
     String checkAccessibility(UUID userIdOfCurrentUser, UUID documentId);
 
-    @Update("UPDATE user_document SET accessibility_status = 'EDITOR' FROM documents WHERE documents.document_id = #{documentId} AND user_id = #{userId} AND workspace_id = #{workspaceId};")
+    @Update("UPDATE user_document SET accessibility_status = #{accessibility} FROM documents WHERE documents.document_id = #{documentId} AND user_id = #{userId} AND workspace_id = #{workspaceId};")
     void setAccessibility(UUID documentId, UUID userId, UUID workspaceId, EAccessibility accessibility);
 
     @Select("SELECT is_owner FROM user_document WHERE user_id = #{userIdOfCurrentUser} AND document_id = #{documentId};")
@@ -129,6 +129,19 @@ public interface DocumentRepository {
 
     @Select("SELECT workspace_name from documents inner join workspaces w on w.workspace_id = documents.workspace_id where document_id=#{documentId}")
     String getWorkspaceNameByDocumentId(UUID documentId);
+
+    @Results(id = "userDocumentMaps", value = {
+            @Result(property = "userId", column = "user_id"),
+            @Result(property = "isOwner", column = "is_owner"),
+            @Result(property = "profileImage", column = "profile_image"),
+            @Result(property = "accessibility", column = "accessibility_status")
+    })
+    @Select("SELECT ud.user_id,username,email,profile_image,is_owner,accessibility_status FROM users INNER JOIN user_document ud on users.user_id = ud.user_id WHERE ud.user_id= #{userId} AND document_id = #{documentId};")
+    MemberResponse getUserByUserDocument(UUID userId, UUID documentId);
+
+    @ResultMap("documentMap")
+    @Select("SELECT DISTINCT d.document_id,d.title,d.status,d.created_date,d.page_id,d.workspace_id from documents d INNER JOIN histories h on d.document_id = h.document_id where edited_by=#{userIdOfCurrentUser} ORDER BY d.created_date DESC LIMIT 3")
+    List<Document> getDocumentRecently(UUID userIdOfCurrentUser);
 }
 
 

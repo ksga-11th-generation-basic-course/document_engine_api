@@ -25,7 +25,7 @@ public class HistoryController {
 
     @GetMapping("histories/{documentId}")
     @Operation(summary = "Get History In Each Document")
-    public ResponseEntity<Response<List<History>>> getHistoryInEachDocument(@PathVariable UUID documentId){
+    public ResponseEntity<?> getHistoryInEachDocument(@PathVariable UUID documentId){
         Response<List<History>> response = Response.<List<History>>builder()
                 .message("Get History In Each Document Successful")
                 .payload(historyService.getHistoryInEachDocument(documentId))
@@ -36,11 +36,10 @@ public class HistoryController {
     }
     @PutMapping("histories/{historyId}/documents/{documentId}")
     @Operation(summary = "Restore Document")
-    public ResponseEntity<Response<History>> restoreDocument(@PathVariable UUID historyId, @PathVariable UUID documentId){
-        historyService.restoreDocument(historyId, documentId);
-        Response<History> response = Response.<History>builder()
+    public ResponseEntity<?> restoreDocument(@PathVariable UUID historyId, @PathVariable UUID documentId){
+        Response<String> response = Response.<String>builder()
                 .message("Restore Document Successful")
-                .payload(null)
+                .payload(historyService.restoreDocument(historyId, documentId))
                 .dateTime(LocalDateTime.now())
                 .status(HttpStatus.OK)
                 .build();
@@ -49,7 +48,7 @@ public class HistoryController {
 
     @GetMapping("histories/{historyId}/")
     @Operation(summary = "Get History")
-    public ResponseEntity<Response<History>> getHistoryByHistoryId(@PathVariable UUID historyId){
+    public ResponseEntity<?> getHistoryByHistoryId(@PathVariable UUID historyId){
         Response<History> response = Response.<History>builder()
                 .message("Restore Document Successful")
                 .payload(historyService.getHistoryByHistoryId(historyId))
@@ -61,7 +60,7 @@ public class HistoryController {
 
     @DeleteMapping("histories/{historyId}/documents/{documentId}")
     @Operation(summary = "Remove History")
-    public ResponseEntity<Response<History>> removeHistory(@PathVariable UUID historyId ,@PathVariable UUID documentId){
+    public ResponseEntity<?> removeHistory(@PathVariable UUID historyId ,@PathVariable UUID documentId){
         historyService.removeHistory(historyId, documentId);
         Response<History> response = Response.<History>builder()
                 .message("Remove History Successful")

@@ -8,7 +8,7 @@ import java.util.UUID;
 public interface HistoryService {
     List<History> getHistoryInEachDocument(UUID documentId);
 
-    void restoreDocument(UUID historyId, UUID documentId);
+    String restoreDocument(UUID historyId, UUID documentId);
 
     History getHistoryByHistoryId(UUID historyId);
 

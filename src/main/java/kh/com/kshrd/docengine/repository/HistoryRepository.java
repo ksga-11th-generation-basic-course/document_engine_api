@@ -23,8 +23,8 @@ public interface HistoryRepository {
     @Select("INSERT INTO histories(title, edited_date, status, edited_by, document_id, workspace_id) VALUES (#{title}, #{now}, #{status}, #{userIdOfCurrentUser}, #{documentId}, #{workspaceId}) RETURNING *")
     History backUpDocument(String title, LocalDateTime now, Boolean status, UUID userIdOfCurrentUser, UUID documentId, UUID workspaceId);
 
-    @Update("UPDATE documents SET title = #{title} WHERE document_id = #{documentId};")
-    void restoreDocument(String title, UUID documentId);
+    @Select("UPDATE documents SET title = #{title} WHERE document_id = #{documentId} RETURNING title;")
+    String restoreDocument(String title, UUID documentId);
 
     @ResultMap("historyMap")
     @Select("SELECT * FROM histories WHERE history_id = #{historyId};")

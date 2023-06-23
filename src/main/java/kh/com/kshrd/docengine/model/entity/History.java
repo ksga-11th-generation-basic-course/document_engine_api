@@ -1,5 +1,6 @@
 package kh.com.kshrd.docengine.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,6 +14,7 @@ import java.util.UUID;
 public class History {
     private UUID historyId;
     private String title;
+    @JsonFormat(pattern = "MMM dd,h:mm a")
     private LocalDateTime editedDate;
     private Boolean status;
     private String editedBy;

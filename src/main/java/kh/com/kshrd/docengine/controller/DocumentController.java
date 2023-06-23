@@ -69,13 +69,13 @@ public class DocumentController {
         return ResponseEntity.ok().body(response);
     }
 
-    @PutMapping("documents/{documentId}/users/{userId}/workspace/{workspaceId}accessibility")
+    @PutMapping("documents/{documentId}/users/{userId}/{workspaceId}/accessibility/")
     @Operation(summary = "Set Accessibility")
     public ResponseEntity<?> setAccessibility(@PathVariable UUID documentId, @PathVariable UUID userId, @PathVariable UUID workspaceId, @RequestParam EAccessibility accessibility) {
-        documentService.setAccessibility(documentId, userId, workspaceId, accessibility);
-        Response<Document> response = Response.<Document>builder()
+        documentService.setAccessibility(documentId,userId,workspaceId,accessibility);
+        Response<MemberResponse> response = Response.<MemberResponse>builder()
                 .message("Set Accessibility Successful")
-                .payload(null)
+                .payload(documentService.getUserByDocument(userId, documentId))
                 .dateTime(LocalDateTime.now())
                 .status(HttpStatus.OK)
                 .build();
@@ -209,6 +209,18 @@ public class DocumentController {
         Response<String> response = Response.<String>builder()
                 .message("Get Username By Document By Id")
                 .payload(documentService.checkAccessibility(documentId))
+                .dateTime(LocalDateTime.now())
+                .status(HttpStatus.OK)
+                .build();
+        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("documents/recently")
+    @Operation(summary = "Get Document Recently")
+    public ResponseEntity<?> getDocumentRecently() {
+        Response<List<DocumentResponse>> response = Response.<List<DocumentResponse>>builder()
+                .message("Get Document Recently")
+                .payload(documentService.getDocumentRecently())
                 .dateTime(LocalDateTime.now())
                 .status(HttpStatus.OK)
                 .build();

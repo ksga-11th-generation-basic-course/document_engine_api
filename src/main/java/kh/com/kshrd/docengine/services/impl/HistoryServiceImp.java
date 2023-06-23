@@ -9,6 +9,7 @@ import kh.com.kshrd.docengine.model.entity.History;
 import kh.com.kshrd.docengine.repository.BlockRepository;
 import kh.com.kshrd.docengine.repository.DocumentRepository;
 import kh.com.kshrd.docengine.repository.HistoryRepository;
+import kh.com.kshrd.docengine.repository.TagRepository;
 import kh.com.kshrd.docengine.security.services.UserAuthenticationService;
 import kh.com.kshrd.docengine.services.HistoryService;
 import lombok.AllArgsConstructor;
@@ -26,6 +27,7 @@ public class HistoryServiceImp implements HistoryService {
     private final BlockRepository blockRepository;
     private final DocumentRepository documentRepository;
     private final UserAuthenticationService userAuthenticationService;
+    private final TagRepository tagRepository;
 
     @Override
     public List<History> getHistoryInEachDocument(UUID documentId) {
@@ -38,7 +40,7 @@ public class HistoryServiceImp implements HistoryService {
     }
 
     @Override
-    public void restoreDocument(UUID historyId, UUID documentId) {
+    public String restoreDocument(UUID historyId, UUID documentId) {
         validateDocumentIdAndHistoryId(historyId, documentId);
 
         Document document = documentRepository.getDocumentByDocumentId(documentId);
@@ -54,11 +56,13 @@ public class HistoryServiceImp implements HistoryService {
             } else {
                 blockRepository.deleteBlockByDocumentId(documentId);
                 blockRepository.restoreBlockDocument(historyId);
+                tagRepository.deleteTagByDocumentId(documentId);
+                tagRepository.restoreTagDocument(historyId);
                 History history = historyRepository.getHistoryByHistoryId(historyId);
                 if (history == null) {
                     throw new NotFoundException("History doesn't exist");
                 }
-                historyRepository.restoreDocument(history.getTitle(), documentId);
+               return historyRepository.restoreDocument(history.getTitle(), documentId);
             }
         }
     }

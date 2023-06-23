@@ -46,4 +46,8 @@ public interface DocumentService {
     String getWorkspaceNameByDocumentId(UUID documentId);
 
     String checkAccessibility(UUID documentId);
+
+    MemberResponse getUserByDocument(UUID userId, UUID documentId);
+
+    List<DocumentResponse> getDocumentRecently();
 }

@@ -90,13 +90,15 @@ public class DocumentServiceImp implements DocumentService {
             for (Block block : blocks) {
                 blockHistoryRepository.backUpBlock(block.getBlockType(), block.getContent(), block.getOrder(), history.getHistoryId());
             }
+            List<Tag> tags = tagRepository.getTagByDocument(documentData.getDocumentId());
+            for (Tag tag : tags){
+                tagRepository.backUpTag(tag.getTagId(), history.getHistoryId());
+            }
             String checkAccessibility = documentRepository.checkAccessibility(userAuthenticationService.getUserIdOfCurrentUser(), documentId);
             if (!Objects.equals(checkAccessibility, "EDITOR")) {
                 throw new NotEditorException("Your accessibility is not editor");
             }
-            Document document = documentRepository.editDocument(documentId, title);
-            documentRepository.deleteTagIdAndDocumentIdInTagDocument(documentId);
-            return document;
+            return documentRepository.editDocument(documentId, title);
         }
     }
 
@@ -192,6 +194,7 @@ public class DocumentServiceImp implements DocumentService {
         } else if (workspaceId.toString().isBlank()) {
             throw new BadRequestException("Workspace id cannot be blank or empty");
         }
+
         pageNo = (pageNo - 1) * pageSize;
         List<Document> documents = documentRepository.getDocumentInEachWorkspace(workspaceId, pageNo, pageSize);
 
@@ -415,6 +418,39 @@ public class DocumentServiceImp implements DocumentService {
             throw new NotFoundException("Document doesn't exist");
         }
         return documentRepository.checkAccessibility(userAuthenticationService.getUserIdOfCurrentUser(), documentId);
+    }
+
+    @Override
+    public MemberResponse getUserByDocument(UUID userId, UUID documentId) {
+        return documentRepository.getUserByUserDocument(userId, documentId);
+    }
+
+    @Override
+    public List<DocumentResponse> getDocumentRecently() {
+        List<Document> documents =  documentRepository.getDocumentRecently(userAuthenticationService.getUserIdOfCurrentUser());
+        List<DocumentResponse> documentResponses = new ArrayList<>();
+        for (Document document : documents) {
+            String checkAccessibility = documentRepository.checkAccessibility(userAuthenticationService.getUserIdOfCurrentUser(), document.getDocumentId());
+            if(!Objects.equals(checkAccessibility, "NO_ACCESS")) {
+                DocumentResponse documentResponse = new DocumentResponse();
+                LocalDateTime editDate = getEditDate(document.getDocumentId());
+                System.out.println(editDate);
+                documentResponse.setDocumentId(document.getDocumentId());
+                documentResponse.setTitle(document.getTitle());
+                documentResponse.setStatus(document.getStatus());
+                documentResponse.setCreatedDate(document.getCreatedDate());
+                documentResponse.setPages(document.getPages());
+                documentResponse.setWorkspaceId(document.getWorkspaceId());
+                documentResponse.setTags(document.getTags());
+                if (editDate == null) {
+                    documentResponse.setEditDate(documentResponse.getCreatedDate().toString());
+                } else {
+                    documentResponse.setEditDate(recently(editDate));
+                }
+                documentResponses.add(documentResponse);
+            }
+        }
+        return documentResponses;
     }
 
 }
