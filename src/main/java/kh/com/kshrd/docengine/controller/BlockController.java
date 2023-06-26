@@ -39,10 +39,10 @@ public class BlockController {
 
     @PutMapping("blocks/{blockId}/documents/{documentId}")
     @Operation(summary = "Edit Block")
-    public ResponseEntity<Response<Block>> editBlock(@PathVariable UUID blockId, @PathVariable UUID documentId ,@RequestBody Map<String, Object> content){
+    public ResponseEntity<Response<Block>> editBlock(@PathVariable UUID blockId, @PathVariable UUID documentId ,@RequestBody Map<String, Object> content,@RequestParam Integer order){
         Response<Block> response = Response.<Block>builder()
                 .message("Edit Block Successful")
-                .payload(blockService.editBlock(blockId, documentId, content))
+                .payload(blockService.editBlock(blockId, documentId, content, order))
                 .dateTime(LocalDateTime.now())
                 .status(HttpStatus.OK)
                 .build();

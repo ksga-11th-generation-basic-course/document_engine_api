@@ -484,4 +484,18 @@ public class DocumentServiceImp implements DocumentService {
         return documentResponses;
     }
 
+    @Override
+    public Document getDocumentByPageId(UUID pageId) {
+        if (pageId == null) {
+            throw new BadRequestException("Document id cannot be null");
+        } else if (pageId.toString().isBlank()) {
+            throw new BadRequestException("Document id cannot be blank or empty");
+        }
+        Document document = documentRepository.getDocumentByPageId(pageId);
+        if (document == null) {
+            throw new NotFoundException("Document doesn't exist");
+        }
+        return document;
+    }
+
 }

@@ -147,6 +147,10 @@ public interface DocumentRepository {
     @ResultMap("documentMap")
     @Select("SELECT * FROM documents WHERE page_id = #{pageId};")
     List<Document> getPageInEachDocument(UUID pageId);
+
+    @ResultMap("documentMap")
+    @Select("SELECT * FROM documents WHERE document_id = #{documentId};")
+    Document getDocumentByPageId(UUID pageId);
 }
 
 

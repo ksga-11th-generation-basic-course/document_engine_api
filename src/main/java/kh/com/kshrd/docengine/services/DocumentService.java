@@ -52,4 +52,6 @@ public interface DocumentService {
     List<DocumentResponse> getDocumentRecently();
 
     List<DocumentResponse> getPageInEachDocument(UUID pageId);
+
+    Document getDocumentByPageId(UUID pageId);
 }

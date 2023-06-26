@@ -238,5 +238,17 @@ public class DocumentController {
                 .build();
         return ResponseEntity.ok().body(response);
     }
+
+    @GetMapping("documents/page/{pageId}")
+    @Operation(summary = "Get Document By Page Id")
+    public ResponseEntity<?> getDocumentByPageId(@PathVariable UUID pageId) {
+        Response<Document> response = Response.<Document>builder()
+                .message("Get Document By Document By Id")
+                .payload(documentService.getDocumentByPageId(pageId))
+                .dateTime(LocalDateTime.now())
+                .status(HttpStatus.OK)
+                .build();
+        return ResponseEntity.ok().body(response);
+    }
 }
 

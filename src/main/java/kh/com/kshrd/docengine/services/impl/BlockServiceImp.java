@@ -57,7 +57,7 @@ public class BlockServiceImp implements BlockService {
                 if (Objects.equals(checkAccessibility, "VIEWER") || Objects.equals(checkAccessibility, "NO_ACCESS")) {
                     throw new NotEditorException("Your accessibility cannot create block for this document");
                 } else {
-                    return blockRepository.createBlock(block, blockRepository.order(block.getDocumentId()));
+                    return blockRepository.createBlock(block);
                 }
             }
 
@@ -65,7 +65,7 @@ public class BlockServiceImp implements BlockService {
     }
 
     @Override
-    public Block editBlock(UUID blockId, UUID documentId, Map<String, Object> content) {
+    public Block editBlock(UUID blockId, UUID documentId, Map<String, Object> content, Integer order) {
         validateDocumentIdAndBlockId(blockId, documentId);
 
         Document documentData = documentRepository.getDocumentByDocumentId(documentId);
@@ -101,7 +101,7 @@ public class BlockServiceImp implements BlockService {
                         for (Tag tag : tags){
                             tagRepository.backUpTag(tag.getTagId(), history.getHistoryId());
                         }
-                        return blockRepository.editBlock(blockId, documentId, content);
+                        return blockRepository.editBlock(blockId, documentId, content, order);
                     }
                 }
             }
