@@ -21,5 +21,6 @@ public class Workspace {
     @JsonFormat(pattern = "dd-MM-yyyy")
     private LocalDateTime createdDate;
     private Boolean isOwner;
+    private List<Document> documents;
     private Integer totalDocument;
 }

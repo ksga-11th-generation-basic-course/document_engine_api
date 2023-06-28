@@ -24,7 +24,6 @@ public class EmailServicesImpl implements EmailService {
     private final JavaMailSender emailSender;
     private final SpringTemplateEngine templateEngine;
 
-    @Async
     @Override
     public void sendMail(UserAuthentication authentication, String code) throws MessagingException {
         MimeMessage message = emailSender.createMimeMessage();
@@ -53,7 +52,7 @@ public class EmailServicesImpl implements EmailService {
         emailSender.send(message);
     }
 
-    @Async
+
     @Override
     public void inviteMemberByEmail(Workspace workspace, UserAuthentication userAuthentication) throws MessagingException {
         MimeMessage message = emailSender.createMimeMessage();
