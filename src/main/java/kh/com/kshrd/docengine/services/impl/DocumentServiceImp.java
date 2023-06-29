@@ -36,10 +36,14 @@ public class DocumentServiceImp implements DocumentService {
     @Override
     public Document createDocument(DocumentRequest documentRequest) {
 
+        final String pattern = "^[A-Za-z_][A-Za-z0-9_\\s]{0,39}$";
+
         if (documentRequest.getTitle() == null) {
             throw new BadRequestException("Title cannot be null");
         } else if (documentRequest.getTitle().isBlank()) {
             throw new BadRequestException("Title cannot be blank or empty");
+        } else if (!documentRequest.getTitle().matches(pattern)) {
+            throw new BadRequestException("Title must be less than 40 character");
         }
 //        Boolean page = documentRepository.checkPageIsExits(documentRequest.getPageId());
 //        if(!page){
@@ -76,6 +80,13 @@ public class DocumentServiceImp implements DocumentService {
             throw new BadRequestException("Document id cannot be null");
         } else if (documentId.toString().isBlank()) {
             throw new BadRequestException("Document id cannot be blank or empty");
+        }
+        if (title == null) {
+            throw new BadRequestException("Title cannot be null");
+        } else if (title.isBlank()) {
+            throw new BadRequestException("Title cannot be blank or empty");
+        } else if (title.length() > 40) {
+            throw new BadRequestException("Title must be less than 40 character");
         }
         Document documentData = documentRepository.getDocumentByDocumentId(documentId);
         if (documentData == null) {
@@ -384,17 +395,7 @@ public class DocumentServiceImp implements DocumentService {
         Duration duration = Duration.between(editData, now);
 
         long minutes = duration.toMinutes();
-        if (minutes < 60) {
-            return minutes + " minutes ago";
-        } else {
-            long hours = duration.toHours();
-            if (hours < 24) {
-                return hours + " hours ago";
-            } else {
-                long days = duration.toDays();
-                return days + " days ago";
-            }
-        }
+        return String.valueOf(minutes);
     }
 
     @Override

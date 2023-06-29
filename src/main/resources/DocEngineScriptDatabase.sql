@@ -127,3 +127,31 @@ CREATE TABLE IF NOT EXISTS history_block
     history_id            UUID         NOT NULL,
     CONSTRAINT histories_fk FOREIGN KEY (history_id) REFERENCES histories (history_id) ON DELETE CASCADE ON UPDATE CASCADE
     );
+
+create table history_tag
+(
+    history_tag_id uuid default uuid_generate_v4() not null
+        primary key,
+    tag_id         uuid                            not null
+        constraint tags_fk
+            references tags
+            on update cascade on delete cascade,
+    history_id     uuid                            not null
+        constraint histories_fk
+            references histories
+            on update cascade on delete cascade
+);
+
+create table history_page
+(
+    id         uuid default uuid_generate_v4() not null
+        primary key,
+    history_id uuid                            not null
+        constraint histories_fk
+            references histories
+            on update cascade on delete cascade,
+    page_id    uuid                            not null
+        constraint documents_fk
+            references documents
+            on update cascade on delete cascade
+);

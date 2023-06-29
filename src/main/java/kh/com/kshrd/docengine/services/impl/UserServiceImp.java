@@ -102,12 +102,17 @@ public class UserServiceImp implements UserService {
         }
     }
 
+   final String pattern = "^[A-Za-z_][A-Za-z0-9_\\s]{3,39}$";
+
     @Override
     public User editProfileInformation(UserEditRequest userEditRequest) {
         User user = userRepository.getUserByUserId(userAuthenticationService.getUserIdOfCurrentUser());
         if (user == null) {
             throw new NotFoundException("User doesn't exist");
-        } else {
+        } else if(!userEditRequest.getUsername().matches(pattern)){
+            throw new BadRequestException("Your username must be have around 4 to 40 character");
+        }
+        else {
             if (userEditRequest.getUsername() == null || userEditRequest.getUsername().isBlank()) {
                 return userRepository.editProfileInformation(userAuthenticationService.getUserIdOfCurrentUser(), user.getUserName(), userEditRequest.getProfileImage());
             } else if (userEditRequest.getProfileImage() == null || userEditRequest.getProfileImage().isBlank()) {
