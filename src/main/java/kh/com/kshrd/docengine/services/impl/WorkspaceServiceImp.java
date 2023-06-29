@@ -38,7 +38,7 @@ public class WorkspaceServiceImp implements WorkspaceService {
     private final EmailService emailService;
     private final UserRepository userRepository;
 
-    final String pattern = "^[A-Za-z_][A-Za-z0-9_\\s]{0,29}$";
+    final String pattern = "^[A-Za-z_][A-Za-z0-9_\\s]{0,39}$";
 
     @Override
     public Workspace createWorkspace(WorkspaceRequest workspaceRequest) {
@@ -51,7 +51,7 @@ public class WorkspaceServiceImp implements WorkspaceService {
         } else if (workspaceRequest.getWorkspaceImage().isBlank()) {
             throw new BadRequestException("Workspace image cannot be blank and empty");
         } else if (!workspaceRequest.getWorkspaceName().matches(pattern)) {
-            throw new BadRequestException("Workspace name must be less than 30 character");
+            throw new BadRequestException("Workspace name must be less than 40 character");
         }
         String generatedCode = RandomStringUtils.randomAlphanumeric(10);
         Workspace workspace = workspaceRepository.createWorkspace(workspaceRequest, generatedCode, LocalDateTime.now());

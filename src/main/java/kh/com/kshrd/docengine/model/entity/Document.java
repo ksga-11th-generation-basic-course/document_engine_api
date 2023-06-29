@@ -16,7 +16,7 @@ public class Document {
     private UUID documentId;
     private String title;
     private Boolean status;
-    @JsonFormat(pattern = "dd-MM-yyyy")
+    @JsonFormat(pattern = "MMMM dd, yyyy h:mm a")
     private LocalDateTime createdDate;
     private List<Document> pages;
     private UUID pageId;
