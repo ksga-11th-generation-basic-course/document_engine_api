@@ -82,7 +82,7 @@ public interface WorkspaceRepository {
 
     @Select("""
             SELECT count(*) FROM documents inner join workspaces w on documents.workspace_id = w.workspace_id
-            WHERE w.workspace_id=#{workspaceId}
+            WHERE w.workspace_id=#{workspaceId} and page_id IS NULL
             """)
     Integer getTotalDocumentOfWorkspace(UUID workspaceId);
 
