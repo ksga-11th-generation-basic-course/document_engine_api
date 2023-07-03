@@ -4,6 +4,7 @@ import kh.com.kshrd.docengine.enums.EAccessibility;
 import kh.com.kshrd.docengine.model.entity.Document;
 import kh.com.kshrd.docengine.model.request.DocumentRequest;
 
+import kh.com.kshrd.docengine.model.response.DocumentAccessibilityResponse;
 import kh.com.kshrd.docengine.model.response.DocumentResponse;
 import kh.com.kshrd.docengine.model.response.MemberResponse;
 import kh.com.kshrd.docengine.repository.provider.DocumentSqlProvider;
@@ -41,8 +42,14 @@ public interface DocumentRepository {
     @Select("SELECT accessibility_status FROM user_document WHERE user_id = #{userIdOfCurrentUser} AND document_id = #{documentId};")
     String checkAccessibility(UUID userIdOfCurrentUser, UUID documentId);
 
-    @Update("UPDATE user_document SET accessibility_status = #{accessibility} FROM documents WHERE documents.document_id = #{documentId} AND user_id = #{userId} AND workspace_id = #{workspaceId};")
-    void setAccessibility(UUID documentId, UUID userId, UUID workspaceId, EAccessibility accessibility);
+    @Results(id = "userDocumentAccessibilityMap", value = {
+            @Result(property = "userId", column = "user_id"),
+            @Result(property = "documentId", column = "document_id"),
+            @Result(property = "isOwner", column = "is_owner"),
+            @Result(property = "accessibility", column = "accessibility_status")
+    })
+    @Select("UPDATE user_document SET accessibility_status = #{accessibility} WHERE document_id = #{documentId} AND user_id = #{userId} RETURNING *;")
+    DocumentAccessibilityResponse setAccessibility(UUID documentId, UUID userId, EAccessibility accessibility);
 
     @Select("SELECT is_owner FROM user_document WHERE user_id = #{userIdOfCurrentUser} AND document_id = #{documentId};")
     Boolean checkIsOwner(UUID userIdOfCurrentUser, UUID documentId);

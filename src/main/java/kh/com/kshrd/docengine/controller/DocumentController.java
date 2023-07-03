@@ -6,6 +6,7 @@ import kh.com.kshrd.docengine.enums.EAccessibility;
 import kh.com.kshrd.docengine.enums.ESortCurrentDateTime;
 import kh.com.kshrd.docengine.model.entity.Document;
 import kh.com.kshrd.docengine.model.request.DocumentRequest;
+import kh.com.kshrd.docengine.model.response.DocumentAccessibilityResponse;
 import kh.com.kshrd.docengine.model.response.DocumentResponse;
 import kh.com.kshrd.docengine.model.response.MemberResponse;
 import kh.com.kshrd.docengine.model.response.Response;
@@ -69,13 +70,14 @@ public class DocumentController {
         return ResponseEntity.ok().body(response);
     }
 
-    @PutMapping("documents/{documentId}/users/{userId}/{workspaceId}/accessibility/")
+    @PutMapping("documents/{documentId}/users/{userId}/accessibility/")
     @Operation(summary = "Set Accessibility")
-    public ResponseEntity<?> setAccessibility(@PathVariable UUID documentId, @PathVariable UUID userId, @PathVariable UUID workspaceId, @RequestParam EAccessibility accessibility) {
-        documentService.setAccessibility(documentId,userId,workspaceId,accessibility);
+    public ResponseEntity<?> setAccessibility(@PathVariable UUID documentId, @PathVariable UUID userId, @RequestParam EAccessibility accessibility) {
+
+        DocumentAccessibilityResponse documentAccessibilityResponse = documentService.setAccessibility(documentId,userId,accessibility);
         Response<MemberResponse> response = Response.<MemberResponse>builder()
                 .message("Set Accessibility Successful")
-                .payload(documentService.getUserByDocument(userId, documentId))
+                .payload(documentService.getUserByDocument(documentAccessibilityResponse.getUserId(), documentAccessibilityResponse.getDocumentId()))
                 .dateTime(LocalDateTime.now())
                 .status(HttpStatus.OK)
                 .build();
@@ -146,7 +148,7 @@ public class DocumentController {
     @GetMapping("documents/{workspaceId}/filter/tags")
     @Operation(summary = "Search Document By Many TagName")
     public ResponseEntity<?> searchDocumentByTagName(@PathVariable UUID workspaceId, @RequestParam List<String> tags) {
-        Response<Set<Document>> response = Response.<Set<Document>>builder()
+        Response<Set<DocumentResponse>> response = Response.<Set<DocumentResponse>>builder()
                 .message("Search Document Successful")
                 .payload(documentService.searchDocumentByManyTagName(workspaceId, tags))
                 .dateTime(LocalDateTime.now())
@@ -245,6 +247,18 @@ public class DocumentController {
         Response<Document> response = Response.<Document>builder()
                 .message("Get Document By Document By Id")
                 .payload(documentService.getDocumentByPageId(pageId))
+                .dateTime(LocalDateTime.now())
+                .status(HttpStatus.OK)
+                .build();
+        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("documents/check/owner/users/{userId}/documents/{documentId}")
+    @Operation(summary = "Check Owner Document")
+    public ResponseEntity<?> checkOwnerDocument(@PathVariable UUID userId, @PathVariable UUID documentId) {
+        Response<Boolean> response = Response.<Boolean>builder()
+                .message("Check Owner Document")
+                .payload(documentService.checkOwnerDocument(userId, documentId))
                 .dateTime(LocalDateTime.now())
                 .status(HttpStatus.OK)
                 .build();

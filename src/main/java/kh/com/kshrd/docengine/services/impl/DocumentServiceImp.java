@@ -8,6 +8,7 @@ import kh.com.kshrd.docengine.exceptions.NotOwnerException;
 import kh.com.kshrd.docengine.model.entity.*;
 import kh.com.kshrd.docengine.enums.EAccessibility;
 import kh.com.kshrd.docengine.model.request.DocumentRequest;
+import kh.com.kshrd.docengine.model.response.DocumentAccessibilityResponse;
 import kh.com.kshrd.docengine.model.response.DocumentResponse;
 import kh.com.kshrd.docengine.model.response.MemberResponse;
 import kh.com.kshrd.docengine.repository.*;
@@ -138,7 +139,7 @@ public class DocumentServiceImp implements DocumentService {
     }
 
     @Override
-    public void setAccessibility(UUID documentId, UUID userId, UUID workspaceId, EAccessibility accessibility) {
+    public DocumentAccessibilityResponse setAccessibility(UUID documentId, UUID userId, EAccessibility accessibility) {
 
         if (documentId == null) {
             throw new BadRequestException("Document id cannot be null");
@@ -174,7 +175,7 @@ public class DocumentServiceImp implements DocumentService {
                     } else if (accessibility.toString().isBlank()) {
                         throw new BadRequestException("This field could not empty");
                     }
-                    documentRepository.setAccessibility(documentId, userId, workspaceId, accessibility);
+                    return documentRepository.setAccessibility(documentId, userId, accessibility);
                 } else {
                     throw new NotOwnerException("You are not owner");
                 }
@@ -367,17 +368,36 @@ public class DocumentServiceImp implements DocumentService {
     }
 
     @Override
-    public Set<Document> searchDocumentByManyTagName(UUID workspaceId, List<String> tags) {
+    public Set<DocumentResponse> searchDocumentByManyTagName(UUID workspaceId, List<String> tags) {
         if (workspaceId == null) {
             throw new BadRequestException("Workspace id cannot be null");
         } else if (workspaceId.toString().isBlank()) {
             throw new BadRequestException("Workspace id cannot be blank or empty");
         }
         Set<Document> documents = documentRepository.searchDocumentByManyTagName(workspaceId, tags);
-        if (documents.isEmpty()) {
-            throw new NotFoundException("Empty document");
+        Set<DocumentResponse> documentResponses = new HashSet<>();
+        for (Document document : documents) {
+            String checkAccessibility = documentRepository.checkAccessibility(userAuthenticationService.getUserIdOfCurrentUser(), document.getDocumentId());
+            if(!Objects.equals(checkAccessibility, "NO_ACCESS")) {
+                DocumentResponse documentResponse = new DocumentResponse();
+                LocalDateTime editDate = getEditDate(document.getDocumentId());
+                documentResponse.setDocumentId(document.getDocumentId());
+                documentResponse.setTitle(document.getTitle());
+                documentResponse.setStatus(document.getStatus());
+                documentResponse.setCreatedDate(document.getCreatedDate());
+                documentResponse.setPages(document.getPages());
+                documentResponse.setPageId(document.getPageId());
+                documentResponse.setWorkspaceId(document.getWorkspaceId());
+                documentResponse.setTags(document.getTags());
+                if (editDate == null) {
+                    documentResponse.setEditDate(documentResponse.getCreatedDate().toString());
+                } else {
+                    documentResponse.setEditDate(recently(editDate));
+                }
+                documentResponses.add(documentResponse);
+            }
         }
-        return documents;
+        return documentResponses;
     }
 
     @Override
@@ -497,6 +517,11 @@ public class DocumentServiceImp implements DocumentService {
             throw new NotFoundException("Document doesn't exist");
         }
         return document;
+    }
+
+    @Override
+    public Boolean checkOwnerDocument(UUID userId, UUID documentId) {
+        return documentRepository.checkIsOwner(userId, documentId);
     }
 
 }
