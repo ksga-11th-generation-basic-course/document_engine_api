@@ -34,4 +34,7 @@ public interface UserAuthenticationService {
     UserAuthentication verifyForEnableAccount(String optCode);
 
     UserAuthentication signUpWithGoogleAndFacebook(UserAuthenticationRequestWithGoogleAndFacebook userAuthenticationRequestWithGoogleAndFacebook);
+
+    String getEmail(String email);
+
 }

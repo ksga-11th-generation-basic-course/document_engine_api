@@ -92,4 +92,9 @@ public interface UserAuthenticationRepository {
 
     @Delete("DELETE FROM users WHERE email = #{email}")
     void removeUserIfNotVerify(String email);
+
+
+    @Select("SELECT email FROM users WHERE email=#{email}")
+    String getUserEmail(String email);
+
 }

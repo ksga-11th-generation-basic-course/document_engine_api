@@ -254,4 +254,16 @@ public class UserAuthenticationController {
     public ResponseEntity<?> signInWithGoogleAndFacebook(@RequestBody UserAuthenticationLoginRequest authenticationLoginRequest) throws Exception {
         return getResponseEntity(authenticationLoginRequest);
     }
+
+    @GetMapping("authentications/{email}")
+    @Operation(summary = "Get Email *")
+    public ResponseEntity<?> getEmail(String email) {
+        Response<String> response = Response.<String>builder()
+                .message("Get Email Successful")
+                .payload(userAuthenticationServices.getEmail(email))
+                .dateTime(LocalDateTime.now())
+                .status(HttpStatus.OK)
+                .build();
+        return ResponseEntity.ok().body(response);
+    }
 }

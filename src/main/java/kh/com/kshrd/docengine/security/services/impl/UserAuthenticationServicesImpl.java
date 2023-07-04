@@ -290,4 +290,19 @@ public class UserAuthenticationServicesImpl implements UserAuthenticationService
         }
     }
 
+    @Override
+    public String getEmail(String email) {
+        if(email==null){
+            throw new BadRequestException("Your email can't not null");
+        }else if(!email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")){
+            throw new BadRequestException("Enter a valid email");
+        }else if(!email.equals(userAuthenticationRepository.getUserEmail(email))) {
+            throw new NotFoundException("Email not exist");
+        }else if (email.isBlank()) {
+            throw new BadRequestException("Current password cannot be blank or empty");
+        }else{
+            return userAuthenticationRepository.getUserEmail(email);
+        }
+    };
+
 }

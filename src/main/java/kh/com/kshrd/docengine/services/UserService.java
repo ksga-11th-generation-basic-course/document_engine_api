@@ -18,4 +18,5 @@ public interface UserService {
     User getCurrentUser();
 
     User editProfileInformation(UserEditRequest userEditRequest);
+
 }
