@@ -83,7 +83,7 @@ public class WorkspaceServiceImp implements WorkspaceService {
             workspaceRepository.addUserIdAndWorkspaceIdToUserWorkspaceForMember(userAuthenticationService.getUserIdOfCurrentUser(), workspace.getWorkspaceId());
             List<Document> documents = documentRepository.getDocumentByWorkspaceId(workspace.getWorkspaceId());
             for (Document document : documents) {
-                documentRepository.addUserIdDocumentIdToUserDocument(userAuthenticationService.getUserIdOfCurrentUser(), document.getDocumentId(), "NO_ACCESS");
+                documentRepository.addUserIdDocumentIdToUserDocument(userAuthenticationService.getUserIdOfCurrentUser(), document.getDocumentId(), "VIEWER");
             }
         } else {
             throw new BadRequestException("WorkspaceCode is incorrect");
@@ -447,7 +447,7 @@ public class WorkspaceServiceImp implements WorkspaceService {
                 emailService.inviteMemberByEmail(workspace, userAuthentication);
                 List<Document> documents = documentRepository.getDocumentByWorkspaceId(workspace.getWorkspaceId());
                 for (Document document : documents) {
-                    documentRepository.addUserIdDocumentIdToUserDocument(userAuthenticationService.getUserIdOfCurrentUser(), document.getDocumentId(), "NO_ACCESS");
+                    documentRepository.addUserIdDocumentIdToUserDocument(userAuthenticationService.getUserIdOfCurrentUser(), document.getDocumentId(), "VIEWER");
                 }
             } else {
                 throw new NotOwnerException("You are not the owner of this workspace");
