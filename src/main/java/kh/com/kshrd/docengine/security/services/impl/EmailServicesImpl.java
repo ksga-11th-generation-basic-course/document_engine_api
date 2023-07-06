@@ -9,7 +9,6 @@ import kh.com.kshrd.docengine.security.services.EmailService;
 import lombok.AllArgsConstructor;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
@@ -24,7 +23,6 @@ public class EmailServicesImpl implements EmailService {
     private final JavaMailSender emailSender;
     private final SpringTemplateEngine templateEngine;
 
-    @Async
     @Override
     public void sendMail(UserAuthentication authentication, String code) throws MessagingException {
         MimeMessage message = emailSender.createMimeMessage();
@@ -46,14 +44,13 @@ public class EmailServicesImpl implements EmailService {
         Context context = new Context();
         context.setVariable("contactRequest", contactRequest);
         helper.setFrom(contactRequest.getEmail());
-        helper.setTo("sovannak.kheng0309@gmail.com");
+        helper.setTo("sovannak.khengg@gmail.com");
         helper.setSubject(contactRequest.getMessage());
         String html = templateEngine.process("contactUs", context);
         helper.setText(html, true);
         emailSender.send(message);
     }
 
-    @Async
     @Override
     public void inviteMemberByEmail(Workspace workspace, UserAuthentication userAuthentication) throws MessagingException {
         MimeMessage message = emailSender.createMimeMessage();
