@@ -155,6 +155,10 @@ public class WorkspaceServiceImp implements WorkspaceService {
                 }
                 workspaceRepository.removeMemberFromWorkspace(userId, workspaceId);
                 documentRepository.deleteDocumentFromUserDocument(userId);
+                List<Document> documents = documentRepository.getAllDocumentByWorkspaceId(workspaceId);
+                for(Document document : documents) {
+                    documentRepository.removeMemberFromDocument(document.getDocumentId(), userId);
+                }
             } else {
                 throw new NotOwnerException("You are not the owner of this workspace");
             }
@@ -437,6 +441,9 @@ public class WorkspaceServiceImp implements WorkspaceService {
         } else {
             if (isWorkspaceOwner) {
                 UserAuthentication userAuthentication = userAuthenticationService.getByEmail(email);
+                if(userAuthentication == null) {
+                    throw new NotFoundException("User Not Found");
+                }
                 List<UUID> usersId = workspaceRepository.getUserIdByWorkspaceId(workspace.getWorkspaceId());
                 for (UUID userId : usersId) {
                     if (userId.equals(userAuthentication.getUserId())) {
@@ -447,7 +454,7 @@ public class WorkspaceServiceImp implements WorkspaceService {
                 emailService.inviteMemberByEmail(workspace, userAuthentication);
                 List<Document> documents = documentRepository.getDocumentByWorkspaceId(workspace.getWorkspaceId());
                 for (Document document : documents) {
-                    documentRepository.addUserIdDocumentIdToUserDocument(userAuthenticationService.getUserIdOfCurrentUser(), document.getDocumentId(), "VIEWER");
+                    documentRepository.addUserIdDocumentIdToUserDocument(userAuthentication.getUserId(), document.getDocumentId(), "VIEWER");
                 }
             } else {
                 throw new NotOwnerException("You are not the owner of this workspace");

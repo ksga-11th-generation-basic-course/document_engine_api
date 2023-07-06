@@ -167,6 +167,11 @@ public class TagServiceImp implements TagService {
         return tagData;
     }
 
+    @Override
+    public List<Tag> getTagFromHistoryId(UUID historyId) {
+        return tagRepository.getTagFromHistoryId(historyId);
+    }
+
     private void exception(TagRequest tagRequest) {
         if (tagRequest.getTagName() == null) {
             throw new BadRequestException("Tag name cannot be null");

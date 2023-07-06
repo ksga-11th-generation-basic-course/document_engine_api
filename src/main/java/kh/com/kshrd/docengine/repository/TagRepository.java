@@ -68,4 +68,8 @@ public interface TagRepository {
 
     @Insert("INSERT INTO tag_document(tag_id, document_id) SELECT tag_id, document_id FROM history_tag INNER JOIN histories h on h.history_id = history_tag.history_id WHERE h.history_id = #{historyId};")
     void restoreTagDocument(UUID historyId);
+
+    @ResultMap("tagMap")
+    @Select("SELECT t.tag_id, tag_name, workspace_id FROM history_tag INNER JOIN tags t on t.tag_id = history_tag.tag_id WHERE history_id = #{historyId};")
+    List<Tag> getTagFromHistoryId(UUID historyId);
 }

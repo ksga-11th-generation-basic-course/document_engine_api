@@ -1,6 +1,7 @@
 package kh.com.kshrd.docengine.model.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import kh.com.kshrd.docengine.enums.EAccessibility;
 import kh.com.kshrd.docengine.model.entity.Block;
 import kh.com.kshrd.docengine.model.entity.Document;
 import kh.com.kshrd.docengine.model.entity.Tag;
@@ -24,6 +25,8 @@ public class DocumentResponse {
     private List<Document> pages;
     private UUID pageId;
     private UUID workspaceId;
+    private Boolean isOwner;
+    private String accessibility;
     private List<Tag> tags;
     private String editDate;
 }

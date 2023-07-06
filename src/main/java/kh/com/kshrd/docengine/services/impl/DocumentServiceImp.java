@@ -217,7 +217,8 @@ public class DocumentServiceImp implements DocumentService {
             if(!Objects.equals(checkAccessibility, "NO_ACCESS")) {
                 DocumentResponse documentResponse = new DocumentResponse();
                 LocalDateTime editDate = getEditDate(document.getDocumentId());
-                System.out.println(editDate);
+                Boolean checkIsOwner = checkOwnerDocument(document.getDocumentId());
+                String accessibility = checkAccessibility(document.getDocumentId());
                 documentResponse.setDocumentId(document.getDocumentId());
                 documentResponse.setTitle(document.getTitle());
                 documentResponse.setStatus(document.getStatus());
@@ -225,6 +226,8 @@ public class DocumentServiceImp implements DocumentService {
                 documentResponse.setPages(document.getPages());
                 documentResponse.setPageId(document.getPageId());
                 documentResponse.setWorkspaceId(document.getWorkspaceId());
+                documentResponse.setIsOwner(checkIsOwner);
+                documentResponse.setAccessibility(accessibility);
                 documentResponse.setTags(document.getTags());
                 if (editDate == null) {
                     documentResponse.setEditDate(documentResponse.getCreatedDate().toString());
@@ -382,6 +385,7 @@ public class DocumentServiceImp implements DocumentService {
             if(!Objects.equals(checkAccessibility, "NO_ACCESS")) {
                 DocumentResponse documentResponse = new DocumentResponse();
                 LocalDateTime editDate = getEditDate(document.getDocumentId());
+                Boolean checkIsOwner = checkOwnerDocument(document.getDocumentId());
                 documentResponse.setDocumentId(document.getDocumentId());
                 documentResponse.setTitle(document.getTitle());
                 documentResponse.setStatus(document.getStatus());
@@ -389,6 +393,7 @@ public class DocumentServiceImp implements DocumentService {
                 documentResponse.setPages(document.getPages());
                 documentResponse.setPageId(document.getPageId());
                 documentResponse.setWorkspaceId(document.getWorkspaceId());
+                documentResponse.setIsOwner(checkIsOwner);
                 documentResponse.setTags(document.getTags());
                 if (editDate == null) {
                     documentResponse.setEditDate(documentResponse.getCreatedDate().toString());
@@ -457,7 +462,8 @@ public class DocumentServiceImp implements DocumentService {
             if(!Objects.equals(checkAccessibility, "NO_ACCESS")) {
                 DocumentResponse documentResponse = new DocumentResponse();
                 LocalDateTime editDate = getEditDate(document.getDocumentId());
-                System.out.println(editDate);
+                Boolean checkIsOwner = checkOwnerDocument(document.getDocumentId());
+//                System.out.println(editDate);
                 documentResponse.setDocumentId(document.getDocumentId());
                 documentResponse.setTitle(document.getTitle());
                 documentResponse.setStatus(document.getStatus());
@@ -465,6 +471,7 @@ public class DocumentServiceImp implements DocumentService {
                 documentResponse.setPages(document.getPages());
                 documentResponse.setPageId(document.getPageId());
                 documentResponse.setWorkspaceId(document.getWorkspaceId());
+                documentResponse.setIsOwner(checkIsOwner);
                 documentResponse.setTags(document.getTags());
                 if (editDate == null) {
                     documentResponse.setEditDate(documentResponse.getCreatedDate().toString());
@@ -486,6 +493,7 @@ public class DocumentServiceImp implements DocumentService {
             if(!Objects.equals(checkAccessibility, "NO_ACCESS")) {
                 DocumentResponse documentResponse = new DocumentResponse();
                 LocalDateTime editDate = getEditDate(document.getDocumentId());
+                Boolean checkIsOwner = checkOwnerDocument(document.getDocumentId());
                 System.out.println(editDate);
                 documentResponse.setDocumentId(document.getDocumentId());
                 documentResponse.setTitle(document.getTitle());
@@ -494,6 +502,7 @@ public class DocumentServiceImp implements DocumentService {
                 documentResponse.setPages(document.getPages());
                 documentResponse.setPageId(document.getPageId());
                 documentResponse.setWorkspaceId(document.getWorkspaceId());
+                documentResponse.setIsOwner(checkIsOwner);
                 documentResponse.setTags(document.getTags());
                 if (editDate == null) {
                     documentResponse.setEditDate(documentResponse.getCreatedDate().toString());
@@ -521,8 +530,8 @@ public class DocumentServiceImp implements DocumentService {
     }
 
     @Override
-    public Boolean checkOwnerDocument(UUID userId, UUID documentId) {
-        return documentRepository.checkIsOwner(userId, documentId);
+    public Boolean checkOwnerDocument(UUID documentId) {
+        return documentRepository.checkIsOwner(userAuthenticationService.getUserIdOfCurrentUser(),documentId);
     }
 
 }

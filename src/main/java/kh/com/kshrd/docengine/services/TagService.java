@@ -22,4 +22,6 @@ public interface TagService {
     List<Tag> getTagFromTagDocument(UUID documentId);
 
     Tag getTagByTagId(UUID tag, UUID workspaceId);
+
+    List<Tag> getTagFromHistoryId(UUID historyId);
 }

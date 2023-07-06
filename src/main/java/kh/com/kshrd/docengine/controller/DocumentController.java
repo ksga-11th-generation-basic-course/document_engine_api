@@ -48,9 +48,11 @@ public class DocumentController {
     public ResponseEntity<?> editDocument(@PathVariable UUID documentId, @RequestParam String title) {
         Document document = documentService.editDocument(documentId, title);
         LocalDateTime editDate = documentService.getEditDate(documentId);
+        Boolean checkIsOwner = documentService.checkOwnerDocument(documentId);
+        String checkAccessibility = documentService.checkAccessibility(documentId);
         Response<DocumentResponse> response = Response.<DocumentResponse>builder()
                 .message("Edit Document Successful")
-                .payload(new DocumentResponse(document.getDocumentId(), document.getTitle(), document.getStatus(), document.getCreatedDate(), document.getPages() ,document.getPageId(), document.getWorkspaceId(), document.getTags(), documentService.recently(editDate)))
+                .payload(new DocumentResponse(document.getDocumentId(), document.getTitle(), document.getStatus(), document.getCreatedDate(), document.getPages() ,document.getPageId(), document.getWorkspaceId(), checkIsOwner, checkAccessibility, document.getTags(), documentService.recently(editDate)))
                 .dateTime(LocalDateTime.now())
                 .status(HttpStatus.OK)
                 .build();
@@ -247,18 +249,6 @@ public class DocumentController {
         Response<Document> response = Response.<Document>builder()
                 .message("Get Document By Document By Id")
                 .payload(documentService.getDocumentByPageId(pageId))
-                .dateTime(LocalDateTime.now())
-                .status(HttpStatus.OK)
-                .build();
-        return ResponseEntity.ok().body(response);
-    }
-
-    @GetMapping("documents/check/owner/users/{userId}/documents/{documentId}")
-    @Operation(summary = "Check Owner Document")
-    public ResponseEntity<?> checkOwnerDocument(@PathVariable UUID userId, @PathVariable UUID documentId) {
-        Response<Boolean> response = Response.<Boolean>builder()
-                .message("Check Owner Document")
-                .payload(documentService.checkOwnerDocument(userId, documentId))
                 .dateTime(LocalDateTime.now())
                 .status(HttpStatus.OK)
                 .build();

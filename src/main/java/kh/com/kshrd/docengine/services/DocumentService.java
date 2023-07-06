@@ -56,5 +56,5 @@ public interface DocumentService {
 
     Document getDocumentByPageId(UUID pageId);
 
-    Boolean checkOwnerDocument(UUID userId, UUID documentId);
+    Boolean checkOwnerDocument(UUID documentId);
 }
