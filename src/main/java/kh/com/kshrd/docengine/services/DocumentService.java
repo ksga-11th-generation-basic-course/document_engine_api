@@ -4,6 +4,7 @@ import kh.com.kshrd.docengine.enums.EAccessibility;
 import kh.com.kshrd.docengine.enums.ESortCurrentDateTime;
 import kh.com.kshrd.docengine.model.entity.Document;
 import kh.com.kshrd.docengine.model.request.DocumentRequest;
+import kh.com.kshrd.docengine.model.response.DocumentAccessibilityResponse;
 import kh.com.kshrd.docengine.model.response.DocumentResponse;
 import kh.com.kshrd.docengine.model.response.MemberResponse;
 
@@ -19,7 +20,7 @@ public interface DocumentService {
 
     Document currentEditing(UUID documentId, Boolean status);
 
-    void setAccessibility(UUID documentId, UUID userId, UUID workspaceId, EAccessibility accessibility);
+    DocumentAccessibilityResponse setAccessibility(UUID documentId, UUID userId, EAccessibility accessibility);
 
     Document viewDocument(UUID documentId);
 
@@ -33,7 +34,7 @@ public interface DocumentService {
 
     Document getDocumentByDocumentId(UUID documentId);
 
-    Set<Document> searchDocumentByManyTagName(UUID workspaceId, List<String> tagName);
+    Set<DocumentResponse> searchDocumentByManyTagName(UUID workspaceId, List<String> tagName);
 
     List<MemberResponse> getAllMemberInEachDocument(UUID documentId);
 
@@ -52,4 +53,8 @@ public interface DocumentService {
     List<DocumentResponse> getDocumentRecently();
 
     List<DocumentResponse> getPageInEachDocument(UUID pageId);
+
+    Document getDocumentByPageId(UUID pageId);
+
+    Boolean checkOwnerDocument(UUID userId, UUID documentId);
 }

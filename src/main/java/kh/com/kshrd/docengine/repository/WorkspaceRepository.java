@@ -1,6 +1,5 @@
 package kh.com.kshrd.docengine.repository;
 
-import kh.com.kshrd.docengine.enums.ESortCurrentDateTime;
 import kh.com.kshrd.docengine.model.response.MemberResponse;
 import kh.com.kshrd.docengine.model.entity.Workspace;
 import kh.com.kshrd.docengine.model.request.WorkspaceRequest;
@@ -19,6 +18,7 @@ public interface WorkspaceRepository {
             @Result(property = "workspaceCode", column = "workspace_code"),
             @Result(property = "createdDate", column = "created_date"),
             @Result(property = "workspaceImage", column = "workspace_image"),
+            @Result(property = "documents", column = "workspace_id", many = @Many(select = "kh.com.kshrd.docengine.repository.DocumentRepository.getAllDocumentByWorkspaceId")),
             @Result(property = "totalDocument", column = "workspace_id", many = @Many(select = "getTotalDocumentOfWorkspace"))
     })
     @Select("""
@@ -82,7 +82,7 @@ public interface WorkspaceRepository {
 
     @Select("""
             SELECT count(*) FROM documents inner join workspaces w on documents.workspace_id = w.workspace_id
-            WHERE w.workspace_id=#{workspaceId}
+            WHERE w.workspace_id=#{workspaceId} and page_id IS NULL
             """)
     Integer getTotalDocumentOfWorkspace(UUID workspaceId);
 

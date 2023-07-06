@@ -38,6 +38,8 @@ public class WorkspaceServiceImp implements WorkspaceService {
     private final EmailService emailService;
     private final UserRepository userRepository;
 
+    final String pattern = "^[A-Za-z_][A-Za-z0-9_\\s]{0,39}$";
+
     @Override
     public Workspace createWorkspace(WorkspaceRequest workspaceRequest) {
         if (workspaceRequest.getWorkspaceName() == null) {
@@ -48,8 +50,8 @@ public class WorkspaceServiceImp implements WorkspaceService {
             throw new BadRequestException("Workspace name cannot be blank and empty");
         } else if (workspaceRequest.getWorkspaceImage().isBlank()) {
             throw new BadRequestException("Workspace image cannot be blank and empty");
-        } else if (workspaceRequest.getWorkspaceName().length() > 30) {
-            throw new BadRequestException("Workspace name cannot be long text");
+        } else if (!workspaceRequest.getWorkspaceName().matches(pattern)) {
+            throw new BadRequestException("Workspace name must be less than 40 character");
         }
         String generatedCode = RandomStringUtils.randomAlphanumeric(10);
         Workspace workspace = workspaceRepository.createWorkspace(workspaceRequest, generatedCode, LocalDateTime.now());
@@ -81,7 +83,7 @@ public class WorkspaceServiceImp implements WorkspaceService {
             workspaceRepository.addUserIdAndWorkspaceIdToUserWorkspaceForMember(userAuthenticationService.getUserIdOfCurrentUser(), workspace.getWorkspaceId());
             List<Document> documents = documentRepository.getDocumentByWorkspaceId(workspace.getWorkspaceId());
             for (Document document : documents) {
-                documentRepository.addUserIdDocumentIdToUserDocument(userAuthenticationService.getUserIdOfCurrentUser(), document.getDocumentId(), "NO_ACCESS");
+                documentRepository.addUserIdDocumentIdToUserDocument(userAuthenticationService.getUserIdOfCurrentUser(), document.getDocumentId(), "VIEWER");
             }
         } else {
             throw new BadRequestException("WorkspaceCode is incorrect");
@@ -363,6 +365,8 @@ public class WorkspaceServiceImp implements WorkspaceService {
             throw new BadRequestException("Workspace id cannot be null");
         } else if (workspaceId.toString().isBlank()) {
             throw new BadRequestException("Workspace id cannot be blank or empty");
+        } else if (!workspaceRequest.getWorkspaceName().matches(pattern)) {
+            throw new BadRequestException("Workspace name must be less than 30 character");
         }
         Boolean isOwner = workspaceRepository.checkIsOwner(userAuthenticationService.getUserIdOfCurrentUser(), workspaceId);
         if (isOwner == null) {
@@ -443,7 +447,7 @@ public class WorkspaceServiceImp implements WorkspaceService {
                 emailService.inviteMemberByEmail(workspace, userAuthentication);
                 List<Document> documents = documentRepository.getDocumentByWorkspaceId(workspace.getWorkspaceId());
                 for (Document document : documents) {
-                    documentRepository.addUserIdDocumentIdToUserDocument(userAuthenticationService.getUserIdOfCurrentUser(), document.getDocumentId(), "NO_ACCESS");
+                    documentRepository.addUserIdDocumentIdToUserDocument(userAuthenticationService.getUserIdOfCurrentUser(), document.getDocumentId(), "VIEWER");
                 }
             } else {
                 throw new NotOwnerException("You are not the owner of this workspace");

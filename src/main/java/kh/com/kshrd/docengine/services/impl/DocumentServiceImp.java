@@ -8,6 +8,7 @@ import kh.com.kshrd.docengine.exceptions.NotOwnerException;
 import kh.com.kshrd.docengine.model.entity.*;
 import kh.com.kshrd.docengine.enums.EAccessibility;
 import kh.com.kshrd.docengine.model.request.DocumentRequest;
+import kh.com.kshrd.docengine.model.response.DocumentAccessibilityResponse;
 import kh.com.kshrd.docengine.model.response.DocumentResponse;
 import kh.com.kshrd.docengine.model.response.MemberResponse;
 import kh.com.kshrd.docengine.repository.*;
@@ -36,10 +37,14 @@ public class DocumentServiceImp implements DocumentService {
     @Override
     public Document createDocument(DocumentRequest documentRequest) {
 
+        final String pattern = "^[A-Za-z_][A-Za-z0-9_\\s]{0,39}$";
+
         if (documentRequest.getTitle() == null) {
             throw new BadRequestException("Title cannot be null");
         } else if (documentRequest.getTitle().isBlank()) {
             throw new BadRequestException("Title cannot be blank or empty");
+        } else if (!documentRequest.getTitle().matches(pattern)) {
+            throw new BadRequestException("Title must be less than 40 character");
         }
 //        Boolean page = documentRepository.checkPageIsExits(documentRequest.getPageId());
 //        if(!page){
@@ -50,7 +55,8 @@ public class DocumentServiceImp implements DocumentService {
         if (isCheckAccessibility == null) {
             throw new NotFoundException("You are not a member in this workspace");
         } else if (isCheckAccessibility) {
-            Document document = documentRepository.createDocument(documentRequest);
+            LocalDateTime now = LocalDateTime.now();
+            Document document = documentRepository.createDocument(documentRequest, now);
             documentRepository.addDataToUserDocument(userAuthenticationService.getUserIdOfCurrentUser(), document.getDocumentId());
             List<UUID> usersId = workspaceRepository.getUserIdByWorkspaceId(document.getWorkspaceId());
             for (UUID userId : usersId) {
@@ -76,6 +82,13 @@ public class DocumentServiceImp implements DocumentService {
             throw new BadRequestException("Document id cannot be null");
         } else if (documentId.toString().isBlank()) {
             throw new BadRequestException("Document id cannot be blank or empty");
+        }
+        if (title == null) {
+            throw new BadRequestException("Title cannot be null");
+        } else if (title.isBlank()) {
+            throw new BadRequestException("Title cannot be blank or empty");
+        } else if (title.length() > 40) {
+            throw new BadRequestException("Title must be less than 40 character");
         }
         Document documentData = documentRepository.getDocumentByDocumentId(documentId);
         if (documentData == null) {
@@ -127,7 +140,7 @@ public class DocumentServiceImp implements DocumentService {
     }
 
     @Override
-    public void setAccessibility(UUID documentId, UUID userId, UUID workspaceId, EAccessibility accessibility) {
+    public DocumentAccessibilityResponse setAccessibility(UUID documentId, UUID userId, EAccessibility accessibility) {
 
         if (documentId == null) {
             throw new BadRequestException("Document id cannot be null");
@@ -163,7 +176,7 @@ public class DocumentServiceImp implements DocumentService {
                     } else if (accessibility.toString().isBlank()) {
                         throw new BadRequestException("This field could not empty");
                     }
-                    documentRepository.setAccessibility(documentId, userId, workspaceId, accessibility);
+                    return documentRepository.setAccessibility(documentId, userId, accessibility);
                 } else {
                     throw new NotOwnerException("You are not owner");
                 }
@@ -356,17 +369,36 @@ public class DocumentServiceImp implements DocumentService {
     }
 
     @Override
-    public Set<Document> searchDocumentByManyTagName(UUID workspaceId, List<String> tags) {
+    public Set<DocumentResponse> searchDocumentByManyTagName(UUID workspaceId, List<String> tags) {
         if (workspaceId == null) {
             throw new BadRequestException("Workspace id cannot be null");
         } else if (workspaceId.toString().isBlank()) {
             throw new BadRequestException("Workspace id cannot be blank or empty");
         }
         Set<Document> documents = documentRepository.searchDocumentByManyTagName(workspaceId, tags);
-        if (documents.isEmpty()) {
-            throw new NotFoundException("Empty document");
+        Set<DocumentResponse> documentResponses = new HashSet<>();
+        for (Document document : documents) {
+            String checkAccessibility = documentRepository.checkAccessibility(userAuthenticationService.getUserIdOfCurrentUser(), document.getDocumentId());
+            if(!Objects.equals(checkAccessibility, "NO_ACCESS")) {
+                DocumentResponse documentResponse = new DocumentResponse();
+                LocalDateTime editDate = getEditDate(document.getDocumentId());
+                documentResponse.setDocumentId(document.getDocumentId());
+                documentResponse.setTitle(document.getTitle());
+                documentResponse.setStatus(document.getStatus());
+                documentResponse.setCreatedDate(document.getCreatedDate());
+                documentResponse.setPages(document.getPages());
+                documentResponse.setPageId(document.getPageId());
+                documentResponse.setWorkspaceId(document.getWorkspaceId());
+                documentResponse.setTags(document.getTags());
+                if (editDate == null) {
+                    documentResponse.setEditDate(documentResponse.getCreatedDate().toString());
+                } else {
+                    documentResponse.setEditDate(recently(editDate));
+                }
+                documentResponses.add(documentResponse);
+            }
         }
-        return documents;
+        return documentResponses;
     }
 
     @Override
@@ -384,17 +416,7 @@ public class DocumentServiceImp implements DocumentService {
         Duration duration = Duration.between(editData, now);
 
         long minutes = duration.toMinutes();
-        if (minutes < 60) {
-            return minutes + " minutes ago";
-        } else {
-            long hours = duration.toHours();
-            if (hours < 24) {
-                return hours + " hours ago";
-            } else {
-                long days = duration.toDays();
-                return days + " days ago";
-            }
-        }
+        return String.valueOf(minutes);
     }
 
     @Override
@@ -482,6 +504,25 @@ public class DocumentServiceImp implements DocumentService {
             }
         }
         return documentResponses;
+    }
+
+    @Override
+    public Document getDocumentByPageId(UUID pageId) {
+        if (pageId == null) {
+            throw new BadRequestException("Document id cannot be null");
+        } else if (pageId.toString().isBlank()) {
+            throw new BadRequestException("Document id cannot be blank or empty");
+        }
+        Document document = documentRepository.getDocumentByPageId(pageId);
+        if (document == null) {
+            throw new NotFoundException("Document doesn't exist");
+        }
+        return document;
+    }
+
+    @Override
+    public Boolean checkOwnerDocument(UUID userId, UUID documentId) {
+        return documentRepository.checkIsOwner(userId, documentId);
     }
 
 }

@@ -2,8 +2,6 @@ package kh.com.kshrd.docengine.repository;
 
 import kh.com.kshrd.docengine.configuration.JsonTypeHandler;
 import kh.com.kshrd.docengine.model.entity.Block;
-import kh.com.kshrd.docengine.model.entity.History;
-import kh.com.kshrd.docengine.model.request.BlockRequest;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
@@ -19,12 +17,12 @@ public interface BlockRepository {
             @Result(property = "order", column = "block_order"),
             @Result(property = "documentId", column = "document_id")
     })
-    @Select("INSERT INTO blocks(block_id, block_type, block_content, block_order, document_id) VALUES (#{d.blockId}, #{d.blockType}, #{d.content, typeHandler = kh.com.kshrd.docengine.configuration.JsonTypeHandler}::JSON , #{order}, #{d.documentId}) RETURNING *;")
-    Block createBlock(@Param("d") Block block, Integer order);
+    @Select("INSERT INTO blocks(block_id, block_type, block_content, block_order, document_id) VALUES (#{d.blockId}, #{d.blockType}, #{d.content, typeHandler = kh.com.kshrd.docengine.configuration.JsonTypeHandler}::JSON , #{d.order}, #{d.documentId}) RETURNING *;")
+    Block createBlock(@Param("d") Block block);
 
     @ResultMap("blockMap")
-    @Select("UPDATE blocks SET block_content = #{content, typeHandler = kh.com.kshrd.docengine.configuration.JsonTypeHandler}::JSON WHERE block_id = #{blockId} AND document_id = #{documentId} RETURNING *;")
-    Block editBlock(UUID blockId, UUID documentId , Map<String, Object> content);
+    @Select("UPDATE blocks SET block_content = #{content, typeHandler = kh.com.kshrd.docengine.configuration.JsonTypeHandler}::JSON, block_order = #{order} WHERE block_id = #{blockId} AND document_id = #{documentId} RETURNING *;")
+    Block editBlock(UUID blockId, UUID documentId , Map<String, Object> content, Integer order);
 
     @ResultMap("blockMap")
     @Delete("DELETE FROM blocks WHERE block_id = #{blockId} AND document_id = #{documentId};")
@@ -59,4 +57,3 @@ public interface BlockRepository {
     @Select("SELECT COUNT(*) FROM blocks WHERE document_id = #{documentId};")
     Integer order(UUID documentId);
 }
-

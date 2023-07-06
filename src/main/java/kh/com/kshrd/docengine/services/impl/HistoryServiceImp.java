@@ -62,7 +62,7 @@ public class HistoryServiceImp implements HistoryService {
                 if (history == null) {
                     throw new NotFoundException("History doesn't exist");
                 }
-               return historyRepository.restoreDocument(history.getTitle(), documentId);
+                return historyRepository.restoreDocument(history.getTitle(), documentId);
             }
         }
     }

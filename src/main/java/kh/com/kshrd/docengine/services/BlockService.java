@@ -10,7 +10,7 @@ import java.util.UUID;
 public interface BlockService {
     Block createBlock(Block block);
 
-    Block editBlock(UUID blockId, UUID documentId, Map<String, Object> content);
+    Block editBlock(UUID blockId, UUID documentId, Map<String, Object> content, Integer order);
 
     void deleteBlock(UUID blockId, UUID documentId);
 
