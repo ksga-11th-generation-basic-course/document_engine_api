@@ -7,6 +7,7 @@ import kh.com.kshrd.docengine.model.request.ContactRequest;
 import kh.com.kshrd.docengine.security.model.entity.UserAuthentication;
 import kh.com.kshrd.docengine.security.services.EmailService;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -21,13 +22,14 @@ import java.nio.charset.StandardCharsets;
 @AllArgsConstructor
 public class EmailServicesImpl implements EmailService {
 
-    private final JavaMailSender emailSender;
+    @Autowired
+    private JavaMailSender javaMailSender;
     private final SpringTemplateEngine templateEngine;
 
     @Async
     @Override
     public void sendMail(UserAuthentication authentication, String code) throws MessagingException {
-        MimeMessage message = emailSender.createMimeMessage();
+        MimeMessage message = javaMailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, StandardCharsets.UTF_8.name());
         Context context = new Context();
         context.setVariable("code", code);
@@ -36,12 +38,12 @@ public class EmailServicesImpl implements EmailService {
         helper.setSubject(authentication.getUserName());
         String html = templateEngine.process("sendMail", context);
         helper.setText(html, true);
-        emailSender.send(message);
+        javaMailSender.send(message);
     }
 
     @Override
     public void contactUs(ContactRequest contactRequest) throws MessagingException {
-        MimeMessage message = emailSender.createMimeMessage();
+        MimeMessage message = javaMailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, StandardCharsets.UTF_8.name());
         Context context = new Context();
         context.setVariable("contactRequest", contactRequest);
@@ -50,13 +52,13 @@ public class EmailServicesImpl implements EmailService {
         helper.setSubject(contactRequest.getMessage());
         String html = templateEngine.process("contactUs", context);
         helper.setText(html, true);
-        emailSender.send(message);
+        javaMailSender.send(message);
     }
 
     @Async
     @Override
     public void inviteMemberByEmail(Workspace workspace, UserAuthentication userAuthentication) throws MessagingException {
-        MimeMessage message = emailSender.createMimeMessage();
+        MimeMessage message = javaMailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, StandardCharsets.UTF_8.name());
         Context context = new Context();
         context.setVariable("workspace", workspace);
@@ -65,6 +67,6 @@ public class EmailServicesImpl implements EmailService {
         helper.setSubject(workspace.getWorkspaceName());
         String html = templateEngine.process("inviteMemberByEmail", context);
         helper.setText(html, true);
-        emailSender.send(message);
+        javaMailSender.send(message);
     }
 }

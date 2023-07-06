@@ -55,7 +55,8 @@ public class DocumentServiceImp implements DocumentService {
         if (isCheckAccessibility == null) {
             throw new NotFoundException("You are not a member in this workspace");
         } else if (isCheckAccessibility) {
-            Document document = documentRepository.createDocument(documentRequest);
+            LocalDateTime now = LocalDateTime.now();
+            Document document = documentRepository.createDocument(documentRequest, now);
             documentRepository.addDataToUserDocument(userAuthenticationService.getUserIdOfCurrentUser(), document.getDocumentId());
             List<UUID> usersId = workspaceRepository.getUserIdByWorkspaceId(document.getWorkspaceId());
             for (UUID userId : usersId) {
