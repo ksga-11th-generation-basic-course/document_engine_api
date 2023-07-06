@@ -25,8 +25,8 @@ public interface DocumentRepository {
             @Result(property = "workspaceId", column = "workspace_id"),
             @Result(property = "tags", column = "document_id", many = @Many(select = "kh.com.kshrd.docengine.repository.TagRepository.getTagFromTagDocument")),
     })
-    @Select("INSERT INTO documents(title, created_date, page_id, workspace_id) VALUES (#{d.title}, #{d.createdDate}, #{d.pageId}, #{d.workspaceId}) RETURNING *;")
-    Document createDocument(@Param("d") DocumentRequest documentRequest);
+    @Select("INSERT INTO documents(title, created_date, page_id, workspace_id) VALUES (#{d.title}, #{now}, #{d.pageId}, #{d.workspaceId}) RETURNING *;")
+    Document createDocument(@Param("d") DocumentRequest documentRequest, LocalDateTime now);
 
     @Select("INSERT INTO user_document(user_id, document_id, is_owner ,accessibility_status) VALUES (#{userIdOfCurrentUser}, #{documentId}, true, 'EDITOR');")
     void addDataToUserDocument(UUID userIdOfCurrentUser, UUID documentId);

@@ -1,5 +1,6 @@
 package kh.com.kshrd.docengine.model.request;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,7 +15,6 @@ import java.util.UUID;
 public class DocumentRequest {
     private String title;
     private Boolean status;
-    private LocalDateTime createdDate;
     private UUID pageId;
     private UUID workspaceId;
 }
