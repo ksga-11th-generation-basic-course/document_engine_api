@@ -162,5 +162,8 @@ public interface DocumentRepository {
     @ResultMap("documentMap")
     @Select("SELECT * FROM documents WHERE workspace_id = #{workspaceId};")
     List<Document> getAllDocumentByWorkspaceId(UUID workspaceId);
+
+    @Delete("DELETE FROM user_document WHERE document_id = #{documentId} AND user_id = #{userId};")
+    void removeMemberFromDocument(UUID documentId, UUID userId);
 }
 

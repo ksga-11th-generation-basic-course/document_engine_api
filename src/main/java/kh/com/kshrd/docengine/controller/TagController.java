@@ -109,4 +109,16 @@ public class TagController {
                 .build();
         return ResponseEntity.ok().body(response);
     }
+
+    @GetMapping("tags/history/{historyId}")
+    @Operation(summary = "Get Tag By History Id")
+    public ResponseEntity<?> getTagFromHistoryId(@PathVariable UUID historyId){
+        Response<List<Tag>> response = Response.<List<Tag>>builder()
+                .message("Get Tag By Document Id Successful")
+                .payload(tagService.getTagFromHistoryId(historyId))
+                .dateTime(LocalDateTime.now())
+                .status(HttpStatus.OK)
+                .build();
+        return ResponseEntity.ok().body(response);
+    }
 }

@@ -36,6 +36,7 @@ public class EmailServicesImpl implements EmailService {
         helper.setSubject(authentication.getUserName());
         String html = templateEngine.process("sendMail", context);
         helper.setText(html, true);
+        System.out.println(message);
         emailSender.send(message);
     }
 
