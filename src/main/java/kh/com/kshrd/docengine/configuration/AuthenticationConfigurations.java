@@ -45,6 +45,7 @@ public class AuthenticationConfigurations {
                 .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                 .requestMatchers("/api/v1/authentications/**").permitAll()
                 .requestMatchers("/api/v1/contacts").permitAll()
+                .requestMatchers("/api/v1/images/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint).and().sessionManagement()

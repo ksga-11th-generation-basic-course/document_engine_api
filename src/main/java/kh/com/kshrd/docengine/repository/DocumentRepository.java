@@ -5,7 +5,6 @@ import kh.com.kshrd.docengine.model.entity.Document;
 import kh.com.kshrd.docengine.model.request.DocumentRequest;
 
 import kh.com.kshrd.docengine.model.response.DocumentAccessibilityResponse;
-import kh.com.kshrd.docengine.model.response.DocumentResponse;
 import kh.com.kshrd.docengine.model.response.MemberResponse;
 import kh.com.kshrd.docengine.repository.provider.DocumentSqlProvider;
 import org.apache.ibatis.annotations.*;
@@ -27,7 +26,7 @@ public interface DocumentRepository {
     })
     @Select("INSERT INTO documents(title, created_date, page_id, workspace_id) VALUES (#{d.title}, #{now}, #{d.pageId}, #{d.workspaceId}) RETURNING *;")
     Document createDocument(@Param("d") DocumentRequest documentRequest, LocalDateTime now);
-
+    
     @Select("INSERT INTO user_document(user_id, document_id, is_owner ,accessibility_status) VALUES (#{userIdOfCurrentUser}, #{documentId}, true, 'EDITOR');")
     void addDataToUserDocument(UUID userIdOfCurrentUser, UUID documentId);
 
