@@ -100,6 +100,7 @@ public class WorkspaceServiceImp implements WorkspaceService {
         }
 
         String checkMemberInWorkspace = workspaceRepository.checkMemberInWorkspace(workspaceId, userAuthenticationService.getUserIdOfCurrentUser());
+        List<Document> documents = documentRepository.getAllDocumentByWorkspaceId(workspaceId);
 
         if (checkMemberInWorkspace != null) {
             Workspace workspace = workspaceRepository.getWorkspaceById(workspaceId);
@@ -110,6 +111,9 @@ public class WorkspaceServiceImp implements WorkspaceService {
                     throw new BadRequestException("You are owner you cannot leave this workspace");
                 } else {
                     workspaceRepository.leaveWorkspace(userAuthenticationService.getUserIdOfCurrentUser(), workspaceId);
+                    for(Document document : documents){
+                        documentRepository.removeMemberFromDocument(document.getDocumentId(), userAuthenticationService.getUserIdOfCurrentUser());
+                    }
                 }
             }
         } else {
